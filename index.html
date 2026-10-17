@@ -5,269 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Spin Doorprize</title>
     <style>
-        :root {
-            --emerald: #10b981;
-            --amber: #f59e0b;
-            --rose: #ef4444;
-            --blue: #3b82f6;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #1f2937;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .header {
-            width: 100%;
-            max-width: 900px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            margin: 0;
-            color: var(--blue);
-            font-size: 24px;
-        }
-
-        .btn-group-top button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-left: 10px;
-            transition: opacity 0.2s;
-            color: white;
-        }
-
+        :root { --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444; --blue: #3b82f6; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #1f2937; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header h1 { margin: 0; color: var(--blue); font-size: 24px; }
+        .btn-group-top button { padding: 8px 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-left: 10px; transition: opacity 0.2s; color: white; }
         .btn-reset { background-color: #4b5563; }
         .btn-sesi { background-color: var(--blue); }
         .btn-group-top button:hover { opacity: 0.8; }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-
+        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 900px; margin-bottom: 20px; }
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
         .stat-card h3 { margin: 0 0 5px 0; font-size: 14px; color: #6b7280; }
         .stat-card .value { font-size: 24px; font-weight: bold; }
-        .text-emerald { color: var(--emerald); }
-        .text-amber { color: var(--amber); }
-        .text-rose { color: var(--rose); }
-        .text-blue { color: var(--blue); }
-
-        .main-spin-container {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 900px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            padding: 40px;
-            text-align: center;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-        }
-
-        .spin-display {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 100px;
-            font-weight: bold;
-            color: var(--text-main);
-            background: var(--bg-color);
-            border: 5px solid #e5e7eb;
-            border-radius: 15px;
-            padding: 30px;
-            margin: 20px auto;
-            width: 300px;
-            letter-spacing: 5px;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            min-height: 60px;
-        }
-
-        .btn {
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            color: white;
-            transition: transform 0.1s, opacity 0.2s;
-        }
-
+        .text-emerald { color: var(--emerald); } .text-amber { color: var(--amber); } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); }
+        .main-spin-container { background: var(--card-bg); width: 100%; max-width: 900px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 40px; text-align: center; box-sizing: border-box; margin-bottom: 20px; position: relative; }
+        .spin-display { font-family: 'Courier New', Courier, monospace; font-size: 100px; font-weight: bold; color: var(--text-main); background: var(--bg-color); border: 5px solid #e5e7eb; border-radius: 15px; padding: 30px; margin: 20px auto; width: 300px; letter-spacing: 5px; }
+        .controls { display: flex; justify-content: center; gap: 15px; min-height: 60px; }
+        .btn { padding: 15px 30px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; color: white; transition: transform 0.1s, opacity 0.2s; }
         .btn:active { transform: scale(0.95); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
         .btn-spin { background-color: var(--blue); font-size: 22px; padding: 15px 50px; }
-        .btn-sah { background-color: var(--amber); }
-        .btn-hangus { background-color: var(--rose); }
-
-        .history-container {
-            width: 100%;
-            max-width: 900px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            box-sizing: border-box;
-        }
-
+        .btn-sah { background-color: var(--amber); } .btn-hangus { background-color: var(--rose); }
+        .history-container { width: 100%; max-width: 900px; background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
         .history-container h2 { margin-top: 0; font-size: 18px; border-bottom: 2px solid var(--bg-color); padding-bottom: 10px; }
-
-        .badge {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 20px;
-            margin: 5px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-        }
-        .badge.sah { background-color: var(--amber); }
-        .badge.hangus { background-color: var(--rose); }
-        
+        .badge { display: inline-block; padding: 8px 15px; border-radius: 20px; margin: 5px; font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: bold; color: white; }
+        .badge.sah { background-color: var(--amber); } .badge.hangus { background-color: var(--rose); }
         .hidden { display: none !important; }
+        
+        /* Loader Overlay */
+        #loader { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; border-radius: 12px; z-index: 10; font-weight: bold; color: var(--blue); font-size: 18px; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>🎯 Spin Kupon (0001 - 0500)</h1>
+        <h1>🎯 Spin Kupon (Integrasi Sheets)</h1>
         <div class="btn-group-top">
-            <button class="btn-sesi" onclick="pindahSesi()">⏭️ Pindah Sesi</button>
+            <button class="btn-sesi" onclick="pindahSesi()" id="btn-sesi-top">⏭️ Pindah Sesi</button>
             <button class="btn-reset" onclick="resetAll()">🔄 Reset All</button>
         </div>
     </div>
 
     <div class="dashboard-grid">
-        <div class="stat-card">
-            <h3>Sesi Saat Ini</h3>
-            <div class="value text-blue" id="stat-sesi">1</div>
-        </div>
-        <div class="stat-card">
-            <h3>Kupon Tersedia</h3>
-            <div class="value text-emerald" id="stat-tersedia">500</div>
-        </div>
-        <div class="stat-card">
-            <h3>Pemenang (Sah)</h3>
-            <div class="value text-amber" id="stat-menang">0</div>
-        </div>
-        <div class="stat-card">
-            <h3>Kupon Hangus</h3>
-            <div class="value text-rose" id="stat-hangus">0</div>
-        </div>
+        <div class="stat-card"><h3>Sesi Saat Ini</h3><div class="value text-blue" id="stat-sesi">-</div></div>
+        <div class="stat-card"><h3>Kupon Tersedia</h3><div class="value text-emerald" id="stat-tersedia">-</div></div>
+        <div class="stat-card"><h3>Pemenang (Sah)</h3><div class="value text-amber" id="stat-menang">-</div></div>
+        <div class="stat-card"><h3>Kupon Hangus</h3><div class="value text-rose" id="stat-hangus">-</div></div>
     </div>
 
     <div class="main-spin-container">
+        <div id="loader">Menghubungkan ke Google Sheets...</div>
         <div class="spin-display" id="display">0000</div>
-        
         <div class="controls">
             <button id="btn-spin" class="btn btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
-            <button id="btn-sah" class="btn btn-sah hidden" onclick="tandaiSah()">✅ SAH (Pemenang)</button>
-            <button id="btn-hangus" class="btn btn-hangus hidden" onclick="tandaiHangus()">❌ HANGUS (Tidak Ada)</button>
+            <button id="btn-sah" class="btn btn-sah hidden" onclick="tandai('sah')">✅ SAH (Pemenang)</button>
+            <button id="btn-hangus" class="btn btn-hangus hidden" onclick="tandai('hangus')">❌ HANGUS (Tidak Ada)</button>
         </div>
     </div>
 
     <div class="history-container">
-        <h2>Riwayat Sesi <span id="judul-sesi-riwayat">1</span></h2>
-        <div id="history-list">
-            <!-- Riwayat muncul di sini -->
-        </div>
+        <h2>Riwayat Sesi <span id="judul-sesi-riwayat">-</span></h2>
+        <div id="history-list"></div>
     </div>
 
     <script>
-        // Inisialisasi State
+        // URL WEB APP ANDA
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzXNZ-34VFpAevgvPEovKs6bfIiE6XdpCQrcw0XyllWs5NEPECOvAK4xvSGU18UeuE6Jw/exec';
+        
         let availableNumbers = [];
         let winners = [];
         let forfeits = [];
         let currentSession = 1;
-        
         let isSpinning = false;
         let selectedNumber = null;
         let selectedIndex = null;
 
-        // Load data dari LocalStorage atau buat baru (0001 - 0500)
-        function initApp() {
-            const savedData = localStorage.getItem('spinDataConfig');
-            if (savedData) {
-                const data = JSON.parse(savedData);
+        function showLoader(show, text = "Memuat data...") {
+            const loader = document.getElementById('loader');
+            if (show) {
+                loader.innerText = text;
+                loader.classList.remove('hidden');
+            } else {
+                loader.classList.add('hidden');
+            }
+        }
+
+        async function fetchAPI(payload) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                return await response.json();
+            } catch (error) {
+                alert("Gagal terhubung ke Google Sheets. Pastikan URL Apps Script benar.");
+                console.error(error);
+                return null;
+            }
+        }
+
+        async function initApp() {
+            showLoader(true, "Sinkronisasi dengan Sheets...");
+            document.getElementById('btn-spin').disabled = true;
+            
+            const data = await fetchAPI({ action: "init" });
+            if (data && data.status === "success") {
                 availableNumbers = data.availableNumbers;
                 winners = data.winners;
                 forfeits = data.forfeits;
                 currentSession = data.currentSession;
-            } else {
-                generateInitialNumbers();
+                updateUI();
             }
-            updateUI();
+            document.getElementById('btn-spin').disabled = false;
+            showLoader(false);
         }
 
-        function generateInitialNumbers() {
-            availableNumbers = [];
-            for (let i = 1; i <= 500; i++) {
-                availableNumbers.push(i);
-            }
-            winners = [];
-            forfeits = [];
-            currentSession = 1;
-        }
+        function format4(num) { return String(num).padStart(4, '0'); }
 
-        function saveData() {
-            const data = {
-                availableNumbers,
-                winners,
-                forfeits,
-                currentSession
-            };
-            localStorage.setItem('spinDataConfig', JSON.stringify(data));
-            updateUI();
-        }
-
-        function format4(num) {
-            return String(num).padStart(4, '0');
-        }
-
-        // --- Logika Spin ---
         function startSpin() {
-            if (availableNumbers.length === 0) {
-                alert("Semua kupon telah habis!");
-                return;
-            }
-            
+            if (availableNumbers.length === 0) { alert("Semua kupon telah habis!"); return; }
             isSpinning = true;
             document.getElementById('btn-spin').classList.add('hidden');
+            document.getElementById('btn-sesi-top').disabled = true;
             const display = document.getElementById('display');
             
-            let duration = 2500; // 2.5 detik
+            let duration = 2500;
             let intervalTime = 50;
             let elapsed = 0;
 
@@ -275,7 +137,6 @@
                 let randomIdx = Math.floor(Math.random() * availableNumbers.length);
                 display.innerText = format4(availableNumbers[randomIdx]);
                 elapsed += intervalTime;
-
                 if (elapsed >= duration) {
                     clearInterval(spinInterval);
                     finishSpin();
@@ -286,92 +147,69 @@
         function finishSpin() {
             selectedIndex = Math.floor(Math.random() * availableNumbers.length);
             selectedNumber = availableNumbers[selectedIndex];
-            
             document.getElementById('display').innerText = format4(selectedNumber);
-            document.getElementById('display').style.color = 'var(--blue)'; // Highlight warna
-            
-            // Tampilkan tombol konfirmasi Sah / Hangus
+            document.getElementById('display').style.color = 'var(--blue)';
             document.getElementById('btn-sah').classList.remove('hidden');
             document.getElementById('btn-hangus').classList.remove('hidden');
         }
 
-        // --- Logika Validasi (Sah / Hangus) ---
-        function tandaiSah() {
-            // Pindahkan ke array Pemenang
-            winners.push({ number: selectedNumber, session: currentSession });
-            availableNumbers.splice(selectedIndex, 1);
-            
-            tambahRiwayatUI(selectedNumber, 'sah');
-            resetSpinState();
-        }
-
-        function tandaiHangus() {
-            // Pindahkan ke array Hangus
-            forfeits.push({ number: selectedNumber, session: currentSession });
-            availableNumbers.splice(selectedIndex, 1);
-            
-            tambahRiwayatUI(selectedNumber, 'hangus');
-            resetSpinState();
-        }
-
-        function resetSpinState() {
-            saveData();
-            document.getElementById('display').style.color = 'var(--text-main)';
+        async function tandai(statusMark) {
+            showLoader(true, "Menyimpan ke Sheets...");
             document.getElementById('btn-sah').classList.add('hidden');
             document.getElementById('btn-hangus').classList.add('hidden');
+
+            const res = await fetchAPI({ action: statusMark, number: selectedNumber, session: currentSession });
+            
+            if (res && res.status === "success") {
+                if (statusMark === 'sah') winners.push({ number: selectedNumber, session: currentSession });
+                else forfeits.push({ number: selectedNumber, session: currentSession });
+                
+                availableNumbers.splice(selectedIndex, 1);
+                updateUI();
+            }
+            
+            document.getElementById('display').style.color = 'var(--text-main)';
             document.getElementById('btn-spin').classList.remove('hidden');
             document.getElementById('btn-spin').innerText = '🎲 LANJUT SPIN';
+            document.getElementById('btn-sesi-top').disabled = false;
             isSpinning = false;
+            showLoader(false);
         }
 
-        // --- Fitur Pindah Sesi ---
-        function pindahSesi() {
-            if(isSpinning || document.getElementById('btn-sah').classList.contains('hidden') === false) {
-                alert("Selesaikan putaran saat ini terlebih dahulu!");
-                return;
+        async function pindahSesi() {
+            if (isSpinning || !document.getElementById('btn-sah').classList.contains('hidden')) {
+                alert("Selesaikan putaran saat ini terlebih dahulu!"); return;
             }
-            
-            let conf = confirm(`Anda akan menutup Sesi ${currentSession} dan lanjut ke Sesi ${currentSession + 1}.\nKupon tersisa (${availableNumbers.length}) akan dilanjutkan ke sesi berikutnya.\n\nLanjutkan?`);
-            if (conf) {
-                currentSession++;
-                document.getElementById('history-list').innerHTML = ''; // Kosongkan tampilan riwayat sesi
-                document.getElementById('display').innerText = '0000';
-                document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
-                saveData();
+            if (confirm(`Tutup Sesi ${currentSession} dan lanjut ke Sesi ${currentSession + 1}?`)) {
+                showLoader(true, "Memperbarui Sesi...");
+                const res = await fetchAPI({ action: "pindahSesi" });
+                if (res && res.status === "success") {
+                    currentSession = res.newSession;
+                    document.getElementById('display').innerText = '0000';
+                    document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
+                    updateUI();
+                }
+                showLoader(false);
             }
         }
 
-        // --- Fitur Reset All (2 Kali Konfirmasi) ---
-        function resetAll() {
-            if(isSpinning) return;
-
-            let conf1 = confirm("⚠️ PERINGATAN 1: Anda akan mereset seluruh data!\n\nSemua kupon akan dikembalikan menjadi 500 Tersedia. Data Pemenang dan Hangus akan DIHAPUS PERMANEN.\n\nApakah Anda yakin ingin melanjutkan?");
-            
-            if (conf1) {
-                // Jeda sedikit untuk menghindari double-click accidental
-                setTimeout(() => {
-                    let conf2 = confirm("🚨 KONFIRMASI TERAKHIR: \n\nTindakan ini benar-benar tidak dapat dibatalkan.\nTekan 'OK' jika Anda 100% yakin ingin mengembalikan sistem ke kondisi awal (0001-0500).");
-                    
-                    if (conf2) {
-                        generateInitialNumbers();
-                        localStorage.removeItem('spinDataConfig'); // Bersihkan cache
-                        document.getElementById('history-list').innerHTML = '';
-                        document.getElementById('display').innerText = '0000';
-                        document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
-                        document.getElementById('display').style.color = 'var(--text-main)';
-                        
-                        document.getElementById('btn-sah').classList.add('hidden');
-                        document.getElementById('btn-hangus').classList.add('hidden');
-                        document.getElementById('btn-spin').classList.remove('hidden');
-                        
-                        saveData();
-                        alert("✅ Reset berhasil. Sistem kembali ke pengaturan awal.");
+        async function resetAll() {
+            if (isSpinning) return;
+            if (confirm("⚠️ PERINGATAN 1: Reset seluruh data ke 500 Kupon awal?")) {
+                setTimeout(async () => {
+                    if (confirm("🚨 KONFIRMASI TERAKHIR: Tindakan ini akan MENGHAPUS SEMUA DATA di Google Sheets! Yakin?")) {
+                        showLoader(true, "Mereset Google Sheets (Harap Tunggu)...");
+                        const res = await fetchAPI({ action: "reset" });
+                        if (res && res.status === "success") {
+                            alert("✅ Reset berhasil. Sistem dan Sheets kembali ke awal.");
+                            initApp(); // Tarik ulang data bersih
+                        }
+                        showLoader(false);
                     }
                 }, 300);
             }
         }
 
-        // --- Update Tampilan ---
         function updateUI() {
             document.getElementById('stat-sesi').innerText = currentSession;
             document.getElementById('judul-sesi-riwayat').innerText = currentSession;
@@ -379,34 +217,17 @@
             document.getElementById('stat-menang').innerText = winners.length;
             document.getElementById('stat-hangus').innerText = forfeits.length;
 
-            // Muat ulang history list HANYA untuk sesi yang aktif saat ini
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
             
             winners.filter(w => w.session === currentSession).forEach(w => {
-                let span = document.createElement('span');
-                span.className = 'badge sah';
-                span.innerText = `✅ ${format4(w.number)}`;
-                historyList.appendChild(span);
+                let span = document.createElement('span'); span.className = 'badge sah'; span.innerText = `✅ ${format4(w.number)}`; historyList.appendChild(span);
             });
-
             forfeits.filter(f => f.session === currentSession).forEach(f => {
-                let span = document.createElement('span');
-                span.className = 'badge hangus';
-                span.innerText = `❌ ${format4(f.number)}`;
-                historyList.appendChild(span);
+                let span = document.createElement('span'); span.className = 'badge hangus'; span.innerText = `❌ ${format4(f.number)}`; historyList.appendChild(span);
             });
         }
 
-        function tambahRiwayatUI(number, status) {
-            const historyList = document.getElementById('history-list');
-            let span = document.createElement('span');
-            span.className = `badge ${status}`;
-            span.innerText = status === 'sah' ? `✅ ${format4(number)}` : `❌ ${format4(number)}`;
-            historyList.appendChild(span);
-        }
-
-        // Jalankan saat pertama kali dibuka
         initApp();
     </script>
 </body>
