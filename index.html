@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Spin Doorprize</title>
+    <!-- SweetAlert2 untuk Pop-Up Menarik -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444; --blue: #3b82f6; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #1f2937; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -20,20 +22,44 @@
         .text-emerald { color: var(--emerald); } .text-amber { color: var(--amber); } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); }
         .main-spin-container { background: var(--card-bg); width: 100%; max-width: 900px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 40px; text-align: center; box-sizing: border-box; margin-bottom: 20px; position: relative; }
         .spin-display { font-family: 'Courier New', Courier, monospace; font-size: 100px; font-weight: bold; color: var(--text-main); background: var(--bg-color); border: 5px solid #e5e7eb; border-radius: 15px; padding: 30px; margin: 20px auto; width: 300px; letter-spacing: 5px; }
-        .controls { display: flex; justify-content: center; gap: 15px; min-height: 60px; }
-        .btn { padding: 15px 30px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; color: white; transition: transform 0.1s, opacity 0.2s; }
-        .btn:active { transform: scale(0.95); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .btn-spin { background-color: var(--blue); font-size: 22px; padding: 15px 50px; }
-        .btn-sah { background-color: var(--amber); } .btn-hangus { background-color: var(--rose); }
+        
+        .controls { display: flex; justify-content: center; gap: 15px; min-height: 80px; align-items: center; }
+        .btn-spin { background-color: var(--blue); font-size: 22px; padding: 15px 50px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; color: white; transition: transform 0.1s; }
+        .btn-spin:active { transform: scale(0.95); }
+        
+        /* Tombol Aksi Baru (Lanjut & Hangus) */
+        .controls-action { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .btn-action-group { display: flex; gap: 30px; justify-content: center; }
+        .btn-action { 
+            width: 80px; height: 80px; border: none; font-size: 40px; color: white; cursor: pointer; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: transform 0.2s, box-shadow 0.2s; 
+            display: flex; justify-content: center; align-items: center; 
+        }
+        .btn-action:hover { transform: scale(1.1); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        
+        /* Bulat untuk Lanjut */
+        .btn-lanjut { background-color: var(--emerald); border-radius: 50%; }
+        
+        /* Silang Murni (Clip-Path) untuk Hangus */
+        .btn-hangus { 
+            background-color: var(--rose); 
+            clip-path: polygon(10% 0, 0 10%, 40% 50%, 0 90%, 10% 100%, 50% 60%, 90% 100%, 100% 90%, 60% 50%, 100% 10%, 90% 0, 50% 40%);
+            border-radius: 0; box-shadow: none; width: 75px; height: 75px;
+        }
+        .btn-hangus:hover { filter: drop-shadow(0px 8px 10px rgba(239,68,68,0.4)); }
+
+        .btn-jeda { background: none; border: none; color: #9ca3af; text-decoration: underline; cursor: pointer; font-size: 15px; transition: color 0.2s; }
+        .btn-jeda:hover { color: #4b5563; }
+
         .history-container { width: 100%; max-width: 900px; background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
         .history-container h2 { margin-top: 0; font-size: 18px; border-bottom: 2px solid var(--bg-color); padding-bottom: 10px; }
         .badge { display: inline-block; padding: 8px 15px; border-radius: 20px; margin: 5px; font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: bold; color: white; }
         .badge.sah { background-color: var(--amber); } .badge.hangus { background-color: var(--rose); }
         .hidden { display: none !important; }
         
-        /* Loader Overlay */
-        #loader { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; border-radius: 12px; z-index: 10; font-weight: bold; color: var(--blue); font-size: 18px; }
+        #loader { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; border-radius: 12px; z-index: 10; font-weight: bold; color: var(--blue); font-size: 18px; }
+        #sync-toast { position: fixed; bottom: 20px; right: 20px; background-color: #1f2937; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 50; transition: opacity 0.3s ease; opacity: 1; display: flex; align-items: center; gap: 8px; font-weight: bold;}
+        .toast-hidden { opacity: 0 !important; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -56,10 +82,21 @@
     <div class="main-spin-container">
         <div id="loader">Menghubungkan ke Google Sheets...</div>
         <div class="spin-display" id="display">0000</div>
-        <div class="controls">
-            <button id="btn-spin" class="btn btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
-            <button id="btn-sah" class="btn btn-sah hidden" onclick="tandai('sah')">✅ SAH (Pemenang)</button>
-            <button id="btn-hangus" class="btn btn-hangus hidden" onclick="tandai('hangus')">❌ HANGUS (Tidak Ada)</button>
+        
+        <!-- Kontrol Tombol -->
+        <div class="controls" id="spin-controls">
+            <button id="btn-spin" class="btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
+        </div>
+        
+        <div class="controls-action hidden" id="action-controls">
+            <div class="btn-action-group">
+                <!-- Tombol Silang Hangus -->
+                <button class="btn-hangus" onclick="tandai('hangus', true)" title="Hangus & Langsung Spin"></button>
+                <!-- Tombol Bulat Lanjut -->
+                <button class="btn-action btn-lanjut" onclick="tandai('sah', true)" title="Sah & Langsung Spin">✔</button>
+            </div>
+            <!-- Tombol Jeda Kecil di bawah jika ingin berhenti putaran otomatis -->
+            <button class="btn-jeda" onclick="tandai('sah', false)">Simpan & Jeda (Stop Otomatis)</button>
         </div>
     </div>
 
@@ -68,9 +105,13 @@
         <div id="history-list"></div>
     </div>
 
+    <div id="sync-toast" class="toast-hidden">
+        <span id="sync-toast-text">⚙️ Menyimpan ke Sheets...</span>
+    </div>
+
     <script>
         // URL WEB APP ANDA
-        const API_URL = 'https://script.google.com/macros/s/AKfycbz_hYqudY7vRmLD_wBaFTJ8e_MthCc-FxwtVR_gRWerC2-Eq8yRISidsHjVteoh-xwiyQ/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzXNZ-34VFpAevgvPEovKs6bfIiE6XdpCQrcw0XyllWs5NEPECOvAK4xvSGU18UeuE6Jw/exec';
         
         let availableNumbers = [];
         let winners = [];
@@ -82,30 +123,29 @@
 
         function showLoader(show, text = "Memuat data...") {
             const loader = document.getElementById('loader');
-            if (show) {
-                loader.innerText = text;
-                loader.classList.remove('hidden');
-            } else {
-                loader.classList.add('hidden');
-            }
+            if (show) { loader.innerText = text; loader.classList.remove('hidden'); } 
+            else { loader.classList.add('hidden'); }
+        }
+
+        function showToast(text, autoHide = false) {
+            const toast = document.getElementById('sync-toast');
+            document.getElementById('sync-toast-text').innerText = text;
+            toast.classList.remove('toast-hidden');
+            if (autoHide) setTimeout(() => toast.classList.add('toast-hidden'), 2500);
         }
 
         async function fetchAPI(payload) {
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
                 return await response.json();
             } catch (error) {
-                alert("Gagal terhubung ke Google Sheets. Pastikan URL Apps Script benar.");
-                console.error(error);
+                console.error("Fetch Error:", error);
                 return null;
             }
         }
 
         async function initApp() {
-            showLoader(true, "Sinkronisasi dengan Sheets...");
+            showLoader(true, "Mengambil data dari Sheets...");
             document.getElementById('btn-spin').disabled = true;
             
             const data = await fetchAPI({ action: "init" });
@@ -115,6 +155,8 @@
                 forfeits = data.forfeits;
                 currentSession = data.currentSession;
                 updateUI();
+            } else {
+                Swal.fire('Gagal!', 'Gagal menarik data. Pastikan URL Web App benar.', 'error');
             }
             document.getElementById('btn-spin').disabled = false;
             showLoader(false);
@@ -123,11 +165,17 @@
         function format4(num) { return String(num).padStart(4, '0'); }
 
         function startSpin() {
-            if (availableNumbers.length === 0) { alert("Semua kupon telah habis!"); return; }
+            if (availableNumbers.length === 0) { 
+                Swal.fire('Kupon Habis!', 'Semua kupon di sesi ini telah diundi.', 'info'); 
+                return; 
+            }
             isSpinning = true;
-            document.getElementById('btn-spin').classList.add('hidden');
+            document.getElementById('spin-controls').classList.add('hidden');
+            document.getElementById('action-controls').classList.add('hidden');
             document.getElementById('btn-sesi-top').disabled = true;
+            
             const display = document.getElementById('display');
+            display.style.color = 'var(--text-main)';
             
             let duration = 2500;
             let intervalTime = 50;
@@ -147,40 +195,67 @@
         function finishSpin() {
             selectedIndex = Math.floor(Math.random() * availableNumbers.length);
             selectedNumber = availableNumbers[selectedIndex];
+            
             document.getElementById('display').innerText = format4(selectedNumber);
             document.getElementById('display').style.color = 'var(--blue)';
-            document.getElementById('btn-sah').classList.remove('hidden');
-            document.getElementById('btn-hangus').classList.remove('hidden');
+            
+            // Tampilkan tombol Aksi (Lanjut / Hangus)
+            document.getElementById('action-controls').classList.remove('hidden');
         }
 
-        async function tandai(statusMark) {
-            showLoader(true, "Menyimpan ke Sheets...");
-            document.getElementById('btn-sah').classList.add('hidden');
-            document.getElementById('btn-hangus').classList.add('hidden');
-
-            const res = await fetchAPI({ action: statusMark, number: selectedNumber, session: currentSession });
+        // FUNGSI TANDAI YANG OTOMATIS LANJUT SPIN
+        function tandai(statusMark, autoLanjut = true) {
+            // Update Data
+            if (statusMark === 'sah') winners.push({ number: selectedNumber, session: currentSession });
+            else forfeits.push({ number: selectedNumber, session: currentSession });
             
-            if (res && res.status === "success") {
-                if (statusMark === 'sah') winners.push({ number: selectedNumber, session: currentSession });
-                else forfeits.push({ number: selectedNumber, session: currentSession });
-                
-                availableNumbers.splice(selectedIndex, 1);
-                updateUI();
-            }
+            availableNumbers.splice(selectedIndex, 1);
+            updateUI();
             
+            // Sembunyikan tombol aksi
+            document.getElementById('action-controls').classList.add('hidden');
             document.getElementById('display').style.color = 'var(--text-main)';
-            document.getElementById('btn-spin').classList.remove('hidden');
-            document.getElementById('btn-spin').innerText = '🎲 LANJUT SPIN';
-            document.getElementById('btn-sesi-top').disabled = false;
+            
+            // Sinkronisasi Latar Belakang
+            syncToSheetsBackground(statusMark, selectedNumber, currentSession);
+
             isSpinning = false;
-            showLoader(false);
+            
+            // OTOMATIS LANJUT SPIN atau BERHENTI (Jeda)
+            if (autoLanjut) {
+                // Jeda 500ms agar mata bisa melihat tombol hilang sebelum angka berputar lagi
+                setTimeout(() => { startSpin(); }, 500);
+            } else {
+                document.getElementById('spin-controls').classList.remove('hidden');
+                document.getElementById('btn-spin').innerText = '🎲 LANJUT SPIN';
+                document.getElementById('btn-sesi-top').disabled = false;
+            }
+        }
+
+        async function syncToSheetsBackground(actionType, numToSave, sessionToSave) {
+            showToast(`⚙️ Menyimpan Kupon ${format4(numToSave)}...`);
+            const res = await fetchAPI({ action: actionType, number: numToSave, session: sessionToSave });
+            if (res && res.status === "success") showToast(`✅ Kupon ${format4(numToSave)} Tersimpan!`, true);
+            else showToast(`❌ Gagal menyimpan Kupon ${format4(numToSave)}`, true);
         }
 
         async function pindahSesi() {
-            if (isSpinning || !document.getElementById('btn-sah').classList.contains('hidden')) {
-                alert("Selesaikan putaran saat ini terlebih dahulu!"); return;
+            if (isSpinning || !document.getElementById('action-controls').classList.contains('hidden')) {
+                Swal.fire('Putaran Belum Selesai!', 'Silakan pilih status kupon saat ini (atau klik Jeda) terlebih dahulu.', 'warning');
+                return;
             }
-            if (confirm(`Tutup Sesi ${currentSession} dan lanjut ke Sesi ${currentSession + 1}?`)) {
+            
+            const result = await Swal.fire({
+                title: `Pindah ke Sesi ${currentSession + 1}?`,
+                text: `Sisa kupon (${availableNumbers.length}) akan diundi di sesi berikutnya.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Ya, Pindah Sesi'
+            });
+
+            if (result.isConfirmed) {
                 showLoader(true, "Memperbarui Sesi...");
                 const res = await fetchAPI({ action: "pindahSesi" });
                 if (res && res.status === "success") {
@@ -188,6 +263,7 @@
                     document.getElementById('display').innerText = '0000';
                     document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
                     updateUI();
+                    Swal.fire('Berhasil!', `Anda sekarang berada di Sesi ${currentSession}.`, 'success');
                 }
                 showLoader(false);
             }
@@ -195,18 +271,39 @@
 
         async function resetAll() {
             if (isSpinning) return;
-            if (confirm("⚠️ PERINGATAN 1: Reset seluruh data ke 500 Kupon awal?")) {
-                setTimeout(async () => {
-                    if (confirm("🚨 KONFIRMASI TERAKHIR: Tindakan ini akan MENGHAPUS SEMUA DATA di Google Sheets! Yakin?")) {
-                        showLoader(true, "Mereset Google Sheets (Harap Tunggu)...");
-                        const res = await fetchAPI({ action: "reset" });
-                        if (res && res.status === "success") {
-                            alert("✅ Reset berhasil. Sistem dan Sheets kembali ke awal.");
-                            initApp(); // Tarik ulang data bersih
-                        }
+            
+            const res1 = await Swal.fire({
+                title: 'Reset Seluruh Data?',
+                text: "Semua kupon akan dikembalikan utuh. Data pemenang akan dihapus.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Ya, Lanjutkan'
+            });
+
+            if (res1.isConfirmed) {
+                const res2 = await Swal.fire({
+                    title: 'Konfirmasi Terakhir!',
+                    text: "Tindakan ini MENGHAPUS SEMUA DATA di Google Sheets secara permanen. Anda Yakin?",
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#9ca3af',
+                    confirmButtonText: 'RESET SEKARANG'
+                });
+
+                if (res2.isConfirmed) {
+                    showLoader(true, "Mereset Google Sheets...");
+                    const res = await fetchAPI({ action: "reset" });
+                    if (res && res.status === "success") {
+                        Swal.fire('Berhasil Reset!', 'Sistem dan Sheets telah kembali ke awal.', 'success');
+                        initApp(); 
+                    } else {
                         showLoader(false);
+                        Swal.fire('Gagal!', 'Gagal melakukan reset ke Google Sheets.', 'error');
                     }
-                }, 300);
+                }
             }
         }
 
