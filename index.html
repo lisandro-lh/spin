@@ -34,9 +34,11 @@
             margin-bottom: 20px; background: rgba(255, 255, 255, 0.7); padding: 10px 20px;
             border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(5px); box-sizing: border-box;
         }
-        .header-left { display: flex; align-items: center; justify-content: flex-start; gap: 15px; }
+        
+        /* Modifikasi CSS agar tombol ditarik ke paling ujung */
+        .header-left { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-right: 20px; box-sizing: border-box; }
         .header-center { display: flex; align-items: center; justify-content: center; }
-        .header-right { display: flex; align-items: center; justify-content: flex-end; gap: 15px; }
+        .header-right { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-left: 20px; box-sizing: border-box; }
         
         .logo-img { height: 50px; object-fit: contain; }
         .logo-center { height: 70px; object-fit: contain; border-radius: 10px; } 
@@ -97,12 +99,15 @@
             <button class="btn-reset" onclick="resetAll()">🔄 Reset</button>
             <img src="danatara.png" alt="Danatara" class="logo-img">
         </div>
+        
         <div class="header-center">
             <img src="logohibualamo.jpeg" alt="Hibualamo" class="logo-center">
         </div>
+        
+        <!-- Pindah tombol Pindah Sesi ke paling bawah agar berada di pojok kanan secara HTML -->
         <div class="header-right">
-            <button class="btn-sesi" onclick="pindahSesi()" id="btn-sesi-top">⏭️ Pindah Sesi</button>
             <img src="pln.png" alt="PLN" class="logo-img">
+            <button class="btn-sesi" onclick="pindahSesi()" id="btn-sesi-top">⏭️ Pindah Sesi</button>
         </div>
     </div>
 
@@ -142,8 +147,7 @@
     <button class="btn-switch-mode" onclick="toggleMode()">🔄 Ganti Mode</button>
 
     <script>
-        // PASTIKAN URL API INI SESUAI DENGAN DEPLOY TERBARU ANDA
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyvW00t2hhU0GcbUkBpRxplek1P7GnWqt83PByT0PmH7dVakMFPwNldVXTDpsg63QLBjg/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwfuAYXYoiZ3XyP9znRafqs-Rlw4NbjkgfDnDOi2yLLFMLMreO91BQia9l-7oBurphLVg/exec';
         
         const urlParams = new URLSearchParams(window.location.search);
         let APP_MODE = urlParams.get('mode');
@@ -214,7 +218,6 @@
             const display = document.getElementById('display');
             display.style.color = 'var(--text-main)';
             
-            // Trigger ke server agar laptop ikut jalan
             fetchAPI({ action: "start_spin" });
 
             let duration = 2500;
@@ -238,7 +241,6 @@
             document.getElementById('display').style.color = 'var(--blue)';
             document.getElementById('action-controls').classList.remove('hidden');
 
-            // Trigger ke server agar laptop berhenti di angka yang sama
             fetchAPI({ action: "set_result", number: selectedNumber });
         }
 
@@ -298,7 +300,6 @@
                     }
                 }
             } catch(e) {}
-            // Polling ke server setiap 1.5 detik
             setTimeout(runDisplayPolling, 1500); 
         }
 
