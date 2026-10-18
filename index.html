@@ -32,27 +32,14 @@
             background-repeat: no-repeat;
         }
 
-        /* --- HEADER FLEKSIBEL MENGIKUTI SEMUA DEVICE --- */
         .header { 
-            width: 100%; 
-            max-width: 1200px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px; 
-            background: rgba(255, 255, 255, 0.78); 
-            padding: 12px 20px;
-            border-radius: 15px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            backdrop-filter: blur(6px); 
+            width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 10px;
+            margin-bottom: 15px; background: rgba(255, 255, 255, 0.78); padding: 12px 20px;
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(6px); 
         }
 
         .header-top-row {
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            gap: 10px;
+            width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px;
         }
 
         .header-left { display: flex; align-items: center; justify-content: flex-start; gap: 15px; min-width: 0; }
@@ -76,10 +63,8 @@
             padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.1);
         }
 
-        /* --- DASHBOARD STATISTIK --- */
         .dashboard-grid { 
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; 
-            width: 100%; max-width: 1000px; margin-bottom: 15px; 
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 1000px; margin-bottom: 15px; 
         }
         .stat-card { 
             background: var(--glass-bg); padding: 12px 10px; border-radius: 12px; 
@@ -89,7 +74,6 @@
         .stat-card .value { font-size: clamp(18px, 4vw, 24px); font-weight: bold; }
         .text-emerald { color: var(--emerald); } .text-amber { color: var(--amber); } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); }
 
-        /* --- KOTAK ANGKA SPIN --- */
         .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
         
         .layar-session-badge {
@@ -106,7 +90,6 @@
             transition: color 0.2s; text-align: center; width: auto; max-width: 95vw;
         }
 
-        /* --- TOMBOL KONTROL SPIN --- */
         .controls-wrapper { 
             background: rgba(255, 255, 255, 0.88); padding: 18px 25px; border-radius: 20px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.18); backdrop-filter: blur(5px); min-height: 110px; 
@@ -145,7 +128,6 @@
         .btn-jeda { background: rgba(31, 41, 55, 0.85); border: none; color: white; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; flex: 1; }
         .btn-jeda:hover { background: #000; }
 
-        /* --- RIWAYAT SESI --- */
         .history-container { 
             width: 100%; max-width: 1000px; background: var(--glass-bg); border-radius: 12px; 
             padding: 15px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-top: 15px; margin-bottom: 35px; backdrop-filter: blur(5px); 
@@ -160,7 +142,6 @@
         .hourglass-gif { width: 42px; height: 42px; object-fit: contain; }
         .toast-hidden { opacity: 0 !important; pointer-events: none; transform: scale(0.5); }
 
-        /* --- STYLING KHUSUS MODE LAYAR (PROYEKTOR / LAPTOP) --- */
         body.mode-layar .dashboard-grid, 
         body.mode-layar .controls-wrapper, 
         body.mode-layar .history-container, 
@@ -182,7 +163,6 @@
         .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 6px 12px; background: rgba(0,0,0,0.6); border: none; border-radius: 6px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; }
         .btn-switch-mode:hover { background: rgba(0,0,0,0.85); }
 
-        /* --- STYLING POPUP REKAP SESI RESPONSIF --- */
         .rekap-wrapper { display: flex; gap: 15px; justify-content: space-between; text-align: center; margin-top: 10px; }
         .rekap-col { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 8px; }
         .rekap-col h4 { margin: 0 0 10px 0; font-size: clamp(14px, 3vw, 18px); padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
@@ -236,17 +216,12 @@
         <div class="spin-display" id="display">0000</div>
         
         <div class="controls-wrapper">
-            <!-- Tampilan Awal: Tombol Putar Spin -->
             <div id="spin-controls" style="width: 100%;">
                 <button id="btn-spin" class="btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
             </div>
-
-            <!-- Tampilan Saat Roda Sedang Mengacak -->
             <div id="spinning-status" class="spinning-status-box hidden">
                 🎲 Mengacak Nomor Kupon...
             </div>
-
-            <!-- Tampilan Saat Nomor Keluar: Pilih Sah atau Hangus -->
             <div class="controls-action hidden" id="action-controls">
                 <p class="action-prompt">Tentukan Status Nomor <span id="label-nomor-keluar" style="color:var(--blue);">0000</span>:</p>
                 <div class="btn-action-group">
@@ -281,7 +256,7 @@
 
     <script>
         // URL API GOOGLE APPS SCRIPT ANDA
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyIW62_tpTWqEebFo2i6fzrgsrnX1mycu2E1XWuGC5SC8owWliL8MotYKv4srt35moamA/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyNZd64vPWMyWGe6hRXBWPYZPpO8DmOxnJWZrmkGG4Pgx0UMLv97QBK-uROLZgr1EF69w/exec';
         
         const urlParams = new URLSearchParams(window.location.search);
         let APP_MODE = urlParams.get('mode');
@@ -381,13 +356,14 @@
                 syncDataFromServer(data);
                 lastHandledSpinStatus = String(data.screenStatus || "IDLE");
                 
-                // Jika sebelumnya ada angka yang belum diputuskan (misal halaman habis di-refresh)
                 if (lastHandledSpinStatus.startsWith("SPIN_") && String(data.screenNumber) !== "0000") {
                     selectedNumber = data.screenNumber;
                     isWaitingAction = true;
                     document.getElementById('display').innerText = format4(selectedNumber);
                     document.getElementById('display').style.color = 'var(--blue)';
                     setControlState('ACTION');
+                } else if (lastHandledSpinStatus.startsWith("REKAP_")) {
+                    openRekapModal(currentSession);
                 } else {
                     document.getElementById('display').innerText = format4(data.screenNumber);
                     setControlState('IDLE');
@@ -401,7 +377,6 @@
             }
         }
 
-        // FUNGSI UTAMA PUTAR SPIN (SERVER-SIDE PICK AGAR 100% SAMA DI HP & LAPTOP)
         async function startSpin(prevStatus = null, prevNum = null) {
             if (isSpinning) return;
             if (availableNumbers.length === 0 && !prevStatus) { 
@@ -416,7 +391,6 @@
             const display = document.getElementById('display');
             display.style.color = 'var(--text-main)';
 
-            // Mulai animasi angka acak sembari meminta angka resmi dari Server
             let spinStartTime = Date.now();
             clearInterval(displaySpinInterval);
             displaySpinInterval = setInterval(() => {
@@ -426,7 +400,6 @@
                 display.innerText = format4(num);
             }, 50);
 
-            // Minta server menyimpan kupon sebelumnya (jika ada) & memilih kupon baru
             const res = await fetchAPI({ 
                 action: "spin_now", 
                 prevStatus: prevStatus, 
@@ -439,7 +412,6 @@
                 selectedNumber = res.chosenNumber;
                 lastHandledSpinStatus = "SPIN_" + res.spinId;
 
-                // Pastikan animasi berputar minimal 1.8 detik agar terlihat seru
                 let elapsed = Date.now() - spinStartTime;
                 let remaining = Math.max(300, 1800 - elapsed);
 
@@ -475,14 +447,12 @@
             setControlState('ACTION');
         }
 
-        // FUNGSI SAAT KLIK SAH (LANJUT) ATAU HANGUS
         async function tandai(statusMark, autoLanjut = true) {
             if (!selectedNumber || isSpinning) return;
 
             const numToSave = selectedNumber;
             const sessToSave = currentSession;
 
-            // Langsung tampilkan ke Riwayat Sesi & Kurangi Kupon Tersedia Detik Itu Juga!
             if (statusMark === 'sah') {
                 winners.push({ number: numToSave, session: sessToSave });
             } else {
@@ -494,10 +464,8 @@
             updateUI();
 
             if (autoLanjut) {
-                // Otomatis simpan ke Sheet sekaligus memutar nomor berikutnya!
                 await startSpin(statusMark, numToSave);
             } else {
-                // Simpan ke Sheet dan Berhenti (Jeda)
                 isWaitingAction = false;
                 selectedNumber = null;
                 setControlState('IDLE');
@@ -545,13 +513,61 @@
             `;
         }
 
+        // FUNGSI UTAMA MEMBUKA POP-UP REKAP DI KEDUA DEVICE
+        function openRekapModal(sess) {
+            if (isRekapModalOpen) return;
+            isRekapModalOpen = true;
+
+            const htmlRekap = buildRekapHTML(sess) + (APP_MODE !== 'layar' ? `
+                <p style="margin-top: 15px; margin-bottom: 0; font-size: 15px; font-weight: bold; color: #374151;">
+                    Tutup Sesi ${sess} dan lanjut ke Sesi ${sess + 1}?
+                </p>
+            ` : `<p style="margin-top: 15px; margin-bottom: 0; font-size: 14px; color: #6b7280;">Menunggu remote berpindah sesi...</p>`);
+
+            Swal.fire({
+                title: `🏁 REKAP HASIL SESI ${sess}`,
+                html: htmlRekap,
+                width: '92%',
+                showCancelButton: APP_MODE !== 'layar',
+                allowOutsideClick: false,
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: APP_MODE !== 'layar' ? `⏭️ Lanjut Sesi ${sess + 1}` : 'Tutup Tampilan',
+                cancelButtonText: 'Kembali ke Sesi Ini'
+            }).then(async (result) => {
+                isRekapModalOpen = false;
+                if (APP_MODE !== 'layar') {
+                    if (result.isConfirmed) {
+                        showLoader(true, "Menyiapkan Sesi Baru...");
+                        const res = await fetchAPI({ action: "pindahSesi" });
+                        if (res && res.status === "success") {
+                            syncDataFromServer(res);
+                            lastHandledSpinStatus = "IDLE";
+                            selectedNumber = null;
+                            isWaitingAction = false;
+                            document.getElementById('display').innerText = '0000';
+                            document.getElementById('display').style.color = 'var(--text-main)';
+                            document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
+                            setControlState('IDLE');
+                            Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 1800, showConfirmButton: false });
+                        } else {
+                            Swal.fire('Gagal!', 'Terjadi kesalahan koneksi.', 'error');
+                        }
+                        showLoader(false);
+                    } else {
+                        lastHandledSpinStatus = "IDLE";
+                        fetchAPI({ action: "close_rekap" });
+                    }
+                }
+            });
+        }
+
         async function pindahSesi() {
             if (isSpinning) {
                 Swal.fire('Tunggu!', 'Putaran angka sedang berjalan.', 'warning');
                 return;
             }
 
-            // Jika masih ada nomor di layar yang belum ditandai Sah/Hangus, tanyakan dulu
             if (isWaitingAction && selectedNumber !== null) {
                 const askSave = await Swal.fire({
                     title: `Simpan Kupon ${format4(selectedNumber)}?`,
@@ -575,63 +591,19 @@
                 }
             }
 
-            isRekapModalOpen = true;
             lastHandledSpinStatus = "REKAP_" + currentSession;
-            
-            // Beritahu server agar Layar Proyektor memunculkan Pop-Up Rekap juga
             const syncRes = await fetchAPI({ action: "show_rekap" });
             if (syncRes && syncRes.status === "success") syncDataFromServer(syncRes);
 
-            const htmlRekap = buildRekapHTML(currentSession) + `
-                <p style="margin-top: 15px; margin-bottom: 0; font-size: 15px; font-weight: bold; color: #374151;">
-                    Tutup Sesi ${currentSession} dan lanjut ke Sesi ${currentSession + 1}?
-                </p>
-            `;
-
-            const confirm = await Swal.fire({
-                title: `🏁 REKAP HASIL SESI ${currentSession}`,
-                html: htmlRekap,
-                width: '92%',
-                showCancelButton: true,
-                allowOutsideClick: false,
-                confirmButtonColor: '#3b82f6',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: `⏭️ Lanjut Sesi ${currentSession + 1}`,
-                cancelButtonText: 'Kembali ke Sesi Ini'
-            });
-
-            isRekapModalOpen = false;
-
-            if (confirm.isConfirmed) {
-                showLoader(true, "Menyiapkan Sesi Baru...");
-                const res = await fetchAPI({ action: "pindahSesi" });
-                if (res && res.status === "success") {
-                    syncDataFromServer(res);
-                    lastHandledSpinStatus = "IDLE";
-                    selectedNumber = null;
-                    isWaitingAction = false;
-                    document.getElementById('display').innerText = '0000';
-                    document.getElementById('display').style.color = 'var(--text-main)';
-                    document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
-                    setControlState('IDLE');
-                    Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 1800, showConfirmButton: false });
-                } else {
-                    Swal.fire('Gagal!', 'Terjadi kesalahan koneksi saat memindah sesi.', 'error');
-                }
-                showLoader(false);
-            } else {
-                lastHandledSpinStatus = "IDLE";
-                fetchAPI({ action: "close_rekap" });
-            }
+            openRekapModal(currentSession);
         }
 
-        // POLLING REALTIME UNTUK SINKRONISASI LAYAR & REMOTE
+        // POLLING REALTIME UNTUK SINKRONISASI KEDUA DEVICE
         async function runDisplayPolling() {
             try {
                 if (!isSpinning) {
                     const res = await fetchAPI({ action: "check_status" });
                     if (res && res.status === "success") {
-                        // Jika sesi berubah dari perangkat lain
                         if (res.currentSession && Number(res.currentSession) !== Number(currentSession)) {
                             currentSession = Number(res.currentSession);
                             selectedNumber = null;
@@ -648,7 +620,7 @@
                         syncDataFromServer(res);
                         const serverStatus = String(res.screenStatus || "IDLE");
 
-                        // 1. Jika ada putaran SPIN baru dari perangkat lain
+                        // 1. Sinkronisasi Putaran Spin dari perangkat lain
                         if (serverStatus.startsWith("SPIN_") && serverStatus !== lastHandledSpinStatus) {
                             lastHandledSpinStatus = serverStatus;
                             selectedNumber = res.screenNumber;
@@ -679,7 +651,6 @@
                                 }
                             }, 50);
                         }
-                        // Pastikan angka yang tampil di layar selalu sama persis dengan Server
                         else if (serverStatus.startsWith("SPIN_") && !isSpinning) {
                             const targetFormatted = format4(res.screenNumber);
                             const display = document.getElementById('display');
@@ -691,23 +662,12 @@
                                 setControlState('ACTION');
                             }
                         }
-                        // 2. Jika ada instruksi buka REKAP SESI, tampilkan di layar Laptop juga
+                        // 2. Sinkronisasi Otomatis Munculnya Pop-Up Rekap Sesi di Layar & Remote
                         else if (serverStatus.startsWith("REKAP_") && !isRekapModalOpen) {
-                            isRekapModalOpen = true;
                             lastHandledSpinStatus = serverStatus;
-                            
-                            Swal.fire({
-                                title: `🏁 REKAP HASIL SESI ${currentSession}`,
-                                html: buildRekapHTML(currentSession),
-                                width: '92%',
-                                showConfirmButton: APP_MODE !== 'layar',
-                                confirmButtonText: 'Tutup Tampilan Rekap',
-                                allowOutsideClick: false
-                            }).then(() => {
-                                isRekapModalOpen = false;
-                            });
+                            openRekapModal(currentSession);
                         }
-                        // 3. Jika Rekap ditutup dari HP, tutup juga di Laptop
+                        // 3. Sinkronisasi Penutupan Pop-Up Rekap Sesi
                         else if (!serverStatus.startsWith("REKAP_") && isRekapModalOpen) {
                             Swal.close();
                             isRekapModalOpen = false;
