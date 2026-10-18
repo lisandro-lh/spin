@@ -163,7 +163,6 @@
         .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 6px 12px; background: rgba(0,0,0,0.6); border: none; border-radius: 6px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; }
         .btn-switch-mode:hover { background: rgba(0,0,0,0.85); }
 
-        /* Banner izin suara khusus di Mode Layar jika belum diklik */
         #audio-unlock-banner {
             position: fixed; top: 0; left: 0; width: 100%; background: #2563eb; color: white;
             text-align: center; padding: 10px; font-weight: bold; z-index: 9999; cursor: pointer;
@@ -191,12 +190,10 @@
     </style>
 </head>
 <body>
-    <!-- Banner pemberitahuan agar proyektor/laptop mengizinkan suara keluar -->
     <div id="audio-unlock-banner" onclick="unlockAudioSession()">
         🔊 [KLIK DI SINI] Agar Suara Putar Spin Aktif di Layar Ini
     </div>
 
-    <!-- Elemen Audio sounddrum.mp3 -->
     <audio id="sound-spin" src="sounddrum.mp3" preload="auto" loop></audio>
 
     <div class="header">
@@ -270,7 +267,6 @@
     <button class="btn-switch-mode" id="btn-mode-label" onclick="toggleMode()">🔄 Ganti Mode</button>
 
     <script>
-        // URL API GOOGLE APPS SCRIPT ANDA
         const API_URL = 'https://script.google.com/macros/s/AKfycbwL6DH7bItVI16HnGWDt9lZEvLT6plqtqTyoD8Qq88ldrPRRQ8grJ4dKt6if-vr_RZI-w/exec';
         
         const urlParams = new URLSearchParams(window.location.search);
@@ -378,7 +374,7 @@
                     document.getElementById('display').innerText = format4(selectedNumber);
                     document.getElementById('display').style.color = 'var(--blue)';
                     setControlState('ACTION');
-                } else if (lastHandledSpinStatus.startsWith("REK_")) {
+                } else if (lastHandledSpinStatus.startsWith("REKAP_")) {
                     openRekapModal(currentSession);
                 } else {
                     document.getElementById('display').innerText = format4(data.screenNumber);
@@ -387,7 +383,6 @@
             }
             showLoader(false);
 
-            // Cek apakah audio sudah di-unlock, jika di mode layar tampilkan banner klik
             const audio = document.getElementById('sound-spin');
             audio.play().then(() => {
                 audio.pause();
@@ -405,7 +400,6 @@
             }
         }
 
-        // FUNGSI UNLOCK AUDIO KETIKA BANNER ATAU LAYAR DIKLIK DI LAPTOP
         function unlockAudioSession() {
             const audio = document.getElementById('sound-spin');
             if (audio) {
@@ -427,7 +421,7 @@
             if (audio) {
                 audio.currentTime = 0;
                 audio.play().catch(e => {
-                    console.log("Audio diblokir browser, klik layar proyektor sekali:", e);
+                    console.log("Audio diblokir browser:", e);
                     if (APP_MODE === 'layar') {
                         document.getElementById('audio-unlock-banner').style.display = 'block';
                     }
@@ -453,7 +447,6 @@
             isSpinning = true;
             isWaitingAction = false;
             setControlState('SPINNING');
-            
             playSpinAudio();
             
             const display = document.getElementById('display');
@@ -504,7 +497,7 @@
                 } else {
                     setControlState('IDLE');
                 }
-                Swal.fire('Koneksi Terputus', 'Gagal menghubungi server Google Sheets. Silakan coba klik lagi.', 'error');
+                Swal.fire('Koneksi Terputus', 'Gagal menghubungi server Google Sheets.', 'error');
             }
         }
 
@@ -737,7 +730,7 @@
                             lastHandledSpinStatus = serverStatus;
                             openRekapModal(currentSession);
                         }
-                        else if (!serverStatus.startsWith("REK_") && isRekapModalOpen) {
+                        else if (!serverStatus.startsWith("REKAP_") && isRekapModalOpen) {
                             Swal.close();
                             isRekapModalOpen = false;
                         }
