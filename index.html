@@ -316,16 +316,25 @@
         }
 
         async function resetAll() {
-            if (isSpinning) return;
-            if ((await Swal.fire({ title: 'Reset Data?', icon: 'warning', showCancelButton: true })).isConfirmed) {
-                if ((await Swal.fire({ title: 'Konfirmasi Terakhir!', text: "Menghapus semua dari Sheets!", icon: 'error', showCancelButton: true })).isConfirmed) {
-                    showLoader(true, "Mereset Sheets...");
-                    const res = await fetchAPI({ action: "reset" });
-                    if (res && res.status === "success") { initApp(); Swal.fire('Berhasil', 'Sistem kembali ke awal.', 'success'); }
-                    else { showLoader(false); Swal.fire('Gagal!', 'Error koneksi.', 'error'); }
-                }
+    if (isSpinning) return;
+    if ((await Swal.fire({ title: 'Reset Data?', icon: 'warning', showCancelButton: true })).isConfirmed) {
+        if ((await Swal.fire({ title: 'Konfirmasi Terakhir!', text: "Menghapus semua dari Sheets!", icon: 'error', showCancelButton: true })).isConfirmed) {
+            showLoader(true, "Mereset Sheets...");
+            const res = await fetchAPI({ action: "reset" });
+            
+            if (res && res.status === "success") { 
+                initApp(); 
+                Swal.fire('Berhasil', 'Sistem kembali ke awal.', 'success'); 
+            } 
+            else { 
+                showLoader(false); 
+                // Tampilkan pesan error aslinya dari Google Sheets, bukan sekadar "Error koneksi"
+                let pesanError = res && res.message ? res.message : 'Gagal menghubungi server Google. Pastikan URL API benar.';
+                Swal.fire('Gagal Reset!', pesanError, 'error'); 
             }
         }
+    }
+}
 
         function updateUI() {
             if(APP_MODE === 'layar') return;
