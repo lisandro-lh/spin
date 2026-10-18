@@ -384,15 +384,17 @@
             showLoader(false);
 
             const audio = document.getElementById('sound-spin');
-            audio.play().then(() => {
-                audio.pause();
-                audio.currentTime = 0;
-                isAudioUnlocked = true;
-            }).catch(() => {
-                if (APP_MODE === 'layar') {
-                    document.getElementById('audio-unlock-banner').style.display = 'block';
-                }
-            });
+            if(audio) {
+                audio.play().then(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    isAudioUnlocked = true;
+                }).catch(() => {
+                    if (APP_MODE === 'layar') {
+                        document.getElementById('audio-unlock-banner').style.display = 'block';
+                    }
+                });
+            }
 
             if (!isPollingActive) {
                 isPollingActive = true;
