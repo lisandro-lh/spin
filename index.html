@@ -55,182 +55,100 @@
             gap: 10px;
         }
 
-        .header-left { 
-            display: flex; 
-            align-items: center; 
-            justify-content: flex-start; 
-            gap: 15px; 
-            min-width: 0;
-        }
+        .header-left { display: flex; align-items: center; justify-content: flex-start; gap: 15px; min-width: 0; }
+        .header-center { display: flex; align-items: center; justify-content: center; }
+        .header-right { display: flex; align-items: center; justify-content: flex-end; gap: 15px; min-width: 0; }
         
-        .header-center { 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-        
-        .header-right { 
-            display: flex; 
-            align-items: center; 
-            justify-content: flex-end; 
-            gap: 15px; 
-            min-width: 0;
-        }
-        
-        .logo-img { 
-            height: clamp(28px, 5vw, 52px); 
-            max-width: 100%; 
-            object-fit: contain; 
-        }
-        .logo-center { 
-            height: clamp(38px, 6.5vw, 72px); 
-            max-width: 100%; 
-            object-fit: contain; 
-            border-radius: 8px; 
-        } 
+        .logo-img { height: clamp(28px, 5vw, 52px); max-width: 100%; object-fit: contain; }
+        .logo-center { height: clamp(38px, 6.5vw, 72px); max-width: 100%; object-fit: contain; border-radius: 8px; } 
 
         .header button { 
-            padding: 10px 16px; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            font-size: 14px;
-            cursor: pointer; 
-            transition: all 0.2s; 
-            color: white; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
-            white-space: nowrap;
+            padding: 10px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px;
+            cursor: pointer; transition: all 0.2s; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); white-space: nowrap;
         }
         .btn-reset { background-color: var(--rose); } 
         .btn-sesi { background-color: var(--blue); } 
         .header button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
         .header button:active { transform: scale(0.96); }
 
-        /* Baris khusus tombol di layar HP agar mudah diklik dan tidak terhimpit logo */
         .mobile-action-bar {
-            display: none;
-            width: 100%;
-            justify-content: space-between;
-            gap: 10px;
-            padding-top: 6px;
-            border-top: 1px solid rgba(0,0,0,0.1);
+            display: none; width: 100%; justify-content: space-between; gap: 10px;
+            padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.1);
         }
 
         /* --- DASHBOARD STATISTIK --- */
         .dashboard-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 12px; 
-            width: 100%; 
-            max-width: 1000px; 
-            margin-bottom: 15px; 
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; 
+            width: 100%; max-width: 1000px; margin-bottom: 15px; 
         }
         .stat-card { 
-            background: var(--glass-bg); 
-            padding: 12px 10px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.12); 
-            text-align: center; 
-            backdrop-filter: blur(5px); 
+            background: var(--glass-bg); padding: 12px 10px; border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12); text-align: center; backdrop-filter: blur(5px); 
         }
         .stat-card h3 { margin: 0 0 5px 0; font-size: clamp(11px, 2.5vw, 14px); color: #4b5563; font-weight: bold; }
         .stat-card .value { font-size: clamp(18px, 4vw, 24px); font-weight: bold; }
         .text-emerald { color: var(--emerald); } .text-amber { color: var(--amber); } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); }
 
         /* --- KOTAK ANGKA SPIN --- */
-        .main-wrapper { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            width: 100%; 
-        }
+        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
         
         .layar-session-badge {
-            display: none;
-            background: var(--blue);
-            color: white;
-            font-weight: bold;
-            font-size: clamp(16px, 2.5vw, 26px);
-            padding: 8px 30px;
-            border-radius: 50px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-            letter-spacing: 2px;
+            display: none; background: var(--blue); color: white; font-weight: bold;
+            font-size: clamp(16px, 2.5vw, 26px); padding: 8px 30px; border-radius: 50px;
+            margin-bottom: 15px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); letter-spacing: 2px;
         }
 
         .spin-display { 
-            font-family: 'Courier New', Courier, monospace; 
-            font-size: clamp(65px, 16vw, 140px); 
-            font-weight: bold; 
-            color: var(--text-main); 
-            background: rgba(255, 255, 255, 0.96); 
-            border: 6px solid var(--blue); 
-            border-radius: 20px; 
-            padding: clamp(15px, 3vw, 30px) clamp(25px, 6vw, 60px); 
-            margin-bottom: 20px; 
-            letter-spacing: clamp(4px, 1.5vw, 10px); 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.25); 
-            transition: color 0.2s; 
-            text-align: center; 
-            width: auto;
-            max-width: 95vw;
+            font-family: 'Courier New', Courier, monospace; font-size: clamp(65px, 16vw, 140px); font-weight: bold; 
+            color: var(--text-main); background: rgba(255, 255, 255, 0.96); border: 6px solid var(--blue); 
+            border-radius: 20px; padding: clamp(15px, 3vw, 30px) clamp(25px, 6vw, 60px); margin-bottom: 20px; 
+            letter-spacing: clamp(4px, 1.5vw, 10px); box-shadow: 0 15px 35px rgba(0,0,0,0.25); 
+            transition: color 0.2s; text-align: center; width: auto; max-width: 95vw;
         }
 
         /* --- TOMBOL KONTROL SPIN --- */
         .controls-wrapper { 
-            background: rgba(255, 255, 255, 0.85); 
-            padding: 18px 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.18); 
-            backdrop-filter: blur(5px); 
-            min-height: 90px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            width: 100%;
-            max-width: 480px;
+            background: rgba(255, 255, 255, 0.88); padding: 18px 25px; border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18); backdrop-filter: blur(5px); min-height: 110px; 
+            display: flex; align-items: center; justify-content: center; width: 100%; max-width: 500px;
         }
 
         .btn-spin { 
-            background-color: var(--blue); 
-            font-size: clamp(18px, 4.5vw, 24px); 
-            padding: 16px 45px; 
-            font-weight: bold; 
-            border: none; 
-            border-radius: 50px; 
-            cursor: pointer; 
-            color: white; 
-            transition: transform 0.1s, box-shadow 0.2s; 
-            box-shadow: 0 8px 15px rgba(59, 130, 246, 0.4); 
-            width: 100%;
+            background-color: var(--blue); font-size: clamp(18px, 4.5vw, 24px); padding: 16px 45px; 
+            font-weight: bold; border: none; border-radius: 50px; cursor: pointer; color: white; 
+            transition: transform 0.1s, box-shadow 0.2s; box-shadow: 0 8px 15px rgba(59, 130, 246, 0.4); width: 100%;
         }
         .btn-spin:active { transform: scale(0.95); } 
         .btn-spin:hover { box-shadow: 0 12px 20px rgba(59, 130, 246, 0.6); transform: translateY(-2px); }
 
-        .controls-action { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
-        .btn-action-group { display: flex; gap: 35px; justify-content: center; align-items: center; }
-        .btn-action { width: 75px; height: 75px; border: none; font-size: 36px; color: white; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.25); transition: transform 0.2s; display: flex; justify-content: center; align-items: center; }
-        .btn-action:hover { transform: scale(1.08); }
-        .btn-lanjut { background-color: var(--emerald); border-radius: 50%; }
-        .btn-hangus { background-color: var(--rose); clip-path: polygon(10% 0, 0 10%, 40% 50%, 0 90%, 10% 100%, 50% 60%, 90% 100%, 100% 90%, 60% 50%, 100% 10%, 90% 0, 50% 40%); border-radius: 0; box-shadow: none; width: 70px; height: 70px; }
+        .spinning-status-box {
+            font-size: 18px; font-weight: bold; color: var(--blue);
+            display: flex; align-items: center; gap: 10px; animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+        .controls-action { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+        .action-prompt { font-size: 14px; font-weight: bold; color: #374151; margin: 0; text-align: center; }
+        .btn-action-group { display: flex; gap: 15px; justify-content: center; width: 100%; }
         
-        .jeda-group { display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; }
-        .btn-jeda { background: rgba(31, 41, 55, 0.85); border: none; color: white; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-choice {
+            flex: 1; padding: 14px 12px; border: none; border-radius: 14px; font-size: 16px; font-weight: bold;
+            color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: transform 0.15s;
+        }
+        .btn-choice:active { transform: scale(0.95); }
+        .btn-choice span.sub { font-size: 11px; font-weight: normal; opacity: 0.9; }
+        .btn-choice.sah { background-color: var(--emerald); }
+        .btn-choice.hangus { background-color: var(--rose); }
+
+        .jeda-group { display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; border-top: 1px dashed #d1d5db; padding-top: 10px; }
+        .btn-jeda { background: rgba(31, 41, 55, 0.85); border: none; color: white; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; flex: 1; }
         .btn-jeda:hover { background: #000; }
 
         /* --- RIWAYAT SESI --- */
         .history-container { 
-            width: 100%; 
-            max-width: 1000px; 
-            background: var(--glass-bg); 
-            border-radius: 12px; 
-            padding: 15px 20px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
-            margin-top: 15px; 
-            margin-bottom: 35px;
-            backdrop-filter: blur(5px); 
+            width: 100%; max-width: 1000px; background: var(--glass-bg); border-radius: 12px; 
+            padding: 15px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-top: 15px; margin-bottom: 35px; backdrop-filter: blur(5px); 
         }
         .history-container h2 { margin-top: 0; font-size: 16px; border-bottom: 2px solid #ccc; padding-bottom: 8px; }
         .badge { display: inline-block; padding: 6px 12px; border-radius: 20px; margin: 4px; font-family: 'Courier New', Courier, monospace; font-size: 15px; font-weight: bold; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
@@ -265,47 +183,14 @@
         .btn-switch-mode:hover { background: rgba(0,0,0,0.85); }
 
         /* --- STYLING POPUP REKAP SESI RESPONSIF --- */
-        .rekap-wrapper {
-            display: flex;
-            gap: 15px;
-            justify-content: space-between;
-            text-align: center;
-            margin-top: 10px;
-        }
-        .rekap-col {
-            flex: 1;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 12px 8px;
-        }
-        .rekap-col h4 {
-            margin: 0 0 10px 0;
-            font-size: clamp(14px, 3vw, 18px);
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-        .rekap-list {
-            max-height: 45vh;
-            overflow-y: auto;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
-            padding: 4px;
-        }
-        .rekap-item {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: clamp(14px, 3.2vw, 20px);
-            font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 8px;
-            color: white;
-        }
+        .rekap-wrapper { display: flex; gap: 15px; justify-content: space-between; text-align: center; margin-top: 10px; }
+        .rekap-col { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 8px; }
+        .rekap-col h4 { margin: 0 0 10px 0; font-size: clamp(14px, 3vw, 18px); padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+        .rekap-list { max-height: 45vh; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 4px; }
+        .rekap-item { font-family: 'Courier New', Courier, monospace; font-size: clamp(14px, 3.2vw, 20px); font-weight: bold; padding: 5px 10px; border-radius: 8px; color: white; }
         .rekap-item.sah { background-color: var(--amber); }
         .rekap-item.hangus { background-color: var(--rose); }
 
-        /* --- MEDIA QUERY KHUSUS HP / LAYAR KECIL --- */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .header { padding: 10px 12px; }
@@ -333,7 +218,6 @@
                 <img src="pln.png" alt="PLN" class="logo-img">
             </div>
         </div>
-        <!-- Baris tombol khusus HP agar tidak bertumpuk dengan logo -->
         <div class="mobile-action-bar">
             <button class="btn-reset" onclick="resetAll()">🔄 Reset Data</button>
             <button class="btn-sesi" onclick="pindahSesi()">⏭️ Pindah Sesi</button>
@@ -352,17 +236,32 @@
         <div class="spin-display" id="display">0000</div>
         
         <div class="controls-wrapper">
+            <!-- Tampilan Awal: Tombol Putar Spin -->
             <div id="spin-controls" style="width: 100%;">
                 <button id="btn-spin" class="btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
             </div>
+
+            <!-- Tampilan Saat Roda Sedang Mengacak -->
+            <div id="spinning-status" class="spinning-status-box hidden">
+                🎲 Mengacak Nomor Kupon...
+            </div>
+
+            <!-- Tampilan Saat Nomor Keluar: Pilih Sah atau Hangus -->
             <div class="controls-action hidden" id="action-controls">
+                <p class="action-prompt">Tentukan Status Nomor <span id="label-nomor-keluar" style="color:var(--blue);">0000</span>:</p>
                 <div class="btn-action-group">
-                    <button class="btn-hangus" onclick="tandai('hangus', true)" title="Hangus & Langsung Spin"></button>
-                    <button class="btn-action btn-lanjut" onclick="tandai('sah', true)" title="Sah & Langsung Spin">✔</button>
+                    <button class="btn-choice hangus" onclick="tandai('hangus', true)">
+                        ❌ HANGUS
+                        <span class="sub">Catat Gugur & Spin Lagi</span>
+                    </button>
+                    <button class="btn-choice sah" onclick="tandai('sah', true)">
+                        ✔ SAH / LANJUT
+                        <span class="sub">Catat Menang & Spin Lagi</span>
+                    </button>
                 </div>
                 <div class="jeda-group">
-                    <button class="btn-jeda" onclick="tandai('sah', false)">⏸️ Sah & Jeda</button>
-                    <button class="btn-jeda" style="background: rgba(185, 28, 28, 0.85);" onclick="tandai('hangus', false)">⏸️ Hangus & Jeda</button>
+                    <button class="btn-jeda" onclick="tandai('sah', false)">⏸️ Catat SAH & Berhenti</button>
+                    <button class="btn-jeda" style="background: rgba(185, 28, 28, 0.85);" onclick="tandai('hangus', false)">⏸️ Catat HANGUS & Berhenti</button>
                 </div>
             </div>
         </div>
@@ -382,7 +281,7 @@
 
     <script>
         // URL API GOOGLE APPS SCRIPT ANDA
-        const API_URL = 'https://script.google.com/macros/s/AKfycby4chyuShHn_ylIy28v2Fzs1zaAUUvNZ2C8fOBebpWX7QYQdHJH1wt0uIsinJnAPNqPMA/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyIW62_tpTWqEebFo2i6fzrgsrnX1mycu2E1XWuGC5SC8owWliL8MotYKv4srt35moamA/exec';
         
         const urlParams = new URLSearchParams(window.location.search);
         let APP_MODE = urlParams.get('mode');
@@ -411,11 +310,9 @@
         let isSpinning = false;
         let isWaitingAction = false;
         let selectedNumber = null;
-        let selectedIndex = null;
         let displaySpinInterval = null;
         
-        // Variabel pelacak sinkronisasi antar device (HP & Laptop)
-        let lastHandledSpinStatus = null;
+        let lastHandledSpinStatus = "IDLE";
         let isRekapModalOpen = false;
         let isPollingActive = false;
 
@@ -425,15 +322,35 @@
             else { loader.classList.add('hidden'); }
         }
 
-        function showToast(autoHide = false) {
+        function showToast(show = true) {
             const toast = document.getElementById('sync-toast');
-            toast.classList.remove('toast-hidden');
-            if (autoHide) setTimeout(() => toast.classList.add('toast-hidden'), 2000);
+            if (show) toast.classList.remove('toast-hidden');
+            else toast.classList.add('toast-hidden');
         }
 
         function format4(num) { 
-            if (num === undefined || num === null || num === "") return "0000";
+            if (num === undefined || num === null || num === "" || String(num) === "0000") return "0000";
             return String(num).padStart(4, '0'); 
+        }
+
+        function setControlState(state) {
+            if (APP_MODE === 'layar') return;
+            const spinCtrl = document.getElementById('spin-controls');
+            const spinStatus = document.getElementById('spinning-status');
+            const actionCtrl = document.getElementById('action-controls');
+
+            spinCtrl.classList.add('hidden');
+            spinStatus.classList.add('hidden');
+            actionCtrl.classList.add('hidden');
+
+            if (state === 'IDLE') {
+                spinCtrl.classList.remove('hidden');
+            } else if (state === 'SPINNING') {
+                spinStatus.classList.remove('hidden');
+            } else if (state === 'ACTION') {
+                document.getElementById('label-nomor-keluar').innerText = format4(selectedNumber);
+                actionCtrl.classList.remove('hidden');
+            }
         }
 
         async function fetchAPI(payload) {
@@ -448,117 +365,160 @@
             }
         }
 
+        function syncDataFromServer(data) {
+            if (!data || data.status !== "success") return;
+            availableNumbers = data.availableNumbers || [];
+            winners = data.winners || [];
+            forfeits = data.forfeits || [];
+            currentSession = data.currentSession || 1;
+            updateUI();
+        }
+
         async function initApp() {
-            showLoader(true, "Sinkronisasi Data...");
+            showLoader(true, "Sinkronisasi Data Google Sheets...");
             const data = await fetchAPI({ action: "init" });
             if (data && data.status === "success") {
-                availableNumbers = data.availableNumbers || [];
-                winners = data.winners || [];
-                forfeits = data.forfeits || [];
-                currentSession = data.currentSession || 1;
-                lastHandledSpinStatus = data.screenStatus || "IDLE";
+                syncDataFromServer(data);
+                lastHandledSpinStatus = String(data.screenStatus || "IDLE");
                 
-                if (data.screenNumber && String(data.screenNumber) !== "0000") {
+                // Jika sebelumnya ada angka yang belum diputuskan (misal halaman habis di-refresh)
+                if (lastHandledSpinStatus.startsWith("SPIN_") && String(data.screenNumber) !== "0000") {
+                    selectedNumber = data.screenNumber;
+                    isWaitingAction = true;
+                    document.getElementById('display').innerText = format4(selectedNumber);
+                    document.getElementById('display').style.color = 'var(--blue)';
+                    setControlState('ACTION');
+                } else {
                     document.getElementById('display').innerText = format4(data.screenNumber);
+                    setControlState('IDLE');
                 }
-                updateUI();
             }
             showLoader(false);
 
-            // Jalankan polling di semua mode (baik Layar maupun Remote) agar saling terhubung
             if (!isPollingActive) {
                 isPollingActive = true;
                 runDisplayPolling();
             }
         }
 
-        function startSpin() {
+        // FUNGSI UTAMA PUTAR SPIN (SERVER-SIDE PICK AGAR 100% SAMA DI HP & LAPTOP)
+        async function startSpin(prevStatus = null, prevNum = null) {
             if (isSpinning) return;
-            if (availableNumbers.length === 0) { 
+            if (availableNumbers.length === 0 && !prevStatus) { 
                 Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info'); 
                 return; 
             }
             
             isSpinning = true;
-            isWaitingAction = true;
-            
-            // Tentukan pemenang di awal secara acak & kirim ke server bersama ID unik
-            selectedIndex = Math.floor(Math.random() * availableNumbers.length);
-            selectedNumber = availableNumbers[selectedIndex];
-            const spinId = String(Date.now());
-            lastHandledSpinStatus = "SPIN_" + spinId;
-
-            document.getElementById('spin-controls').classList.add('hidden');
-            document.getElementById('action-controls').classList.add('hidden');
+            isWaitingAction = false;
+            setControlState('SPINNING');
             
             const display = document.getElementById('display');
             display.style.color = 'var(--text-main)';
-            
-            // Kirim 1 instruksi terpadu ke Server agar device lain langsung ikut berputar
-            fetchAPI({ action: "start_spin", number: selectedNumber, spinId: spinId });
 
-            let duration = 2200;
-            let elapsed = 0;
+            // Mulai animasi angka acak sembari meminta angka resmi dari Server
+            let spinStartTime = Date.now();
             clearInterval(displaySpinInterval);
             displaySpinInterval = setInterval(() => {
-                let randomIdx = Math.floor(Math.random() * availableNumbers.length);
-                display.innerText = format4(availableNumbers[randomIdx]);
-                elapsed += 50;
-                if (elapsed >= duration) {
+                let max = availableNumbers.length > 0 ? availableNumbers.length : 500;
+                let randomIdx = Math.floor(Math.random() * max);
+                let num = availableNumbers.length > 0 ? availableNumbers[randomIdx] : Math.floor(Math.random() * 500) + 1;
+                display.innerText = format4(num);
+            }, 50);
+
+            // Minta server menyimpan kupon sebelumnya (jika ada) & memilih kupon baru
+            const res = await fetchAPI({ 
+                action: "spin_now", 
+                prevStatus: prevStatus, 
+                prevNumber: prevNum,
+                session: currentSession
+            });
+
+            if (res && res.status === "success") {
+                syncDataFromServer(res);
+                selectedNumber = res.chosenNumber;
+                lastHandledSpinStatus = "SPIN_" + res.spinId;
+
+                // Pastikan animasi berputar minimal 1.8 detik agar terlihat seru
+                let elapsed = Date.now() - spinStartTime;
+                let remaining = Math.max(300, 1800 - elapsed);
+
+                setTimeout(() => {
                     clearInterval(displaySpinInterval);
                     finishSpin();
+                }, remaining);
+            } else if (res && res.status === "empty") {
+                clearInterval(displaySpinInterval);
+                isSpinning = false;
+                setControlState('IDLE');
+                Swal.fire('Habis!', 'Semua kupon telah habis diundi.', 'info');
+            } else {
+                clearInterval(displaySpinInterval);
+                isSpinning = false;
+                if (prevNum) {
+                    selectedNumber = prevNum;
+                    isWaitingAction = true;
+                    setControlState('ACTION');
+                } else {
+                    setControlState('IDLE');
                 }
-            }, 50);
+                Swal.fire('Koneksi Terputus', 'Gagal menghubungi server Google Sheets. Silakan coba klik lagi.', 'error');
+            }
         }
 
         function finishSpin() {
             isSpinning = false;
+            isWaitingAction = true;
             const display = document.getElementById('display');
             display.innerText = format4(selectedNumber);
             display.style.color = 'var(--blue)';
-            
-            if (APP_MODE !== 'layar') {
-                document.getElementById('action-controls').classList.remove('hidden');
-            }
+            setControlState('ACTION');
         }
 
+        // FUNGSI SAAT KLIK SAH (LANJUT) ATAU HANGUS
         async function tandai(statusMark, autoLanjut = true) {
-            if (!selectedNumber) return;
+            if (!selectedNumber || isSpinning) return;
 
             const numToSave = selectedNumber;
             const sessToSave = currentSession;
 
-            if (statusMark === 'sah') winners.push({ number: numToSave, session: sessToSave });
-            else forfeits.push({ number: numToSave, session: sessToSave });
-            
-            if (selectedIndex > -1 && selectedIndex < availableNumbers.length) {
-                availableNumbers.splice(selectedIndex, 1);
+            // Langsung tampilkan ke Riwayat Sesi & Kurangi Kupon Tersedia Detik Itu Juga!
+            if (statusMark === 'sah') {
+                winners.push({ number: numToSave, session: sessToSave });
+            } else {
+                forfeits.push({ number: numToSave, session: sessToSave });
             }
+            
+            let idx = availableNumbers.findIndex(x => String(x).trim() === String(numToSave).trim() || Number(x) === Number(numToSave));
+            if (idx > -1) availableNumbers.splice(idx, 1);
             updateUI();
-            
-            document.getElementById('action-controls').classList.add('hidden');
-            document.getElementById('display').style.color = 'var(--text-main)';
-            
-            isWaitingAction = false;
-            showToast();
-
-            await fetchAPI({ 
-                action: statusMark, 
-                number: numToSave, 
-                session: sessToSave,
-                jeda: !autoLanjut 
-            });
-            document.getElementById('sync-toast').classList.add('toast-hidden');
 
             if (autoLanjut) {
-                startSpin(); 
+                // Otomatis simpan ke Sheet sekaligus memutar nomor berikutnya!
+                await startSpin(statusMark, numToSave);
             } else {
-                document.getElementById('spin-controls').classList.remove('hidden');
+                // Simpan ke Sheet dan Berhenti (Jeda)
+                isWaitingAction = false;
+                selectedNumber = null;
+                setControlState('IDLE');
                 document.getElementById('btn-spin').innerText = '🎲 LANJUT SPIN';
+                document.getElementById('display').style.color = 'var(--text-main)';
+                
+                showToast(true);
+                const res = await fetchAPI({ 
+                    action: "save_and_stop", 
+                    statusMark: statusMark, 
+                    number: numToSave, 
+                    session: sessToSave 
+                });
+                showToast(false);
+                if (res && res.status === "success") {
+                    lastHandledSpinStatus = "IDLE";
+                    syncDataFromServer(res);
+                }
             }
         }
 
-        // FUNGSI POP-UP REKAP SESI (TAMPIL DI KEDUA MODE: LAYAR & REMOTE)
         function buildRekapHTML(sess) {
             let sesiWinners = winners.filter(w => Number(w.session) === Number(sess)).map(w => format4(w.number));
             let sesiForfeits = forfeits.filter(f => Number(f.session) === Number(sess)).map(f => format4(f.number));
@@ -591,18 +551,18 @@
                 return;
             }
 
-            // Jika ada angka yang baru keluar dan belum ditandai Sah/Hangus, tawarkan simpan langsung!
+            // Jika masih ada nomor di layar yang belum ditandai Sah/Hangus, tanyakan dulu
             if (isWaitingAction && selectedNumber !== null) {
                 const askSave = await Swal.fire({
                     title: `Simpan Kupon ${format4(selectedNumber)}?`,
-                    text: 'Tentukan status kupon terakhir ini sebelum membuka Rekap Sesi:',
+                    text: 'Tentukan status kupon terakhir di layar sebelum membuka Rekap Sesi:',
                     icon: 'question',
                     showDenyButton: true,
                     showCancelButton: true,
                     confirmButtonColor: '#10b981',
                     denyButtonColor: '#ef4444',
-                    confirmButtonText: '✔ Simpan SAH',
-                    denyButtonText: '❌ Simpan HANGUS',
+                    confirmButtonText: '✔ Catat SAH',
+                    denyButtonText: '❌ Catat HANGUS',
                     cancelButtonText: 'Batal'
                 });
 
@@ -615,10 +575,12 @@
                 }
             }
 
-            // Beritahu server agar Mode Layar (Laptop) juga ikut memunculkan Pop-Up Rekap!
             isRekapModalOpen = true;
             lastHandledSpinStatus = "REKAP_" + currentSession;
-            fetchAPI({ action: "show_rekap" });
+            
+            // Beritahu server agar Layar Proyektor memunculkan Pop-Up Rekap juga
+            const syncRes = await fetchAPI({ action: "show_rekap" });
+            if (syncRes && syncRes.status === "success") syncDataFromServer(syncRes);
 
             const htmlRekap = buildRekapHTML(currentSession) + `
                 <p style="margin-top: 15px; margin-bottom: 0; font-size: 15px; font-weight: bold; color: #374151;">
@@ -630,7 +592,6 @@
                 title: `🏁 REKAP HASIL SESI ${currentSession}`,
                 html: htmlRekap,
                 width: '92%',
-                customClass: { popup: 'rekap-popup-modal' },
                 showCancelButton: true,
                 allowOutsideClick: false,
                 confirmButtonColor: '#3b82f6',
@@ -645,21 +606,20 @@
                 showLoader(true, "Menyiapkan Sesi Baru...");
                 const res = await fetchAPI({ action: "pindahSesi" });
                 if (res && res.status === "success") {
-                    currentSession = res.newSession;
+                    syncDataFromServer(res);
                     lastHandledSpinStatus = "IDLE";
+                    selectedNumber = null;
+                    isWaitingAction = false;
                     document.getElementById('display').innerText = '0000';
                     document.getElementById('display').style.color = 'var(--text-main)';
                     document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
-                    document.getElementById('action-controls').classList.add('hidden');
-                    document.getElementById('spin-controls').classList.remove('hidden');
-                    updateUI();
+                    setControlState('IDLE');
                     Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 1800, showConfirmButton: false });
                 } else {
                     Swal.fire('Gagal!', 'Terjadi kesalahan koneksi saat memindah sesi.', 'error');
                 }
                 showLoader(false);
             } else {
-                // Tutup rekap di layar proyektor jika batal pindah sesi
                 lastHandledSpinStatus = "IDLE";
                 fetchAPI({ action: "close_rekap" });
             }
@@ -668,43 +628,43 @@
         // POLLING REALTIME UNTUK SINKRONISASI LAYAR & REMOTE
         async function runDisplayPolling() {
             try {
-                // Jangan timpa layar saat device ini sedang memutar spin sendiri
-                if (!isSpinning && !isWaitingAction) {
+                if (!isSpinning) {
                     const res = await fetchAPI({ action: "check_status" });
                     if (res && res.status === "success") {
-                        // Selalu sinkronkan data pemenang, hangus, dan kupon tersedia
-                        availableNumbers = res.availableNumbers || availableNumbers;
-                        winners = res.winners || winners;
-                        forfeits = res.forfeits || forfeits;
-
-                        // Jika sesi berubah dari device lain
-                        if (res.currentSession && res.currentSession !== currentSession) {
-                            currentSession = res.currentSession;
+                        // Jika sesi berubah dari perangkat lain
+                        if (res.currentSession && Number(res.currentSession) !== Number(currentSession)) {
+                            currentSession = Number(res.currentSession);
+                            selectedNumber = null;
+                            isWaitingAction = false;
                             document.getElementById('display').innerText = '0000';
                             document.getElementById('display').style.color = 'var(--text-main)';
+                            setControlState('IDLE');
                             if (isRekapModalOpen) {
                                 Swal.close();
                                 isRekapModalOpen = false;
                             }
                         }
-                        updateUI();
 
+                        syncDataFromServer(res);
                         const serverStatus = String(res.screenStatus || "IDLE");
 
-                        // 1. Jika ada trigger SPIN baru dari device lain
+                        // 1. Jika ada putaran SPIN baru dari perangkat lain
                         if (serverStatus.startsWith("SPIN_") && serverStatus !== lastHandledSpinStatus) {
                             lastHandledSpinStatus = serverStatus;
+                            selectedNumber = res.screenNumber;
+
                             if (isRekapModalOpen) {
                                 Swal.close();
                                 isRekapModalOpen = false;
                             }
 
                             isSpinning = true;
+                            setControlState('SPINNING');
                             const display = document.getElementById('display');
                             display.style.color = 'var(--text-main)';
                             
                             let elapsed = 0;
-                            let duration = 2000;
+                            let duration = 1600;
                             clearInterval(displaySpinInterval);
                             displaySpinInterval = setInterval(() => {
                                 let max = availableNumbers.length > 0 ? availableNumbers.length : 500;
@@ -715,22 +675,23 @@
                                 
                                 if (elapsed >= duration) {
                                     clearInterval(displaySpinInterval);
-                                    isSpinning = false;
-                                    display.innerText = format4(res.screenNumber);
-                                    display.style.color = 'var(--blue)';
+                                    finishSpin();
                                 }
                             }, 50);
                         }
-                        // Pastikan angka hasil spin selalu tampil jika sebelumnya sempat terlewat
+                        // Pastikan angka yang tampil di layar selalu sama persis dengan Server
                         else if (serverStatus.startsWith("SPIN_") && !isSpinning) {
                             const targetFormatted = format4(res.screenNumber);
                             const display = document.getElementById('display');
                             if (display.innerText !== targetFormatted && targetFormatted !== "0000") {
+                                selectedNumber = res.screenNumber;
                                 display.innerText = targetFormatted;
                                 display.style.color = 'var(--blue)';
+                                isWaitingAction = true;
+                                setControlState('ACTION');
                             }
                         }
-                        // 2. Jika ada trigger REKAP SESI dari HP, munculkan Pop-Up di Layar Laptop juga!
+                        // 2. Jika ada instruksi buka REKAP SESI, tampilkan di layar Laptop juga
                         else if (serverStatus.startsWith("REKAP_") && !isRekapModalOpen) {
                             isRekapModalOpen = true;
                             lastHandledSpinStatus = serverStatus;
@@ -738,7 +699,7 @@
                             Swal.fire({
                                 title: `🏁 REKAP HASIL SESI ${currentSession}`,
                                 html: buildRekapHTML(currentSession),
-                                width: '90%',
+                                width: '92%',
                                 showConfirmButton: APP_MODE !== 'layar',
                                 confirmButtonText: 'Tutup Tampilan Rekap',
                                 allowOutsideClick: false
@@ -746,7 +707,7 @@
                                 isRekapModalOpen = false;
                             });
                         }
-                        // 3. Jika Rekap ditutup atau lanjut sesi dari HP, tutup otomatis Pop-Up di Laptop
+                        // 3. Jika Rekap ditutup dari HP, tutup juga di Laptop
                         else if (!serverStatus.startsWith("REKAP_") && isRekapModalOpen) {
                             Swal.close();
                             isRekapModalOpen = false;
@@ -759,18 +720,19 @@
 
         async function resetAll() {
             if (isSpinning) return;
-            if ((await Swal.fire({ title: 'Reset Semua Data?', text: 'Seluruh pemenang & sesi akan dikembalikan ke awal.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' })).isConfirmed) {
+            if ((await Swal.fire({ title: 'Reset Semua Data?', text: 'Seluruh pemenang, hangus & sesi akan dikembalikan ke awal.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' })).isConfirmed) {
                 showLoader(true, "Mereset Google Sheets...");
                 const res = await fetchAPI({ action: "reset" });
                 if (res && res.status === "success") { 
+                    syncDataFromServer(res);
                     isWaitingAction = false;
                     selectedNumber = null;
+                    lastHandledSpinStatus = "IDLE";
                     document.getElementById('display').innerText = '0000';
                     document.getElementById('display').style.color = 'var(--text-main)';
-                    document.getElementById('action-controls').classList.add('hidden');
-                    document.getElementById('spin-controls').classList.remove('hidden');
                     document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
-                    await initApp(); 
+                    setControlState('IDLE');
+                    showLoader(false);
                     Swal.fire('Berhasil', 'Sistem kembali ke awal (500 kupon siap).', 'success'); 
                 } else { 
                     showLoader(false); 
