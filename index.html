@@ -2,26 +2,29 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard Spin Doorprize</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { 
             --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444; --blue: #3b82f6; 
             --text-main: #1f2937; 
-            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-bg: rgba(255, 255, 255, 0.88);
         }
         
+        * { box-sizing: border-box; }
+
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             color: var(--text-main); 
             margin: 0; 
-            padding: 20px; 
+            padding: 15px; 
             display: flex; 
             flex-direction: column; 
             align-items: center;
             min-height: 100vh;
-            box-sizing: border-box;
+            width: 100%;
+            overflow-x: hidden;
             background-image: url('backround.jpeg');
             background-size: cover;
             background-position: center;
@@ -29,90 +32,311 @@
             background-repeat: no-repeat;
         }
 
+        /* --- HEADER FLEKSIBEL MENGIKUTI SEMUA DEVICE --- */
         .header { 
-            width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; 
-            margin-bottom: 20px; background: rgba(255, 255, 255, 0.7); padding: 10px 20px;
-            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(5px); box-sizing: border-box;
+            width: 100%; 
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px; 
+            background: rgba(255, 255, 255, 0.78); 
+            padding: 12px 20px;
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            backdrop-filter: blur(6px); 
+        }
+
+        .header-top-row {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-start; 
+            gap: 15px; 
+            min-width: 0;
         }
         
-        .header-left { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-right: 20px; box-sizing: border-box; }
-        .header-center { display: flex; align-items: center; justify-content: center; }
-        .header-right { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-left: 20px; box-sizing: border-box; }
+        .header-center { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
         
-        .logo-img { height: 50px; object-fit: contain; }
-        .logo-center { height: 70px; object-fit: contain; border-radius: 10px; } 
+        .header-right { 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-end; 
+            gap: 15px; 
+            min-width: 0;
+        }
+        
+        .logo-img { 
+            height: clamp(28px, 5vw, 52px); 
+            max-width: 100%; 
+            object-fit: contain; 
+        }
+        .logo-center { 
+            height: clamp(38px, 6.5vw, 72px); 
+            max-width: 100%; 
+            object-fit: contain; 
+            border-radius: 8px; 
+        } 
 
-        .header button { padding: 10px 18px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .btn-reset { background-color: #ef4444; } .btn-sesi { background-color: var(--blue); } 
+        .header button { 
+            padding: 10px 16px; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: 14px;
+            cursor: pointer; 
+            transition: all 0.2s; 
+            color: white; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
+            white-space: nowrap;
+        }
+        .btn-reset { background-color: var(--rose); } 
+        .btn-sesi { background-color: var(--blue); } 
         .header button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+        .header button:active { transform: scale(0.96); }
 
-        @media (max-width: 768px) {
-            .header { padding: 10px; gap: 5px; }
-            .logo-img { height: 35px; }
-            .logo-center { height: 45px; }
-            .header button { padding: 8px 10px; font-size: 12px; }
-            .header-left, .header-right { gap: 8px; }
-            .dashboard-grid { grid-template-columns: repeat(2, 1fr) !important; }
-            .spin-display { font-size: 80px !important; min-width: auto !important; padding: 20px 40px !important; }
+        /* Baris khusus tombol di layar HP agar mudah diklik dan tidak terhimpit logo */
+        .mobile-action-bar {
+            display: none;
+            width: 100%;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(0,0,0,0.1);
         }
 
-        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 1000px; margin-bottom: 20px; }
-        .stat-card { background: var(--glass-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center; backdrop-filter: blur(5px); }
-        .stat-card h3 { margin: 0 0 5px 0; font-size: 14px; color: #4b5563; font-weight: bold; }
-        .stat-card .value { font-size: 24px; font-weight: bold; }
+        /* --- DASHBOARD STATISTIK --- */
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 12px; 
+            width: 100%; 
+            max-width: 1000px; 
+            margin-bottom: 15px; 
+        }
+        .stat-card { 
+            background: var(--glass-bg); 
+            padding: 12px 10px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12); 
+            text-align: center; 
+            backdrop-filter: blur(5px); 
+        }
+        .stat-card h3 { margin: 0 0 5px 0; font-size: clamp(11px, 2.5vw, 14px); color: #4b5563; font-weight: bold; }
+        .stat-card .value { font-size: clamp(18px, 4vw, 24px); font-weight: bold; }
         .text-emerald { color: var(--emerald); } .text-amber { color: var(--amber); } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); }
 
-        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
-        .spin-display { font-family: 'Courier New', Courier, monospace; font-size: 140px; font-weight: bold; color: var(--text-main); background: rgba(255, 255, 255, 0.95); border: 6px solid var(--blue); border-radius: 20px; padding: 30px 60px; margin-bottom: 30px; letter-spacing: 10px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); transition: all 0.3s; text-align: center; min-width: 400px; }
-        .controls-wrapper { background: rgba(255, 255, 255, 0.8); padding: 20px 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); backdrop-filter: blur(5px); min-height: 100px; display: flex; align-items: center; justify-content: center; }
+        /* --- KOTAK ANGKA SPIN --- */
+        .main-wrapper { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            width: 100%; 
+        }
+        
+        .layar-session-badge {
+            display: none;
+            background: var(--blue);
+            color: white;
+            font-weight: bold;
+            font-size: clamp(16px, 2.5vw, 26px);
+            padding: 8px 30px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            letter-spacing: 2px;
+        }
 
-        .btn-spin { background-color: var(--blue); font-size: 24px; padding: 18px 60px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; color: white; transition: transform 0.1s, box-shadow 0.2s; box-shadow: 0 8px 15px rgba(59, 130, 246, 0.4); }
-        .btn-spin:active { transform: scale(0.95); } .btn-spin:hover { box-shadow: 0 12px 20px rgba(59, 130, 246, 0.6); transform: translateY(-2px); }
+        .spin-display { 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: clamp(65px, 16vw, 140px); 
+            font-weight: bold; 
+            color: var(--text-main); 
+            background: rgba(255, 255, 255, 0.96); 
+            border: 6px solid var(--blue); 
+            border-radius: 20px; 
+            padding: clamp(15px, 3vw, 30px) clamp(25px, 6vw, 60px); 
+            margin-bottom: 20px; 
+            letter-spacing: clamp(4px, 1.5vw, 10px); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25); 
+            transition: color 0.2s; 
+            text-align: center; 
+            width: auto;
+            max-width: 95vw;
+        }
 
-        .controls-action { display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        .btn-action-group { display: flex; gap: 30px; justify-content: center; }
-        .btn-action { width: 80px; height: 80px; border: none; font-size: 40px; color: white; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: transform 0.2s; display: flex; justify-content: center; align-items: center; }
-        .btn-action:hover { transform: scale(1.1); box-shadow: 0 12px 25px rgba(0,0,0,0.4); }
+        /* --- TOMBOL KONTROL SPIN --- */
+        .controls-wrapper { 
+            background: rgba(255, 255, 255, 0.85); 
+            padding: 18px 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18); 
+            backdrop-filter: blur(5px); 
+            min-height: 90px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .btn-spin { 
+            background-color: var(--blue); 
+            font-size: clamp(18px, 4.5vw, 24px); 
+            padding: 16px 45px; 
+            font-weight: bold; 
+            border: none; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            color: white; 
+            transition: transform 0.1s, box-shadow 0.2s; 
+            box-shadow: 0 8px 15px rgba(59, 130, 246, 0.4); 
+            width: 100%;
+        }
+        .btn-spin:active { transform: scale(0.95); } 
+        .btn-spin:hover { box-shadow: 0 12px 20px rgba(59, 130, 246, 0.6); transform: translateY(-2px); }
+
+        .controls-action { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+        .btn-action-group { display: flex; gap: 35px; justify-content: center; align-items: center; }
+        .btn-action { width: 75px; height: 75px; border: none; font-size: 36px; color: white; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.25); transition: transform 0.2s; display: flex; justify-content: center; align-items: center; }
+        .btn-action:hover { transform: scale(1.08); }
         .btn-lanjut { background-color: var(--emerald); border-radius: 50%; }
-        .btn-hangus { background-color: var(--rose); clip-path: polygon(10% 0, 0 10%, 40% 50%, 0 90%, 10% 100%, 50% 60%, 90% 100%, 100% 90%, 60% 50%, 100% 10%, 90% 0, 50% 40%); border-radius: 0; box-shadow: none; width: 75px; height: 75px; }
-        .btn-hangus:hover { filter: drop-shadow(0px 8px 15px rgba(239,68,68,0.5)); }
-        .btn-jeda { background: rgba(0,0,0,0.7); border: none; color: white; padding: 8px 15px; border-radius: 20px; font-size: 14px; cursor: pointer; transition: background 0.2s; }
-        .btn-jeda:hover { background: rgba(0,0,0,0.9); }
+        .btn-hangus { background-color: var(--rose); clip-path: polygon(10% 0, 0 10%, 40% 50%, 0 90%, 10% 100%, 50% 60%, 90% 100%, 100% 90%, 60% 50%, 100% 10%, 90% 0, 50% 40%); border-radius: 0; box-shadow: none; width: 70px; height: 70px; }
+        
+        .jeda-group { display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; }
+        .btn-jeda { background: rgba(31, 41, 55, 0.85); border: none; color: white; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-jeda:hover { background: #000; }
 
-        .history-container { width: 100%; max-width: 1000px; background: var(--glass-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); box-sizing: border-box; margin-top: 20px; backdrop-filter: blur(5px); }
-        .history-container h2 { margin-top: 0; font-size: 18px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
-        .badge { display: inline-block; padding: 8px 15px; border-radius: 20px; margin: 5px; font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: bold; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        /* --- RIWAYAT SESI --- */
+        .history-container { 
+            width: 100%; 
+            max-width: 1000px; 
+            background: var(--glass-bg); 
+            border-radius: 12px; 
+            padding: 15px 20px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
+            margin-top: 15px; 
+            margin-bottom: 35px;
+            backdrop-filter: blur(5px); 
+        }
+        .history-container h2 { margin-top: 0; font-size: 16px; border-bottom: 2px solid #ccc; padding-bottom: 8px; }
+        .badge { display: inline-block; padding: 6px 12px; border-radius: 20px; margin: 4px; font-family: 'Courier New', Courier, monospace; font-size: 15px; font-weight: bold; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .badge.sah { background-color: var(--amber); } .badge.hangus { background-color: var(--rose); }
         .hidden { display: none !important; }
         
-        #loader { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 100; font-weight: bold; color: var(--blue); font-size: 20px; }
-        #sync-toast { position: fixed; bottom: 20px; right: 20px; z-index: 50; transition: opacity 0.3s ease, transform 0.3s; opacity: 1; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); backdrop-filter: blur(5px); }
-        .hourglass-gif { width: 50px; height: 50px; object-fit: contain; }
+        #loader { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.92); display: flex; justify-content: center; align-items: center; z-index: 200; font-weight: bold; color: var(--blue); font-size: 20px; text-align: center; padding: 20px; }
+        #sync-toast { position: fixed; bottom: 15px; right: 15px; z-index: 50; transition: opacity 0.3s ease, transform 0.3s; opacity: 1; background: rgba(255,255,255,0.85); padding: 8px; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); backdrop-filter: blur(5px); }
+        .hourglass-gif { width: 42px; height: 42px; object-fit: contain; }
         .toast-hidden { opacity: 0 !important; pointer-events: none; transform: scale(0.5); }
 
-        body.mode-layar .dashboard-grid, body.mode-layar .controls-wrapper, 
-        body.mode-layar .history-container, body.mode-layar #sync-toast { display: none !important; }
-        body.mode-layar .header button { display: none; } 
-        body.mode-layar .logo-img { height: 80px; } body.mode-layar .logo-center { height: 120px; }
-        body.mode-layar .header { background: transparent; box-shadow: none; backdrop-filter: none; }
-        body.mode-layar .spin-display { font-size: 180px; padding: 50px 80px; border-width: 10px; }
+        /* --- STYLING KHUSUS MODE LAYAR (PROYEKTOR / LAPTOP) --- */
+        body.mode-layar .dashboard-grid, 
+        body.mode-layar .controls-wrapper, 
+        body.mode-layar .history-container, 
+        body.mode-layar #sync-toast,
+        body.mode-layar .header button,
+        body.mode-layar .mobile-action-bar { 
+            display: none !important; 
+        }
+        body.mode-layar .layar-session-badge { display: inline-block; }
+        body.mode-layar .header { background: transparent; box-shadow: none; backdrop-filter: none; margin-bottom: 5px; }
+        body.mode-layar .logo-img { height: clamp(38px, 6vw, 75px); max-width: 26vw; } 
+        body.mode-layar .logo-center { height: clamp(50px, 8vw, 105px); max-width: 34vw; }
+        body.mode-layar .spin-display { 
+            font-size: clamp(75px, 18vw, 190px); 
+            padding: clamp(25px, 5vw, 50px) clamp(35px, 7vw, 85px); 
+            border-width: 8px; 
+        }
         
-        .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 5px 10px; background: rgba(0,0,0,0.5); border: none; border-radius: 5px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; }
-        .btn-switch-mode:hover { background: rgba(0,0,0,0.8); }
+        .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 6px 12px; background: rgba(0,0,0,0.6); border: none; border-radius: 6px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; }
+        .btn-switch-mode:hover { background: rgba(0,0,0,0.85); }
+
+        /* --- STYLING POPUP REKAP SESI RESPONSIF --- */
+        .rekap-wrapper {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .rekap-col {
+            flex: 1;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px 8px;
+        }
+        .rekap-col h4 {
+            margin: 0 0 10px 0;
+            font-size: clamp(14px, 3vw, 18px);
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .rekap-list {
+            max-height: 45vh;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            padding: 4px;
+        }
+        .rekap-item {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: clamp(14px, 3.2vw, 20px);
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 8px;
+            color: white;
+        }
+        .rekap-item.sah { background-color: var(--amber); }
+        .rekap-item.hangus { background-color: var(--rose); }
+
+        /* --- MEDIA QUERY KHUSUS HP / LAYAR KECIL --- */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .header { padding: 10px 12px; }
+            .desktop-btn { display: none !important; }
+            .mobile-action-bar { display: flex; }
+            .mobile-action-bar button { flex: 1; padding: 10px; font-size: 13px; }
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .rekap-wrapper { flex-direction: column; gap: 10px; }
+            .rekap-list { max-height: 25vh; }
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="header-left">
-            <img src="danatara.png" alt="Danatara" class="logo-img">
-            <button class="btn-reset" onclick="resetAll()">🔄 Reset</button>
+        <div class="header-top-row">
+            <div class="header-left">
+                <img src="danatara.png" alt="Danatara" class="logo-img">
+                <button class="btn-reset desktop-btn" onclick="resetAll()">🔄 Reset</button>
+            </div>
+            <div class="header-center">
+                <img src="logohibualamo.jpeg" alt="Hibualamo" class="logo-center">
+            </div>
+            <div class="header-right">
+                <button class="btn-sesi desktop-btn" onclick="pindahSesi()">⏭️ Pindah Sesi</button>
+                <img src="pln.png" alt="PLN" class="logo-img">
+            </div>
         </div>
-        <div class="header-center">
-            <img src="logohibualamo.jpeg" alt="Hibualamo" class="logo-center">
-        </div>
-        <div class="header-right">
-            <button class="btn-sesi" onclick="pindahSesi()" id="btn-sesi-top">⏭️ Pindah Sesi</button>
-            <img src="pln.png" alt="PLN" class="logo-img">
+        <!-- Baris tombol khusus HP agar tidak bertumpuk dengan logo -->
+        <div class="mobile-action-bar">
+            <button class="btn-reset" onclick="resetAll()">🔄 Reset Data</button>
+            <button class="btn-sesi" onclick="pindahSesi()">⏭️ Pindah Sesi</button>
         </div>
     </div>
 
@@ -124,9 +348,11 @@
     </div>
 
     <div class="main-wrapper">
+        <div class="layar-session-badge">SESI UNDIAN <span id="layar-sesi-text">1</span></div>
         <div class="spin-display" id="display">0000</div>
+        
         <div class="controls-wrapper">
-            <div id="spin-controls">
+            <div id="spin-controls" style="width: 100%;">
                 <button id="btn-spin" class="btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
             </div>
             <div class="controls-action hidden" id="action-controls">
@@ -134,7 +360,10 @@
                     <button class="btn-hangus" onclick="tandai('hangus', true)" title="Hangus & Langsung Spin"></button>
                     <button class="btn-action btn-lanjut" onclick="tandai('sah', true)" title="Sah & Langsung Spin">✔</button>
                 </div>
-                <button class="btn-jeda" onclick="tandai('sah', false)">Simpan & Jeda (Stop Otomatis)</button>
+                <div class="jeda-group">
+                    <button class="btn-jeda" onclick="tandai('sah', false)">⏸️ Sah & Jeda</button>
+                    <button class="btn-jeda" style="background: rgba(185, 28, 28, 0.85);" onclick="tandai('hangus', false)">⏸️ Hangus & Jeda</button>
+                </div>
             </div>
         </div>
     </div>
@@ -149,34 +378,46 @@
     </div>
     
     <div id="loader" class="hidden">Menghubungkan ke Server...</div>
-    <button class="btn-switch-mode" onclick="toggleMode()">🔄 Ganti Mode</button>
+    <button class="btn-switch-mode" id="btn-mode-label" onclick="toggleMode()">🔄 Ganti Mode</button>
 
     <script>
-        // MASUKKAN URL API BARU ANDA DI SINI
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwOweQe2ZVWCfFYshpIcC3w8NMiCL4SbDn36dQ4sbwNXXEKtTikrKaetgWy5HP_iqXSHw/exec';
+        // URL API GOOGLE APPS SCRIPT ANDA
+        const API_URL = 'https://script.google.com/macros/s/AKfycby4chyuShHn_ylIy28v2Fzs1zaAUUvNZ2C8fOBebpWX7QYQdHJH1wt0uIsinJnAPNqPMA/exec';
         
         const urlParams = new URLSearchParams(window.location.search);
         let APP_MODE = urlParams.get('mode');
 
         if (!APP_MODE) {
-            const isMobile = window.innerWidth <= 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+            const isMobile = window.innerWidth <= 900 || /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
             APP_MODE = isMobile ? 'remote' : 'layar';
         }
 
-        if (APP_MODE === 'layar') { document.body.classList.add('mode-layar'); }
-        function toggleMode() { window.location.href = '?mode=' + (APP_MODE === 'layar' ? 'remote' : 'layar'); }
+        if (APP_MODE === 'layar') { 
+            document.body.classList.add('mode-layar'); 
+            document.getElementById('btn-mode-label').innerText = '📱 Ke Mode Remote';
+        } else {
+            document.getElementById('btn-mode-label').innerText = '🖥️ Ke Mode Layar';
+        }
+
+        function toggleMode() { 
+            window.location.href = '?mode=' + (APP_MODE === 'layar' ? 'remote' : 'layar'); 
+        }
 
         let availableNumbers = [];
         let winners = [];
         let forfeits = [];
         let currentSession = 1;
         
-        // Logika Sinkronisasi yang Disempurnakan
-        let isSpinning = false; // Status muter efek visual
-        let isWaitingAction = false; // Status tunggu klik Sah/Hangus
+        let isSpinning = false;
+        let isWaitingAction = false;
         let selectedNumber = null;
         let selectedIndex = null;
         let displaySpinInterval = null;
+        
+        // Variabel pelacak sinkronisasi antar device (HP & Laptop)
+        let lastHandledSpinStatus = null;
+        let isRekapModalOpen = false;
+        let isPollingActive = false;
 
         function showLoader(show, text = "Memuat data...") {
             const loader = document.getElementById('loader');
@@ -190,220 +431,379 @@
             if (autoHide) setTimeout(() => toast.classList.add('toast-hidden'), 2000);
         }
 
+        function format4(num) { 
+            if (num === undefined || num === null || num === "") return "0000";
+            return String(num).padStart(4, '0'); 
+        }
+
         async function fetchAPI(payload) {
             try {
-                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const response = await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify(payload) 
+                });
                 return await response.json();
-            } catch (error) { return null; }
+            } catch (error) { 
+                return null; 
+            }
         }
 
         async function initApp() {
             showLoader(true, "Sinkronisasi Data...");
-            if(document.getElementById('btn-spin')) document.getElementById('btn-spin').disabled = true;
-            
             const data = await fetchAPI({ action: "init" });
             if (data && data.status === "success") {
-                availableNumbers = data.availableNumbers;
-                winners = data.winners;
-                forfeits = data.forfeits;
-                currentSession = data.currentSession;
-                if(APP_MODE !== 'layar') updateUI();
+                availableNumbers = data.availableNumbers || [];
+                winners = data.winners || [];
+                forfeits = data.forfeits || [];
+                currentSession = data.currentSession || 1;
+                lastHandledSpinStatus = data.screenStatus || "IDLE";
+                
+                if (data.screenNumber && String(data.screenNumber) !== "0000") {
+                    document.getElementById('display').innerText = format4(data.screenNumber);
+                }
+                updateUI();
             }
-            if(document.getElementById('btn-spin')) document.getElementById('btn-spin').disabled = false;
             showLoader(false);
 
-            if (APP_MODE === 'layar') runDisplayPolling();
+            // Jalankan polling di semua mode (baik Layar maupun Remote) agar saling terhubung
+            if (!isPollingActive) {
+                isPollingActive = true;
+                runDisplayPolling();
+            }
         }
 
-        function format4(num) { return String(num).padStart(4, '0'); }
-
         function startSpin() {
-            if (availableNumbers.length === 0) { Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info'); return; }
+            if (isSpinning) return;
+            if (availableNumbers.length === 0) { 
+                Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info'); 
+                return; 
+            }
             
             isSpinning = true;
             isWaitingAction = true;
+            
+            // Tentukan pemenang di awal secara acak & kirim ke server bersama ID unik
+            selectedIndex = Math.floor(Math.random() * availableNumbers.length);
+            selectedNumber = availableNumbers[selectedIndex];
+            const spinId = String(Date.now());
+            lastHandledSpinStatus = "SPIN_" + spinId;
+
             document.getElementById('spin-controls').classList.add('hidden');
             document.getElementById('action-controls').classList.add('hidden');
-            document.getElementById('btn-sesi-top').disabled = true;
             
             const display = document.getElementById('display');
             display.style.color = 'var(--text-main)';
             
-            // Triggers Laptop
-            fetchAPI({ action: "start_spin" });
+            // Kirim 1 instruksi terpadu ke Server agar device lain langsung ikut berputar
+            fetchAPI({ action: "start_spin", number: selectedNumber, spinId: spinId });
 
-            let duration = 2500;
+            let duration = 2200;
             let elapsed = 0;
-            let spinInterval = setInterval(() => {
+            clearInterval(displaySpinInterval);
+            displaySpinInterval = setInterval(() => {
                 let randomIdx = Math.floor(Math.random() * availableNumbers.length);
                 display.innerText = format4(availableNumbers[randomIdx]);
                 elapsed += 50;
                 if (elapsed >= duration) {
-                    clearInterval(spinInterval);
+                    clearInterval(displaySpinInterval);
                     finishSpin();
                 }
             }, 50);
         }
 
         function finishSpin() {
-            isSpinning = false; // Muter berhenti
-            selectedIndex = Math.floor(Math.random() * availableNumbers.length);
-            selectedNumber = availableNumbers[selectedIndex];
-            
-            document.getElementById('display').innerText = format4(selectedNumber);
-            document.getElementById('display').style.color = 'var(--blue)';
+            isSpinning = false;
+            const display = document.getElementById('display');
+            display.innerText = format4(selectedNumber);
+            display.style.color = 'var(--blue)';
             
             if (APP_MODE !== 'layar') {
                 document.getElementById('action-controls').classList.remove('hidden');
             }
-
-            // Memicu Laptop agar ikut berhenti di angka yang sama
-            fetchAPI({ action: "set_result", number: selectedNumber });
         }
 
-        function tandai(statusMark, autoLanjut = true) {
-            if (statusMark === 'sah') winners.push({ number: selectedNumber, session: currentSession });
-            else forfeits.push({ number: selectedNumber, session: currentSession });
+        async function tandai(statusMark, autoLanjut = true) {
+            if (!selectedNumber) return;
+
+            const numToSave = selectedNumber;
+            const sessToSave = currentSession;
+
+            if (statusMark === 'sah') winners.push({ number: numToSave, session: sessToSave });
+            else forfeits.push({ number: numToSave, session: sessToSave });
             
-            availableNumbers.splice(selectedIndex, 1);
+            if (selectedIndex > -1 && selectedIndex < availableNumbers.length) {
+                availableNumbers.splice(selectedIndex, 1);
+            }
             updateUI();
             
             document.getElementById('action-controls').classList.add('hidden');
             document.getElementById('display').style.color = 'var(--text-main)';
             
-            isWaitingAction = false; // Selesai
+            isWaitingAction = false;
             showToast();
-            fetchAPI({ action: statusMark, number: selectedNumber, session: currentSession }).then(res => {
-                document.getElementById('sync-toast').classList.add('toast-hidden');
+
+            await fetchAPI({ 
+                action: statusMark, 
+                number: numToSave, 
+                session: sessToSave,
+                jeda: !autoLanjut 
             });
+            document.getElementById('sync-toast').classList.add('toast-hidden');
 
             if (autoLanjut) {
-                setTimeout(() => { startSpin(); }, 500); 
+                startSpin(); 
             } else {
                 document.getElementById('spin-controls').classList.remove('hidden');
                 document.getElementById('btn-spin').innerText = '🎲 LANJUT SPIN';
-                document.getElementById('btn-sesi-top').disabled = false;
             }
         }
 
-        // POLLING DIPERCEPAT 0.8 Detik untuk Laptop agar Gerak Realtime!
-        async function runDisplayPolling() {
-            try {
-                const res = await fetchAPI({ action: "check_status" });
-                if (res && res.status === "success") {
-                    if (res.screenStatus === "SPINNING" && !isSpinning && !isWaitingAction) {
-                        isSpinning = true;
-                        document.getElementById('display').style.color = 'var(--text-main)';
-                        
-                        displaySpinInterval = setInterval(() => {
-                            let max = availableNumbers.length > 0 ? availableNumbers.length : 500;
-                            let randomIdx = Math.floor(Math.random() * max);
-                            let num = availableNumbers.length > 0 ? availableNumbers[randomIdx] : Math.floor(Math.random() * 500) + 1;
-                            document.getElementById('display').innerText = format4(num);
-                        }, 50);
-                    } 
-                    else if (res.screenStatus === "FINISHED" && isSpinning) {
-                        isSpinning = false;
-                        clearInterval(displaySpinInterval);
-                        document.getElementById('display').innerText = format4(res.screenNumber);
-                        document.getElementById('display').style.color = 'var(--blue)';
-                    }
-                    else if (res.screenStatus === "IDLE") {
-                        if(isSpinning) {
-                            isSpinning = false;
-                            clearInterval(displaySpinInterval);
-                        }
-                    }
-                }
-            } catch(e) {}
-            setTimeout(runDisplayPolling, 800); 
-        }
+        // FUNGSI POP-UP REKAP SESI (TAMPIL DI KEDUA MODE: LAYAR & REMOTE)
+        function buildRekapHTML(sess) {
+            let sesiWinners = winners.filter(w => Number(w.session) === Number(sess)).map(w => format4(w.number));
+            let sesiForfeits = forfeits.filter(f => Number(f.session) === Number(sess)).map(f => format4(f.number));
 
-        // Fitur Pop-Up Rekapitulasi Otomatis (Anti-Berantakan)
-        async function pindahSesi() {
-            if (isSpinning || isWaitingAction) { 
-                Swal.fire('Belum Selesai!', 'Selesaikan dulu undian yang sedang berjalan.', 'warning'); 
-                return; 
-            }
-
-            let sesiWinners = winners.filter(w => w.session === currentSession).map(w => format4(w.number));
-            let sesiForfeits = forfeits.filter(f => f.session === currentSession).map(f => format4(f.number));
-
-            let htmlRekap = `
-                <div style="display: flex; justify-content: space-around; text-align: center; margin-top: 10px;">
-                    <div style="flex: 1; padding: 10px; border-right: 1px solid #ccc;">
-                        <h4 style="color: #f59e0b; margin-bottom: 10px; font-size: 18px;">🏆 Pemenang (Sah)</h4>
-                        <div style="max-height: 250px; overflow-y: auto; font-family: monospace; font-size: 20px; font-weight: bold;">
-                            ${sesiWinners.length > 0 ? sesiWinners.map(n => `<div style="color: #1f2937; margin-bottom: 5px;">✅ ${n}</div>`).join('') : '<div style="font-size: 14px; font-weight: normal; color: #6b7280;">Belum ada</div>'}
+            return `
+                <div class="rekap-wrapper">
+                    <div class="rekap-col">
+                        <h4 style="color: #d97706;">🏆 Pemenang Sah (${sesiWinners.length})</h4>
+                        <div class="rekap-list">
+                            ${sesiWinners.length > 0 
+                                ? sesiWinners.map(n => `<span class="rekap-item sah">✅ ${n}</span>`).join('') 
+                                : '<span style="font-size: 14px; color: #6b7280;">Belum ada pemenang</span>'}
                         </div>
                     </div>
-                    <div style="flex: 1; padding: 10px;">
-                        <h4 style="color: #ef4444; margin-bottom: 10px; font-size: 18px;">❌ Hangus / Gugur</h4>
-                        <div style="max-height: 250px; overflow-y: auto; font-family: monospace; font-size: 20px; font-weight: bold;">
-                            ${sesiForfeits.length > 0 ? sesiForfeits.map(n => `<div style="color: #1f2937; margin-bottom: 5px;">❌ ${n}</div>`).join('') : '<div style="font-size: 14px; font-weight: normal; color: #6b7280;">Tidak ada</div>'}
+                    <div class="rekap-col">
+                        <h4 style="color: #ef4444;">❌ Hangus / Gugur (${sesiForfeits.length})</h4>
+                        <div class="rekap-list">
+                            ${sesiForfeits.length > 0 
+                                ? sesiForfeits.map(n => `<span class="rekap-item hangus">❌ ${n}</span>`).join('') 
+                                : '<span style="font-size: 14px; color: #6b7280;">Tidak ada yang hangus</span>'}
                         </div>
                     </div>
                 </div>
-                <hr style="margin-top: 25px; border: 0; border-top: 2px dashed #e5e7eb;">
-                <p style="margin-top: 15px; font-size: 16px; font-weight: bold; color: #374151;">Apakah Anda ingin lanjut ke Sesi ${currentSession + 1}?</p>
+            `;
+        }
+
+        async function pindahSesi() {
+            if (isSpinning) {
+                Swal.fire('Tunggu!', 'Putaran angka sedang berjalan.', 'warning');
+                return;
+            }
+
+            // Jika ada angka yang baru keluar dan belum ditandai Sah/Hangus, tawarkan simpan langsung!
+            if (isWaitingAction && selectedNumber !== null) {
+                const askSave = await Swal.fire({
+                    title: `Simpan Kupon ${format4(selectedNumber)}?`,
+                    text: 'Tentukan status kupon terakhir ini sebelum membuka Rekap Sesi:',
+                    icon: 'question',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981',
+                    denyButtonColor: '#ef4444',
+                    confirmButtonText: '✔ Simpan SAH',
+                    denyButtonText: '❌ Simpan HANGUS',
+                    cancelButtonText: 'Batal'
+                });
+
+                if (askSave.isConfirmed) {
+                    await tandai('sah', false);
+                } else if (askSave.isDenied) {
+                    await tandai('hangus', false);
+                } else {
+                    return;
+                }
+            }
+
+            // Beritahu server agar Mode Layar (Laptop) juga ikut memunculkan Pop-Up Rekap!
+            isRekapModalOpen = true;
+            lastHandledSpinStatus = "REKAP_" + currentSession;
+            fetchAPI({ action: "show_rekap" });
+
+            const htmlRekap = buildRekapHTML(currentSession) + `
+                <p style="margin-top: 15px; margin-bottom: 0; font-size: 15px; font-weight: bold; color: #374151;">
+                    Tutup Sesi ${currentSession} dan lanjut ke Sesi ${currentSession + 1}?
+                </p>
             `;
 
             const confirm = await Swal.fire({
                 title: `🏁 REKAP HASIL SESI ${currentSession}`,
                 html: htmlRekap,
-                width: '700px', 
+                width: '92%',
+                customClass: { popup: 'rekap-popup-modal' },
                 showCancelButton: true,
+                allowOutsideClick: false,
                 confirmButtonColor: '#3b82f6',
-                cancelButtonColor: '#ef4444',
-                confirmButtonText: `⏭️ Ya, Lanjut Sesi ${currentSession + 1}`,
-                cancelButtonText: 'Batal'
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: `⏭️ Lanjut Sesi ${currentSession + 1}`,
+                cancelButtonText: 'Kembali ke Sesi Ini'
             });
+
+            isRekapModalOpen = false;
 
             if (confirm.isConfirmed) {
                 showLoader(true, "Menyiapkan Sesi Baru...");
                 const res = await fetchAPI({ action: "pindahSesi" });
                 if (res && res.status === "success") {
-                    currentSession = res.newSession; 
-                    document.getElementById('display').innerText = '0000'; 
-                    document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN'; 
+                    currentSession = res.newSession;
+                    lastHandledSpinStatus = "IDLE";
+                    document.getElementById('display').innerText = '0000';
+                    document.getElementById('display').style.color = 'var(--text-main)';
+                    document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
+                    document.getElementById('action-controls').classList.add('hidden');
+                    document.getElementById('spin-controls').classList.remove('hidden');
                     updateUI();
-                    Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 2000, showConfirmButton: false });
+                    Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 1800, showConfirmButton: false });
                 } else {
                     Swal.fire('Gagal!', 'Terjadi kesalahan koneksi saat memindah sesi.', 'error');
                 }
                 showLoader(false);
+            } else {
+                // Tutup rekap di layar proyektor jika batal pindah sesi
+                lastHandledSpinStatus = "IDLE";
+                fetchAPI({ action: "close_rekap" });
             }
         }
 
-        async function resetAll() {
-            if (isSpinning || isWaitingAction) {
-                Swal.fire('Tunggu!', 'Selesaikan putaran ini dulu.', 'warning');
-                return;
-            }
-            if ((await Swal.fire({ title: 'Reset Data?', icon: 'warning', showCancelButton: true })).isConfirmed) {
-                if ((await Swal.fire({ title: 'Konfirmasi Terakhir!', text: "Menghapus semua dari Sheets!", icon: 'error', showCancelButton: true })).isConfirmed) {
-                    showLoader(true, "Mereset Sheets...");
-                    const res = await fetchAPI({ action: "reset" });
-                    if (res && res.status === "success") { initApp(); Swal.fire('Berhasil', 'Sistem kembali ke awal.', 'success'); }
-                    else { 
-                        showLoader(false); 
-                        let pesanError = res && res.message ? res.message : 'Gagal menghubungi server Google.';
-                        Swal.fire('Gagal Reset!', pesanError, 'error'); 
+        // POLLING REALTIME UNTUK SINKRONISASI LAYAR & REMOTE
+        async function runDisplayPolling() {
+            try {
+                // Jangan timpa layar saat device ini sedang memutar spin sendiri
+                if (!isSpinning && !isWaitingAction) {
+                    const res = await fetchAPI({ action: "check_status" });
+                    if (res && res.status === "success") {
+                        // Selalu sinkronkan data pemenang, hangus, dan kupon tersedia
+                        availableNumbers = res.availableNumbers || availableNumbers;
+                        winners = res.winners || winners;
+                        forfeits = res.forfeits || forfeits;
+
+                        // Jika sesi berubah dari device lain
+                        if (res.currentSession && res.currentSession !== currentSession) {
+                            currentSession = res.currentSession;
+                            document.getElementById('display').innerText = '0000';
+                            document.getElementById('display').style.color = 'var(--text-main)';
+                            if (isRekapModalOpen) {
+                                Swal.close();
+                                isRekapModalOpen = false;
+                            }
+                        }
+                        updateUI();
+
+                        const serverStatus = String(res.screenStatus || "IDLE");
+
+                        // 1. Jika ada trigger SPIN baru dari device lain
+                        if (serverStatus.startsWith("SPIN_") && serverStatus !== lastHandledSpinStatus) {
+                            lastHandledSpinStatus = serverStatus;
+                            if (isRekapModalOpen) {
+                                Swal.close();
+                                isRekapModalOpen = false;
+                            }
+
+                            isSpinning = true;
+                            const display = document.getElementById('display');
+                            display.style.color = 'var(--text-main)';
+                            
+                            let elapsed = 0;
+                            let duration = 2000;
+                            clearInterval(displaySpinInterval);
+                            displaySpinInterval = setInterval(() => {
+                                let max = availableNumbers.length > 0 ? availableNumbers.length : 500;
+                                let randomIdx = Math.floor(Math.random() * max);
+                                let num = availableNumbers.length > 0 ? availableNumbers[randomIdx] : Math.floor(Math.random() * 500) + 1;
+                                display.innerText = format4(num);
+                                elapsed += 50;
+                                
+                                if (elapsed >= duration) {
+                                    clearInterval(displaySpinInterval);
+                                    isSpinning = false;
+                                    display.innerText = format4(res.screenNumber);
+                                    display.style.color = 'var(--blue)';
+                                }
+                            }, 50);
+                        }
+                        // Pastikan angka hasil spin selalu tampil jika sebelumnya sempat terlewat
+                        else if (serverStatus.startsWith("SPIN_") && !isSpinning) {
+                            const targetFormatted = format4(res.screenNumber);
+                            const display = document.getElementById('display');
+                            if (display.innerText !== targetFormatted && targetFormatted !== "0000") {
+                                display.innerText = targetFormatted;
+                                display.style.color = 'var(--blue)';
+                            }
+                        }
+                        // 2. Jika ada trigger REKAP SESI dari HP, munculkan Pop-Up di Layar Laptop juga!
+                        else if (serverStatus.startsWith("REKAP_") && !isRekapModalOpen) {
+                            isRekapModalOpen = true;
+                            lastHandledSpinStatus = serverStatus;
+                            
+                            Swal.fire({
+                                title: `🏁 REKAP HASIL SESI ${currentSession}`,
+                                html: buildRekapHTML(currentSession),
+                                width: '90%',
+                                showConfirmButton: APP_MODE !== 'layar',
+                                confirmButtonText: 'Tutup Tampilan Rekap',
+                                allowOutsideClick: false
+                            }).then(() => {
+                                isRekapModalOpen = false;
+                            });
+                        }
+                        // 3. Jika Rekap ditutup atau lanjut sesi dari HP, tutup otomatis Pop-Up di Laptop
+                        else if (!serverStatus.startsWith("REKAP_") && isRekapModalOpen) {
+                            Swal.close();
+                            isRekapModalOpen = false;
+                        }
                     }
+                }
+            } catch(e) {}
+            setTimeout(runDisplayPolling, 1000); 
+        }
+
+        async function resetAll() {
+            if (isSpinning) return;
+            if ((await Swal.fire({ title: 'Reset Semua Data?', text: 'Seluruh pemenang & sesi akan dikembalikan ke awal.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' })).isConfirmed) {
+                showLoader(true, "Mereset Google Sheets...");
+                const res = await fetchAPI({ action: "reset" });
+                if (res && res.status === "success") { 
+                    isWaitingAction = false;
+                    selectedNumber = null;
+                    document.getElementById('display').innerText = '0000';
+                    document.getElementById('display').style.color = 'var(--text-main)';
+                    document.getElementById('action-controls').classList.add('hidden');
+                    document.getElementById('spin-controls').classList.remove('hidden');
+                    document.getElementById('btn-spin').innerText = '🎲 PUTAR SPIN';
+                    await initApp(); 
+                    Swal.fire('Berhasil', 'Sistem kembali ke awal (500 kupon siap).', 'success'); 
+                } else { 
+                    showLoader(false); 
+                    let pesanError = res && res.message ? res.message : 'Gagal menghubungi server Google.';
+                    Swal.fire('Gagal Reset!', pesanError, 'error'); 
                 }
             }
         }
 
         function updateUI() {
+            document.getElementById('layar-sesi-text').innerText = currentSession;
             if(APP_MODE === 'layar') return;
+            
             document.getElementById('stat-sesi').innerText = currentSession;
             document.getElementById('stat-tersedia').innerText = availableNumbers.length;
             document.getElementById('stat-menang').innerText = winners.length;
             document.getElementById('stat-hangus').innerText = forfeits.length;
             document.getElementById('judul-sesi-riwayat').innerText = currentSession;
-            const historyList = document.getElementById('history-list'); historyList.innerHTML = '';
-            winners.filter(w => w.session === currentSession).forEach(w => { let s = document.createElement('span'); s.className = 'badge sah'; s.innerText = `✅ ${format4(w.number)}`; historyList.appendChild(s); });
-            forfeits.filter(f => f.session === currentSession).forEach(f => { let s = document.createElement('span'); s.className = 'badge hangus'; s.innerText = `❌ ${format4(f.number)}`; historyList.appendChild(s); });
+            
+            const historyList = document.getElementById('history-list'); 
+            historyList.innerHTML = '';
+            winners.filter(w => Number(w.session) === Number(currentSession)).forEach(w => { 
+                let s = document.createElement('span'); 
+                s.className = 'badge sah'; 
+                s.innerText = `✅ ${format4(w.number)}`; 
+                historyList.appendChild(s); 
+            });
+            forfeits.filter(f => Number(f.session) === Number(currentSession)).forEach(f => { 
+                let s = document.createElement('span'); 
+                s.className = 'badge hangus'; 
+                s.innerText = `❌ ${format4(f.number)}`; 
+                historyList.appendChild(s); 
+            });
         }
 
         initApp();
