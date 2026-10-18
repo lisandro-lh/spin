@@ -8,20 +8,30 @@
     <style>
         :root { --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444; --blue: #3b82f6; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #1f2937; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; transition: all 0.3s;}
-        .header { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        /* HEADER & LOGO SETTINGS */
+        .header { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-img { height: 50px; object-fit: contain; transition: height 0.3s; }
         .header h1 { margin: 0; color: var(--blue); font-size: 24px; }
-        .btn-group-top button { padding: 8px 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-left: 10px; transition: opacity 0.2s; color: white; }
+        
+        .btn-group-top { display: flex; gap: 10px; }
+        .btn-group-top button { padding: 8px 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: opacity 0.2s; color: white; }
         .btn-reset { background-color: #4b5563; } .btn-sesi { background-color: var(--blue); }
         .btn-group-top button:hover { opacity: 0.8; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 900px; margin-bottom: 20px; }
+        
+        /* DASHBOARD STATS */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 1000px; margin-bottom: 20px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
         .stat-card h3 { margin: 0 0 5px 0; font-size: 14px; color: #6b7280; }
         .stat-card .value { font-size: 24px; font-weight: bold; }
         .text-emerald { color: var(--emerald); } .text-amber { color: var(--amber); } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); }
         
-        .main-spin-container { background: var(--card-bg); width: 100%; max-width: 900px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 40px; text-align: center; box-sizing: border-box; margin-bottom: 20px; position: relative; }
+        /* SPIN CONTAINER */
+        .main-spin-container { background: var(--card-bg); width: 100%; max-width: 1000px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 40px; text-align: center; box-sizing: border-box; margin-bottom: 20px; position: relative; }
         .spin-display { font-family: 'Courier New', Courier, monospace; font-size: 100px; font-weight: bold; color: var(--text-main); background: var(--bg-color); border: 5px solid #e5e7eb; border-radius: 15px; padding: 30px; margin: 20px auto; width: 300px; letter-spacing: 5px; transition: all 0.3s;}
         
+        /* CONTROLS */
         .controls { display: flex; justify-content: center; gap: 15px; min-height: 80px; align-items: center; }
         .btn-spin { background-color: var(--blue); font-size: 22px; padding: 15px 50px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; color: white; transition: transform 0.1s; }
         .btn-spin:active { transform: scale(0.95); }
@@ -36,42 +46,59 @@
         .btn-jeda { background: none; border: none; color: #9ca3af; text-decoration: underline; cursor: pointer; font-size: 15px; transition: color 0.2s; }
         .btn-jeda:hover { color: #4b5563; }
 
-        .history-container { width: 100%; max-width: 900px; background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
+        /* HISTORY */
+        .history-container { width: 100%; max-width: 1000px; background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
         .history-container h2 { margin-top: 0; font-size: 18px; border-bottom: 2px solid var(--bg-color); padding-bottom: 10px; }
         .badge { display: inline-block; padding: 8px 15px; border-radius: 20px; margin: 5px; font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: bold; color: white; }
         .badge.sah { background-color: var(--amber); } .badge.hangus { background-color: var(--rose); }
         .hidden { display: none !important; }
+        
+        /* LOADERS & TOASTS */
         #loader { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; border-radius: 12px; z-index: 10; font-weight: bold; color: var(--blue); font-size: 18px; }
         #sync-toast { position: fixed; bottom: 20px; right: 20px; background-color: #1f2937; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 50; transition: opacity 0.3s ease; opacity: 1; display: flex; align-items: center; gap: 8px; font-weight: bold;}
         .toast-hidden { opacity: 0 !important; pointer-events: none; }
 
         /* ========= KHUSUS MODE LAYAR PROYEKTOR ========= */
-        body.mode-layar .header, body.mode-layar .dashboard-grid, body.mode-layar .controls, 
+        body.mode-layar .dashboard-grid, body.mode-layar .controls, 
         body.mode-layar .controls-action, body.mode-layar .history-container, body.mode-layar #sync-toast {
             display: none !important;
         }
         body.mode-layar {
             justify-content: center; height: 100vh; background-color: #ffffff;
         }
+        body.mode-layar .header {
+            position: absolute; top: 30px; max-width: 95%;
+        }
+        body.mode-layar .btn-group-top { display: none; } /* Sembunyikan tombol di proyektor */
+        body.mode-layar .logo-img { height: 80px; } /* Perbesar logo di proyektor */
+        body.mode-layar .header h1 { font-size: 32px; }
+        
         body.mode-layar .main-spin-container {
-            box-shadow: none; transform: scale(1.6); padding: 0; background: transparent;
+            box-shadow: none; transform: scale(1.6); padding: 0; background: transparent; margin-top: 60px;
         }
         body.mode-layar .spin-display {
             border: none; font-size: 160px; background: transparent; width: auto; color: var(--text-main);
         }
         
-        /* Tombol Switch Manual Kecil di Pojok (Berjaga-jaga jika ingin ubah mode manual) */
         .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 5px 10px; background: rgba(0,0,0,0.1); border: none; border-radius: 5px; cursor: pointer; color: #666; z-index: 100; transition: background 0.3s; }
         .btn-switch-mode:hover { background: rgba(0,0,0,0.3); color: white; }
     </style>
 </head>
 <body>
 
+    <!-- HEADER DENGAN LOGO KIRI & KANAN -->
     <div class="header">
-        <h1>🎯 Spin Kupon (Remote Mode)</h1>
-        <div class="btn-group-top">
-            <button class="btn-sesi" onclick="pindahSesi()" id="btn-sesi-top">⏭️ Pindah Sesi</button>
-            <button class="btn-reset" onclick="resetAll()">🔄 Reset All</button>
+        <div class="header-left">
+            <img src="danatara.png" alt="Danatara" class="logo-img">
+            <h1>🎯 Spin Kupon</h1>
+        </div>
+        
+        <div class="header-right">
+            <div class="btn-group-top">
+                <button class="btn-sesi" onclick="pindahSesi()" id="btn-sesi-top">⏭️ Pindah Sesi</button>
+                <button class="btn-reset" onclick="resetAll()">🔄 Reset All</button>
+            </div>
+            <img src="pln.png" alt="PLN" class="logo-img">
         </div>
     </div>
 
@@ -109,7 +136,7 @@
     <button class="btn-switch-mode" onclick="toggleMode()">🔄 Ganti Mode</button>
 
     <script>
-        // URL WEB APP ANDA
+        // URL WEB APP ANDA (JANGAN DIUBAH)
         const API_URL = 'https://script.google.com/macros/s/AKfycbzXNZ-34VFpAevgvPEovKs6bfIiE6XdpCQrcw0XyllWs5NEPECOvAK4xvSGU18UeuE6Jw/exec';
         
         // ==========================================
@@ -119,18 +146,14 @@
         let APP_MODE = urlParams.get('mode');
 
         if (!APP_MODE) {
-            // Jika tidak ada '?mode=' di URL, sistem akan menebak dari ukuran layar
-            // Layar kecil (HP / Tablet) = Remote | Layar lebar (Laptop/PC) = Layar Proyektor
             const isMobile = window.innerWidth <= 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
             APP_MODE = isMobile ? 'remote' : 'layar';
         }
 
-        // Terapkan mode
         if (APP_MODE === 'layar') {
             document.body.classList.add('mode-layar');
         }
 
-        // Fungsi Tombol Manual Ganti Mode di pojok kiri bawah
         function toggleMode() {
             const newMode = APP_MODE === 'layar' ? 'remote' : 'layar';
             window.location.href = '?mode=' + newMode;
@@ -182,7 +205,6 @@
             if(document.getElementById('btn-spin')) document.getElementById('btn-spin').disabled = false;
             showLoader(false);
 
-            // JALANKAN PEMANTAUAN OTOMATIS JIKA INI LAYAR PROYEKTOR
             if (APP_MODE === 'layar') {
                 runDisplayPolling();
             }
@@ -203,10 +225,8 @@
             const display = document.getElementById('display');
             display.style.color = 'var(--text-main)';
             
-            // KIRIM SINYAL KE SERVER AGAR LAYAR MULAI MUTAR
             fetchAPI({ action: "start_spin" });
 
-            // ANIMASI LOKAL DI HP
             let duration = 2500;
             let elapsed = 0;
             let spinInterval = setInterval(() => {
@@ -228,7 +248,6 @@
             document.getElementById('display').style.color = 'var(--blue)';
             document.getElementById('action-controls').classList.remove('hidden');
 
-            // KIRIM HASIL ANGKA KE SERVER AGAR LAYAR BERHENTI & MENAMPILKAN HASIL
             fetchAPI({ action: "set_result", number: selectedNumber });
         }
 
@@ -265,8 +284,6 @@
             try {
                 const res = await fetchAPI({ action: "check_status" });
                 if (res && res.status === "success") {
-                    
-                    // JIKA HP MULAI MUTAR
                     if (res.screenStatus === "SPINNING" && !isSpinning) {
                         isSpinning = true;
                         document.getElementById('display').style.color = 'var(--text-main)';
@@ -278,7 +295,6 @@
                             document.getElementById('display').innerText = format4(num);
                         }, 50);
                     } 
-                    // JIKA HP SUDAH DAPAT HASIL
                     else if (res.screenStatus === "FINISHED" && isSpinning) {
                         isSpinning = false;
                         clearInterval(displaySpinInterval);
