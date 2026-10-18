@@ -184,8 +184,8 @@
     </style>
 </head>
 <body>
-    <!-- Elemen Audio Menggunakan File Lokal sounddrum.mp3 -->
-    <audio id="sound-spin" src="sounddrum.mp3" preload="auto"></audio>
+    <!-- Elemen Audio sounddrum.mp3 dengan loop -->
+    <audio id="sound-spin" src="sounddrum.mp3" preload="auto" loop></audio>
 
     <div class="header">
         <div class="header-top-row">
@@ -380,16 +380,17 @@
             }
         }
 
-        // FUNGSI MEMUTAR SUARA DRUM SAAT SPIN DIMULAI
+        // FUNGSI AUDIO DENGAN PENGAMANAN AUTOPLAY BROWSER (MENDUKUNG MODE LAYAR & REMOTE)
         function playSpinAudio() {
             const audio = document.getElementById('sound-spin');
             if (audio) {
                 audio.currentTime = 0;
-                audio.play().catch(e => console.log("Audio diblokir browser:", e));
+                audio.play().catch(e => {
+                    console.log("Audio menunggu interaksi pengguna:", e);
+                });
             }
         }
 
-        // FUNGSI MENGHENTIKAN SUARA DRUM SAAT SPIN BERHENTI
         function stopSpinAudio() {
             const audio = document.getElementById('sound-spin');
             if (audio) {
@@ -397,6 +398,17 @@
                 audio.currentTime = 0;
             }
         }
+
+        // Unlock audio pada klik pertama di layar agar proyektor/laptop langsung bisa membunyikannya
+        document.addEventListener('click', () => {
+            const audio = document.getElementById('sound-spin');
+            if (audio && audio.paused) {
+                audio.play().then(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }).catch(() => {});
+            }
+        }, { once: true });
 
         async function startSpin(prevStatus = null, prevNum = null) {
             if (isSpinning) return;
@@ -409,7 +421,7 @@
             isWaitingAction = false;
             setControlState('SPINNING');
             
-            // PUTAR SUARA DRUM SAAT SPIN BERJALAN
+            // NYALAKAN SUARA DRUM DI KEDUA DEVICE (REMOTE & LAYAR)
             playSpinAudio();
             
             const display = document.getElementById('display');
@@ -446,13 +458,13 @@
             } else if (res && res.status === "empty") {
                 clearInterval(displaySpinInterval);
                 isSpinning = false;
-                stopSpinAudio(); // MATIKAN SUARA JIKA HABIS
+                stopSpinAudio();
                 setControlState('IDLE');
                 Swal.fire('Habis!', 'Semua kupon telah habis diundi.', 'info');
             } else {
                 clearInterval(displaySpinInterval);
                 isSpinning = false;
-                stopSpinAudio(); // MATIKAN SUARA JIKA KONEKSI PUTUS
+                stopSpinAudio();
                 if (prevNum) {
                     selectedNumber = prevNum;
                     isWaitingAction = true;
@@ -468,7 +480,7 @@
             isSpinning = false;
             isWaitingAction = true;
             
-            // OTOMATIS HENTIKAN SUARA DRUM PAS ANGKA KELUAR
+            // HENTIKAN SUARA DRUM TEPAT SAAT ANGKA KELUAR
             stopSpinAudio();
 
             const display = document.getElementById('display');
@@ -660,7 +672,7 @@
                             isSpinning = true;
                             setControlState('SPINNING');
                             
-                            // PUTAR SUARA DRUM JIKA PERANGKAT LAIN YANG MENG-TRIGGER SPIN
+                            // AKTIFKAN SUARA DRUM OTOMATIS SAAT MODE LAYAR MENDETEKSI SPIN DARI REMOTE
                             playSpinAudio();
 
                             const display = document.getElementById('display');
