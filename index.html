@@ -163,6 +163,13 @@
         .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 6px 12px; background: rgba(0,0,0,0.6); border: none; border-radius: 6px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; }
         .btn-switch-mode:hover { background: rgba(0,0,0,0.85); }
 
+        /* Banner izin suara khusus di Mode Layar jika belum diklik */
+        #audio-unlock-banner {
+            position: fixed; top: 0; left: 0; width: 100%; background: #2563eb; color: white;
+            text-align: center; padding: 10px; font-weight: bold; z-index: 9999; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: none;
+        }
+
         .rekap-wrapper { display: flex; gap: 15px; justify-content: space-between; text-align: center; margin-top: 10px; }
         .rekap-col { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 8px; }
         .rekap-col h4 { margin: 0 0 10px 0; font-size: clamp(14px, 3vw, 18px); padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
@@ -184,7 +191,12 @@
     </style>
 </head>
 <body>
-    <!-- Elemen Audio sounddrum.mp3 dengan loop -->
+    <!-- Banner pemberitahuan agar proyektor/laptop mengizinkan suara keluar -->
+    <div id="audio-unlock-banner" onclick="unlockAudioSession()">
+        🔊 [KLIK DI SINI] Agar Suara Putar Spin Aktif di Layar Ini
+    </div>
+
+    <!-- Elemen Audio sounddrum.mp3 -->
     <audio id="sound-spin" src="sounddrum.mp3" preload="auto" loop></audio>
 
     <div class="header">
@@ -293,6 +305,7 @@
         let lastHandledSpinStatus = "IDLE";
         let isRekapModalOpen = false;
         let isPollingActive = false;
+        let isAudioUnlocked = false;
 
         function showLoader(show, text = "Memuat data...") {
             const loader = document.getElementById('loader');
@@ -365,7 +378,7 @@
                     document.getElementById('display').innerText = format4(selectedNumber);
                     document.getElementById('display').style.color = 'var(--blue)';
                     setControlState('ACTION');
-                } else if (lastHandledSpinStatus.startsWith("REKAP_")) {
+                } else if (lastHandledSpinStatus.startsWith("REK_")) {
                     openRekapModal(currentSession);
                 } else {
                     document.getElementById('display').innerText = format4(data.screenNumber);
@@ -374,19 +387,50 @@
             }
             showLoader(false);
 
+            // Cek apakah audio sudah di-unlock, jika di mode layar tampilkan banner klik
+            const audio = document.getElementById('sound-spin');
+            audio.play().then(() => {
+                audio.pause();
+                audio.currentTime = 0;
+                isAudioUnlocked = true;
+            }).catch(() => {
+                if (APP_MODE === 'layar') {
+                    document.getElementById('audio-unlock-banner').style.display = 'block';
+                }
+            });
+
             if (!isPollingActive) {
                 isPollingActive = true;
                 runDisplayPolling();
             }
         }
 
-        // FUNGSI AUDIO DENGAN PENGAMANAN AUTOPLAY BROWSER (MENDUKUNG MODE LAYAR & REMOTE)
+        // FUNGSI UNLOCK AUDIO KETIKA BANNER ATAU LAYAR DIKLIK DI LAPTOP
+        function unlockAudioSession() {
+            const audio = document.getElementById('sound-spin');
+            if (audio) {
+                audio.play().then(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    isAudioUnlocked = true;
+                    document.getElementById('audio-unlock-banner').style.display = 'none';
+                }).catch(e => console.log(e));
+            }
+        }
+
+        document.addEventListener('click', () => {
+            if (!isAudioUnlocked) unlockAudioSession();
+        }, { once: true });
+
         function playSpinAudio() {
             const audio = document.getElementById('sound-spin');
             if (audio) {
                 audio.currentTime = 0;
                 audio.play().catch(e => {
-                    console.log("Audio menunggu interaksi pengguna:", e);
+                    console.log("Audio diblokir browser, klik layar proyektor sekali:", e);
+                    if (APP_MODE === 'layar') {
+                        document.getElementById('audio-unlock-banner').style.display = 'block';
+                    }
                 });
             }
         }
@@ -399,17 +443,6 @@
             }
         }
 
-        // Unlock audio pada klik pertama di layar agar proyektor/laptop langsung bisa membunyikannya
-        document.addEventListener('click', () => {
-            const audio = document.getElementById('sound-spin');
-            if (audio && audio.paused) {
-                audio.play().then(() => {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }).catch(() => {});
-            }
-        }, { once: true });
-
         async function startSpin(prevStatus = null, prevNum = null) {
             if (isSpinning) return;
             if (availableNumbers.length === 0 && !prevStatus) { 
@@ -421,7 +454,6 @@
             isWaitingAction = false;
             setControlState('SPINNING');
             
-            // NYALAKAN SUARA DRUM DI KEDUA DEVICE (REMOTE & LAYAR)
             playSpinAudio();
             
             const display = document.getElementById('display');
@@ -479,8 +511,6 @@
         function finishSpin() {
             isSpinning = false;
             isWaitingAction = true;
-            
-            // HENTIKAN SUARA DRUM TEPAT SAAT ANGKA KELUAR
             stopSpinAudio();
 
             const display = document.getElementById('display');
@@ -671,8 +701,6 @@
 
                             isSpinning = true;
                             setControlState('SPINNING');
-                            
-                            // AKTIFKAN SUARA DRUM OTOMATIS SAAT MODE LAYAR MENDETEKSI SPIN DARI REMOTE
                             playSpinAudio();
 
                             const display = document.getElementById('display');
@@ -709,7 +737,7 @@
                             lastHandledSpinStatus = serverStatus;
                             openRekapModal(currentSession);
                         }
-                        else if (!serverStatus.startsWith("REKAP_") && isRekapModalOpen) {
+                        else if (!serverStatus.startsWith("REK_") && isRekapModalOpen) {
                             Swal.close();
                             isRekapModalOpen = false;
                         }
@@ -744,6 +772,7 @@
         }
 
         function updateUI() {
+            document.getElementById('layar-session-badge').style.display = (APP_MODE === 'layar') ? 'inline-block' : 'none';
             document.getElementById('layar-sesi-text').innerText = currentSession;
             if(APP_MODE === 'layar') return;
             
