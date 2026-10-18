@@ -194,7 +194,6 @@
         🔊 [KLIK DI SINI] Agar Suara Putar Spin Aktif di Layar Ini
     </div>
 
-    <!-- Elemen Audio sounddrum.mp3 -->
     <audio id="sound-spin" src="sounddrum.mp3" preload="auto" loop></audio>
 
     <div class="header">
@@ -225,7 +224,8 @@
     </div>
 
     <div class="main-wrapper">
-        <div class="layar-session-badge">SESI UNDIAN <span id="layar-sesi-text">1</span></div>
+        <!-- INI BAGIAN YANG DITAMBAHKAN ID-NYA AGAR TIDAK NGESTUCK -->
+        <div class="layar-session-badge" id="layar-session-badge">SESI UNDIAN <span id="layar-sesi-text">1</span></div>
         <div class="spin-display" id="display">0000</div>
         
         <div class="controls-wrapper">
@@ -384,7 +384,6 @@
             }
             showLoader(false);
 
-            // Mencegah autoplay error di awal. Hanya munculkan banner jika di Layar.
             if (APP_MODE === 'layar' && !isAudioUnlocked) {
                 document.getElementById('audio-unlock-banner').style.display = 'block';
             }
@@ -722,8 +721,7 @@
                                 setControlState('ACTION');
                             }
                         }
-                        // Bug Fix: Mencegah Layar Infinite Loop
-                        else if (serverStatus.startsWith("REKAP_") && serverStatus !== lastHandledSpinStatus) {
+                        else if (serverStatus.startsWith("REKAP_") && !isRekapModalOpen) {
                             lastHandledSpinStatus = serverStatus;
                             openRekapModal(currentSession);
                         }
