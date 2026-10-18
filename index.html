@@ -184,6 +184,9 @@
     </style>
 </head>
 <body>
+    <!-- Elemen Audio Menggunakan File Lokal sounddrum.mp3 -->
+    <audio id="sound-spin" src="sounddrum.mp3" preload="auto"></audio>
+
     <div class="header">
         <div class="header-top-row">
             <div class="header-left">
@@ -377,6 +380,24 @@
             }
         }
 
+        // FUNGSI MEMUTAR SUARA DRUM SAAT SPIN DIMULAI
+        function playSpinAudio() {
+            const audio = document.getElementById('sound-spin');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log("Audio diblokir browser:", e));
+            }
+        }
+
+        // FUNGSI MENGHENTIKAN SUARA DRUM SAAT SPIN BERHENTI
+        function stopSpinAudio() {
+            const audio = document.getElementById('sound-spin');
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        }
+
         async function startSpin(prevStatus = null, prevNum = null) {
             if (isSpinning) return;
             if (availableNumbers.length === 0 && !prevStatus) { 
@@ -387,6 +408,9 @@
             isSpinning = true;
             isWaitingAction = false;
             setControlState('SPINNING');
+            
+            // PUTAR SUARA DRUM SAAT SPIN BERJALAN
+            playSpinAudio();
             
             const display = document.getElementById('display');
             display.style.color = 'var(--text-main)';
@@ -422,11 +446,13 @@
             } else if (res && res.status === "empty") {
                 clearInterval(displaySpinInterval);
                 isSpinning = false;
+                stopSpinAudio(); // MATIKAN SUARA JIKA HABIS
                 setControlState('IDLE');
                 Swal.fire('Habis!', 'Semua kupon telah habis diundi.', 'info');
             } else {
                 clearInterval(displaySpinInterval);
                 isSpinning = false;
+                stopSpinAudio(); // MATIKAN SUARA JIKA KONEKSI PUTUS
                 if (prevNum) {
                     selectedNumber = prevNum;
                     isWaitingAction = true;
@@ -441,6 +467,10 @@
         function finishSpin() {
             isSpinning = false;
             isWaitingAction = true;
+            
+            // OTOMATIS HENTIKAN SUARA DRUM PAS ANGKA KELUAR
+            stopSpinAudio();
+
             const display = document.getElementById('display');
             display.innerText = format4(selectedNumber);
             display.style.color = 'var(--blue)';
@@ -513,7 +543,6 @@
             `;
         }
 
-        // FUNGSI UTAMA MEMBUKA POP-UP REKAP DI KEDUA DEVICE
         function openRekapModal(sess) {
             if (isRekapModalOpen) return;
             isRekapModalOpen = true;
@@ -598,7 +627,6 @@
             openRekapModal(currentSession);
         }
 
-        // POLLING REALTIME UNTUK SINKRONISASI KEDUA DEVICE
         async function runDisplayPolling() {
             try {
                 if (!isSpinning) {
@@ -620,7 +648,6 @@
                         syncDataFromServer(res);
                         const serverStatus = String(res.screenStatus || "IDLE");
 
-                        // 1. Sinkronisasi Putaran Spin dari perangkat lain
                         if (serverStatus.startsWith("SPIN_") && serverStatus !== lastHandledSpinStatus) {
                             lastHandledSpinStatus = serverStatus;
                             selectedNumber = res.screenNumber;
@@ -632,6 +659,10 @@
 
                             isSpinning = true;
                             setControlState('SPINNING');
+                            
+                            // PUTAR SUARA DRUM JIKA PERANGKAT LAIN YANG MENG-TRIGGER SPIN
+                            playSpinAudio();
+
                             const display = document.getElementById('display');
                             display.style.color = 'var(--text-main)';
                             
@@ -662,12 +693,10 @@
                                 setControlState('ACTION');
                             }
                         }
-                        // 2. Sinkronisasi Otomatis Munculnya Pop-Up Rekap Sesi di Layar & Remote
                         else if (serverStatus.startsWith("REKAP_") && !isRekapModalOpen) {
                             lastHandledSpinStatus = serverStatus;
                             openRekapModal(currentSession);
                         }
-                        // 3. Sinkronisasi Penutupan Pop-Up Rekap Sesi
                         else if (!serverStatus.startsWith("REKAP_") && isRekapModalOpen) {
                             Swal.close();
                             isRekapModalOpen = false;
