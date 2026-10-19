@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard Spin Doorprize</title>
+    
+    <!-- Library SweetAlert & Confetti Animasi -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -14,7 +17,7 @@
         :root { 
             --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444; --blue: #3b82f6; 
             --text-main: #1f2937; 
-            --glass-bg: rgba(255, 255, 255, 0.88);
+            --glass-bg: rgba(255, 255, 255, 0.92);
         }
         * { box-sizing: border-box; }
         body { 
@@ -27,15 +30,15 @@
         }
         .header { 
             width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 10px;
-            margin-bottom: 15px; background: rgba(255, 255, 255, 0.78); padding: 12px 20px;
-            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(6px); 
+            margin-bottom: 15px; background: rgba(255, 255, 255, 0.85); padding: 12px 20px;
+            border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.5);
         }
         .header-top-row { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
         .header-left { display: flex; align-items: center; justify-content: flex-start; gap: 10px; min-width: 0; }
         .header-center { display: flex; align-items: center; justify-content: center; }
         .header-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
         .logo-img { height: clamp(28px, 5vw, 52px); max-width: 100%; object-fit: contain; }
-        .logo-center { height: clamp(38px, 6.5vw, 72px); max-width: 100%; object-fit: contain; border-radius: 8px; } 
+        .logo-center { height: clamp(38px, 6.5vw, 72px); max-width: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); } 
         .header button { 
             padding: 8px 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px;
             cursor: pointer; transition: all 0.2s; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); white-space: nowrap;
@@ -47,51 +50,84 @@
         .header button:active { transform: scale(0.96); }
         .mobile-action-bar { display: none; width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.1); }
         .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 1000px; margin-bottom: 15px; }
-        .stat-card { background: var(--glass-bg); padding: 12px 10px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.12); text-align: center; backdrop-filter: blur(5px); }
+        .stat-card { background: var(--glass-bg); padding: 12px 10px; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.12); text-align: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.6); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); }
         .stat-card h3 { margin: 0 0 5px 0; font-size: clamp(11px, 2.5vw, 14px); color: #4b5563; font-weight: bold; }
         .stat-card .value { font-size: clamp(18px, 4vw, 24px); font-weight: bold; }
         .text-emerald { color: var(--emerald); } .text-amber { color: var(--amber); } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); }
-        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; position: relative; }
-        .layar-session-badge { display: none; background: var(--blue); color: white; font-weight: bold; font-size: clamp(16px, 2.5vw, 26px); padding: 8px 30px; border-radius: 50px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); letter-spacing: 2px; }
+        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
+        .layar-session-badge { display: none; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; font-weight: bold; font-size: clamp(16px, 2.5vw, 26px); padding: 10px 35px; border-radius: 50px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5); letter-spacing: 2px; border: 2px solid rgba(255,255,255,0.2); }
         
-        /* Tampilan Kotak Angka & Video Overlay */
-        .display-container { position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
-        .spin-display { font-family: 'Courier New', Courier, monospace; font-size: clamp(65px, 16vw, 140px); font-weight: bold; color: var(--text-main); background: rgba(255, 255, 255, 0.96); border: 6px solid var(--blue); border-radius: 20px; padding: clamp(15px, 3vw, 30px) clamp(25px, 6vw, 60px); letter-spacing: clamp(4px, 1.5vw, 10px); box-shadow: 0 15px 35px rgba(0,0,0,0.25); transition: color 0.2s; text-align: center; width: auto; max-width: 95vw; z-index: 1; }
-        
-        /* Overlay Video Spin */
-        #spin-video-overlay { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 95vw; height: 100%; z-index: 10; border-radius: 20px; overflow: hidden; display: flex; justify-content: center; align-items: center; background: black; }
-        #spin-video-overlay video { width: 100%; height: 100%; object-fit: cover; }
-        .hidden-video { display: none !important; }
+        /* DESAIN KOTAK ANGKA */
+        .spin-display { 
+            font-family: 'Courier New', Courier, monospace; font-size: clamp(65px, 16vw, 140px); 
+            font-weight: bold; color: var(--text-main); background: rgba(255, 255, 255, 0.98); 
+            border: 6px solid var(--blue); border-radius: 24px; padding: clamp(15px, 3vw, 30px) clamp(25px, 6vw, 60px); 
+            margin-bottom: 25px; letter-spacing: clamp(4px, 1.5vw, 10px); 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3), inset 0 0 20px rgba(0,0,0,0.05); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; width: auto; max-width: 95vw; 
+        }
 
-        .controls-wrapper { background: rgba(255, 255, 255, 0.88); padding: 18px 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.18); backdrop-filter: blur(5px); min-height: 110px; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 500px; z-index: 2; }
-        .btn-spin { background-color: var(--blue); font-size: clamp(18px, 4.5vw, 24px); padding: 16px 45px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; color: white; transition: transform 0.1s, box-shadow 0.2s; box-shadow: 0 8px 15px rgba(59, 130, 246, 0.4); width: 100%; }
-        .btn-spin:active { transform: scale(0.95); } .btn-spin:hover { box-shadow: 0 12px 20px rgba(59, 130, 246, 0.6); transform: translateY(-2px); }
-        .spinning-status-box { font-size: 18px; font-weight: bold; color: var(--blue); display: flex; align-items: center; gap: 10px; }
+        /* ANIMASI SAAT MENGACAK */
+        .spin-display.is-spinning {
+            border-color: var(--amber); color: var(--amber);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.6), inset 0 0 15px rgba(245, 158, 11, 0.2);
+            animation: shake 0.1s infinite alternate;
+        }
+        @keyframes shake {
+            0% { transform: translateY(-3px) scale(0.99); }
+            100% { transform: translateY(3px) scale(1.01); }
+        }
+
+        /* ANIMASI SAAT HASIL KELUAR */
+        .spin-display.is-winner {
+            border-color: var(--emerald); color: var(--emerald);
+            background: #f0fdf4; /* hijau sangat muda */
+            animation: tadaGlow 1.5s ease-out, pulseGlow 2s infinite 1.5s alternate;
+        }
+        @keyframes tadaGlow {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+            10%, 20% { transform: scale(0.9) rotate(-2deg); }
+            30%, 50%, 70%, 90% { transform: scale(1.15) rotate(2deg); box-shadow: 0 0 60px rgba(16, 185, 129, 0.8); }
+            40%, 60%, 80% { transform: scale(1.15) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0); box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+            100% { box-shadow: 0 0 50px rgba(16, 185, 129, 0.8); transform: scale(1.02); }
+        }
+
+        .controls-wrapper { background: rgba(255, 255, 255, 0.95); padding: 20px 25px; border-radius: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(0,0,0,0.05); min-height: 110px; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 500px; }
+        .btn-spin { background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: clamp(18px, 4.5vw, 24px); padding: 18px 45px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; color: white; transition: all 0.2s; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4); width: 100%; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-spin:active { transform: scale(0.95); } .btn-spin:hover { box-shadow: 0 12px 25px rgba(37, 99, 235, 0.6); transform: translateY(-3px); }
+        .spinning-status-box { font-size: 20px; font-weight: bold; color: var(--amber); display: flex; align-items: center; gap: 10px; animation: pulseText 1s infinite; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        @keyframes pulseText { 0% { opacity: 0.6; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } 100% { opacity: 0.6; transform: scale(0.98); } }
         .controls-action { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
-        .action-prompt { font-size: 14px; font-weight: bold; color: #374151; margin: 0; text-align: center; }
+        .action-prompt { font-size: 15px; font-weight: bold; color: #374151; margin: 0; text-align: center; }
         .btn-action-group { display: flex; gap: 15px; justify-content: center; width: 100%; }
         .btn-choice { flex: 1; padding: 14px 12px; border: none; border-radius: 14px; font-size: 16px; font-weight: bold; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: transform 0.15s; }
         .btn-choice:active { transform: scale(0.95); } .btn-choice span.sub { font-size: 11px; font-weight: normal; opacity: 0.9; }
-        .btn-choice.sah { background-color: var(--emerald); } .btn-choice.hangus { background-color: var(--rose); }
-        .jeda-group { display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; border-top: 1px dashed #d1d5db; padding-top: 10px; }
-        .btn-jeda { background: rgba(31, 41, 55, 0.85); border: none; color: white; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; flex: 1; }
+        .btn-choice.sah { background: linear-gradient(135deg, #10b981, #059669); } .btn-choice.hangus { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .jeda-group { display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; border-top: 1px dashed #d1d5db; padding-top: 12px; }
+        .btn-jeda { background: rgba(31, 41, 55, 0.85); border: none; color: white; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; flex: 1; transition: background 0.2s; }
         .btn-jeda:hover { background: #000; }
-        .history-container { width: 100%; max-width: 1000px; background: var(--glass-bg); border-radius: 12px; padding: 15px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-top: 15px; margin-bottom: 35px; backdrop-filter: blur(5px); }
-        .history-container h2 { margin-top: 0; font-size: 16px; border-bottom: 2px solid #ccc; padding-bottom: 8px; }
-        .badge { display: inline-block; padding: 6px 12px; border-radius: 20px; margin: 4px; font-family: 'Courier New', Courier, monospace; font-size: 15px; font-weight: bold; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .history-container { width: 100%; max-width: 1000px; background: var(--glass-bg); border-radius: 15px; padding: 18px 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); margin-top: 20px; margin-bottom: 35px; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.5); }
+        .history-container h2 { margin-top: 0; font-size: 18px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; color: #1f2937; }
+        .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; margin: 5px; font-family: 'Courier New', Courier, monospace; font-size: 15px; font-weight: bold; color: white; box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
         .badge.sah { background-color: var(--amber); } .badge.hangus { background-color: var(--rose); }
         .hidden { display: none !important; }
         
         body.mode-layar .dashboard-grid, body.mode-layar .controls-wrapper, body.mode-layar .history-container, body.mode-layar .header button, body.mode-layar .mobile-action-bar { display: none !important; }
         body.mode-layar .layar-session-badge { display: inline-block; }
-        body.mode-layar .header { background: transparent; box-shadow: none; backdrop-filter: none; margin-bottom: 5px; }
-        body.mode-layar .logo-img { height: clamp(38px, 6vw, 75px); max-width: 26vw; } 
-        body.mode-layar .logo-center { height: clamp(50px, 8vw, 105px); max-width: 34vw; }
-        body.mode-layar .spin-display { font-size: clamp(75px, 18vw, 190px); padding: clamp(25px, 5vw, 50px) clamp(35px, 7vw, 85px); border-width: 8px; }
-        .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 6px 12px; background: rgba(0,0,0,0.6); border: none; border-radius: 6px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; }
-        .btn-switch-mode:hover { background: rgba(0,0,0,0.85); }
-        #audio-unlock-banner { position: fixed; top: 0; left: 0; width: 100%; background: #2563eb; color: white; text-align: center; padding: 10px; font-weight: bold; z-index: 9999; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: none; }
+        body.mode-layar .header { background: transparent; box-shadow: none; backdrop-filter: none; border: none; margin-bottom: 5px; }
+        body.mode-layar .logo-img { height: clamp(38px, 6vw, 85px); max-width: 26vw; } 
+        body.mode-layar .logo-center { height: clamp(50px, 8vw, 115px); max-width: 34vw; }
+        body.mode-layar .spin-display { font-size: clamp(85px, 20vw, 220px); padding: clamp(25px, 5vw, 50px) clamp(40px, 8vw, 100px); border-width: 10px; margin-top: 20px; }
+        .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 8px 14px; background: rgba(0,0,0,0.6); border: none; border-radius: 8px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; backdrop-filter: blur(5px); }
+        .btn-switch-mode:hover { background: rgba(0,0,0,0.9); }
+        #audio-unlock-banner { position: fixed; top: 0; left: 0; width: 100%; background: #2563eb; color: white; text-align: center; padding: 12px; font-weight: bold; z-index: 9999; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; font-size: 15px; }
         
+        /* Modal Rekap Sesi */
         .rekap-wrapper { display: flex; gap: 15px; justify-content: space-between; text-align: center; margin-top: 10px; }
         .rekap-col { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 8px; }
         .rekap-col h4 { margin: 0 0 10px 0; font-size: clamp(14px, 3vw, 18px); padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
@@ -99,8 +135,8 @@
         .rekap-item { font-family: 'Courier New', Courier, monospace; font-size: clamp(14px, 3.2vw, 20px); font-weight: bold; padding: 5px 10px; border-radius: 8px; color: white; }
         .rekap-item.sah { background-color: var(--amber); } .rekap-item.hangus { background-color: var(--rose); }
         
-        .sesi-group { margin-bottom: 20px; padding: 10px; background: rgba(255,255,255,0.6); border-radius: 10px; border-left: 4px solid var(--blue); }
-        .sesi-title { margin: 0 0 10px 0; font-size: 15px; color: var(--blue); font-weight: bold; }
+        .sesi-group { margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.7); border-radius: 12px; border-left: 5px solid var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .sesi-title { margin: 0 0 10px 0; font-size: 16px; color: var(--blue); font-weight: bold; }
 
         @media (max-width: 768px) {
             body { padding: 10px; } .header { padding: 10px 12px; } .desktop-btn { display: none !important; }
@@ -111,8 +147,6 @@
 </head>
 <body>
     <div id="audio-unlock-banner" onclick="unlockAudioSession()">🔊 [KLIK DI SINI] Agar Suara Putar Spin Aktif di Layar Ini</div>
-    
-    <!-- AUDIO SUMBER -->
     <audio id="sound-spin" src="sounddrum.mp3" preload="auto" loop></audio>
 
     <div class="header">
@@ -146,21 +180,14 @@
 
     <div class="main-wrapper">
         <div class="layar-session-badge" id="layar-session-badge">SESI UNDIAN <span id="layar-sesi-text">1</span></div>
-        
-        <!-- KOTAK TAMPILAN ANGKA & OVERLAY VIDEO SPIN -->
-        <div class="display-container">
-            <div class="spin-display" id="display">0000</div>
-            <div id="spin-video-overlay" class="hidden-video">
-                <video id="vid-spin" src="videospin.mp4" playsinline></video>
-            </div>
-        </div>
+        <div class="spin-display" id="display">0000</div>
         
         <div class="controls-wrapper">
             <div id="spin-controls" style="width: 100%;">
                 <button id="btn-spin" class="btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
             </div>
             <div id="spinning-status" class="spinning-status-box hidden">
-                🎲 Mengacak Nomor Kupon...
+                🎰 Mengacak Nomor Kupon...
             </div>
             <div class="controls-action hidden" id="action-controls">
                 <p class="action-prompt">Tentukan Status Nomor <span id="label-nomor-keluar" style="color:var(--blue);">0000</span>:</p>
@@ -185,6 +212,7 @@
 
     <script>
         // =======================================================
+        // LINK WEB APP SPREADSHEET (OTOMATIS BACKUP)
         const BACKUP_SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbyQhgsuzE-LQWP1grHpSQeeRAyZDGT5OubZc9cXJ6uwIWvH3FfClh-gA3a1mxij6FfEyQ/exec";
         // =======================================================
 
@@ -271,6 +299,7 @@
                 });
                 await stateRef.set({ status: "IDLE", screenNumber: "0000" });
                 
+                // KIRIM SINYAL BUAT TAB SHEET BARU OTOMATIS SAAT SETUP/RESET
                 fetch(BACKUP_SPREADSHEET_URL, {
                     method: 'POST',
                     body: JSON.stringify({ sheetName: newSheetName, data: [] })
@@ -278,6 +307,24 @@
                 
                 document.getElementById('display').style.fontSize = ""; 
                 Swal.fire('Berhasil', `Sistem siap dengan ${totalKupon} kupon!\n\nTab Sheet baru otomatis dibuat di Spreadsheet:${newSheetName}`, 'success');
+            }
+        }
+
+        function fireConfetti() {
+            if (APP_MODE === 'layar') {
+                var duration = 3000;
+                var animationEnd = Date.now() + duration;
+                var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+                function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+                
+                var interval = setInterval(function() {
+                    var timeLeft = animationEnd - Date.now();
+                    if (timeLeft <= 0) { return clearInterval(interval); }
+                    var particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                }, 250);
             }
         }
 
@@ -310,6 +357,7 @@
                 if (!state) return;
 
                 const serverStatus = state.status || "IDLE";
+                const display = document.getElementById('display');
 
                 if (serverStatus === "SPINNING" && serverStatus !== lastHandledSpinStatus) {
                     lastHandledSpinStatus = serverStatus;
@@ -317,13 +365,11 @@
 
                     isSpinning = true;
                     setControlState('SPINNING');
-                    
-                    // 1. PUTAR SUARA DRUM (MUTE VIDEO SPIN)
                     playSpinAudio();
-                    playVideoOverlay(false); // false = Mute video, pakai suara drum
 
-                    const display = document.getElementById('display');
-                    display.style.color = 'var(--text-main)';
+                    // Animasi Kotak Mengacak
+                    display.classList.remove('is-winner');
+                    display.classList.add('is-spinning');
                     
                     clearInterval(displaySpinInterval);
                     displaySpinInterval = setInterval(() => {
@@ -341,13 +387,12 @@
                     isSpinning = false;
                     stopSpinAudio();
                     
-                    // 2. HASIL KELUAR: TUTUP VIDEO, NYALAKAN SUARA ASLI VIDEO SPIN
-                    hideVideoOverlay();
-                    playVideoOverlay(true); // true = Nyalakan suara video saat hasil keluar
-
-                    const display = document.getElementById('display');
+                    // Hentikan getar, nyalakan Glow & Confetti
+                    display.classList.remove('is-spinning');
+                    display.classList.add('is-winner');
                     display.innerText = format4(selectedNumber);
-                    display.style.color = 'var(--blue)';
+                    
+                    fireConfetti();
                     setControlState('ACTION');
                 }
                 else if (serverStatus === "IDLE" && serverStatus !== lastHandledSpinStatus) {
@@ -355,9 +400,13 @@
                     isSpinning = false;
                     selectedNumber = null;
                     stopSpinAudio();
-                    hideVideoOverlay();
-                    document.getElementById('display').innerText = '0000';
-                    document.getElementById('display').style.color = 'var(--text-main)';
+                    
+                    // Reset Animasi
+                    display.classList.remove('is-spinning');
+                    display.classList.remove('is-winner');
+                    display.innerText = '0000';
+                    display.style.color = 'var(--text-main)';
+                    
                     setControlState('IDLE');
                     if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
                 }
@@ -366,23 +415,6 @@
                     openRekapModal(currentSession);
                 }
             });
-        }
-
-        // FUNGSI KONTROL VIDEO SPIN
-        function playVideoOverlay(withAudio) {
-            const overlay = document.getElementById('spin-video-overlay');
-            const vid = document.getElementById('vid-spin');
-            overlay.classList.remove('hidden-video');
-            vid.currentTime = 0;
-            vid.muted = !withAudio; // Jika false, mute (suara drum aktif). Jika true, suara video aktif.
-            vid.play().catch(e => console.log("Video autoplay blocked", e));
-        }
-
-        function hideVideoOverlay() {
-            const overlay = document.getElementById('spin-video-overlay');
-            const vid = document.getElementById('vid-spin');
-            vid.pause();
-            overlay.classList.add('hidden-video');
         }
 
         async function startSpin() {
@@ -397,7 +429,6 @@
 
             stateRef.update({ status: "SPINNING", spinId: Date.now() });
 
-            // DURASI PAS 4,5 DETIK SEBELUM MUNCUL HASIL
             setTimeout(() => {
                 stateRef.update({ status: "ACTION", screenNumber: chosenNumber });
             }, 4500); 
@@ -426,6 +457,7 @@
             }
         }
 
+        // OTOMATIS KIRIM DATA KE SPREADSHEET SAAT KLIK PINDAH SESI
         async function pindahSesi() {
             if (isSpinning) { Swal.fire('Tunggu!', 'Putaran sedang berjalan.', 'warning'); return; }
             
@@ -582,12 +614,9 @@
 
         function playSpinAudio() {
             const audio = document.getElementById('sound-spin');
-            if (audio) { 
-                audio.currentTime = 0; 
-                audio.play().catch(e => {
-                    if (APP_MODE === 'layar') document.getElementById('audio-unlock-banner').style.display = 'block';
-                });
-            }
+            if (audio) { audio.currentTime = 0; audio.play().catch(e => {
+                if (APP_MODE === 'layar') document.getElementById('audio-unlock-banner').style.display = 'block';
+            });}
         }
         function stopSpinAudio() {
             const audio = document.getElementById('sound-spin');
