@@ -386,9 +386,9 @@
             if (res && res.status === "success") {
                 syncDataFromServer(res);
                 
-                // Menghitung sisa durasi agar pas 4500 milidetik (4,5 detik)
+                // Menghitung sisa durasi agar pas 3000 milidetik (3 detik)
                 const elapsedTime = Date.now() - spinStartTime;
-                const targetDuration = 4500;
+                const targetDuration = 3000;
                 const remainingDelay = Math.max(0, targetDuration - elapsedTime);
 
                 setTimeout(() => {
