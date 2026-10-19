@@ -169,7 +169,7 @@
 
     <script>
         // =======================================================
-        // ⚠️ PENTING: MASUKKAN LINK WEB APP SPREADSHEET BARU DI SINI
+        // LINK WEB APP SPREADSHEET (TERHUBUNG OTOMATIS)
         const BACKUP_SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbyQhgsuzE-LQWP1grHpSQeeRAyZDGT5OubZc9cXJ6uwIWvH3FfClh-gA3a1mxij6FfEyQ/exec";
         // =======================================================
 
@@ -243,7 +243,6 @@
                 let nums = [];
                 for(let i=1; i<=totalKupon; i++) nums.push(i);
                 
-                // BUAT NAMA SHEET UNIK UNTUK BACKUP SPREADSHEET
                 const tgl = new Date().toISOString().slice(0, 10);
                 const rand = Math.floor(Math.random() * 1000);
                 const newSheetName = "Acara_" + tgl + "_" + rand;
@@ -257,8 +256,14 @@
                 });
                 await stateRef.set({ status: "IDLE", screenNumber: "0000" });
                 
+                // KIRIM SINYAL BUAT TAB SHEET BARU OTOMATIS SAAT SETUP/RESET
+                fetch(BACKUP_SPREADSHEET_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ sheetName: newSheetName, data: [] })
+                }).catch(e => console.log("Init sheet error", e));
+                
                 document.getElementById('display').style.fontSize = ""; 
-                Swal.fire('Berhasil', `Sistem siap dengan ${totalKupon} kupon! Data backup akan dikirim ke Sheet: ${newSheetName}`, 'success');
+                Swal.fire('Berhasil', `Sistem siap dengan ${totalKupon} kupon!\n\nTab Sheet baru otomatis dibuat di Spreadsheet:${newSheetName}`, 'success');
             }
         }
 
@@ -381,23 +386,20 @@
             }
         }
 
-        // TRIGGER BACKUP KE SPREADSHEET SAAT PINDAH SESI
+        // OTOMATIS KIRIM DATA KE SPREADSHEET SAAT KLIK PINDAH SESI
         async function pindahSesi() {
             if (isSpinning) { Swal.fire('Tunggu!', 'Putaran sedang berjalan.', 'warning'); return; }
             
-            // PROSES BACKUP SILENT
-            if (BACKUP_SPREADSHEET_URL !== "MASUKKAN_URL_WEB_APP_BARU_DI_SINI") {
-                let nowTime = new Date().toLocaleString('id-ID');
-                let backupData = [];
-                winners.filter(w => Number(w.session) === currentSession).forEach(w => backupData.push({ time: nowTime, session: w.session, number: format4(w.number), status: "SAH" }));
-                forfeits.filter(f => Number(f.session) === currentSession).forEach(f => backupData.push({ time: nowTime, session: f.session, number: format4(f.number), status: "HANGUS" }));
-                
-                if(backupData.length > 0) {
-                    fetch(BACKUP_SPREADSHEET_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ sheetName: activeSheetName, data: backupData })
-                    }).catch(e => console.log("Backup error", e));
-                }
+            let nowTime = new Date().toLocaleString('id-ID');
+            let backupData = [];
+            winners.filter(w => Number(w.session) === currentSession).forEach(w => backupData.push({ time: nowTime, session: w.session, number: format4(w.number), status: "SAH" }));
+            forfeits.filter(f => Number(f.session) === currentSession).forEach(f => backupData.push({ time: nowTime, session: f.session, number: format4(f.number), status: "HANGUS" }));
+            
+            if(backupData.length > 0) {
+                fetch(BACKUP_SPREADSHEET_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ sheetName: activeSheetName, data: backupData })
+                }).catch(e => console.log("Backup error", e));
             }
 
             stateRef.update({ status: "REKAP_" + currentSession });
@@ -407,7 +409,7 @@
             if (isSpinning) return;
             const ask = await Swal.fire({ 
                 title: 'Reset & Setup Ulang Acara?', 
-                text: 'Ini akan menutup acara saat ini dan meminta input total kupon baru. Sistem akan membuat Tab Sheet baru di Spreadsheet Anda secara otomatis!', 
+                text: 'Ini akan menutup sesi acara saat ini dan membuat Tab Sheet baru di Spreadsheet Anda secara otomatis!', 
                 icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' 
             });
             if (ask.isConfirmed) {
@@ -416,7 +418,6 @@
             }
         }
 
-        // FITUR EXPORT MANUAL KE EXCEL / CSV (Jaga-jaga offline)
         function exportToCSV() {
             if (winners.length === 0 && forfeits.length === 0) {
                 Swal.fire('Kosong', 'Belum ada data riwayat untuk diekspor.', 'info');
@@ -490,7 +491,7 @@
                         currentSession++;
                         await dataRef.update({ currentSession: currentSession });
                         await stateRef.update({ status: "IDLE" });
-                        Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai! Data Sesi ${sess} telah di-backup ke Spreadsheet.`, icon: 'success', timer: 2000, showConfirmButton: false });
+                        Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!\nData Sesi ${sess} sukses terkirim ke Spreadsheet.`, icon: 'success', timer: 2500, showConfirmButton: false });
                     } else {
                         stateRef.update({ status: "IDLE" });
                     }
