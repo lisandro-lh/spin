@@ -164,7 +164,7 @@
     <button class="btn-switch-mode" id="btn-mode-label" onclick="toggleMode()">🔄 Ganti Mode</button>
 
     <script>
-        // 1. INISIALISASI FIREBASE (Nol Delay Server)
+        // 1. INISIALISASI FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBzq8JfbAOkLG9Jch-nBxvGQ8r-K77DVy8",
             authDomain: "spin-hibualamo-pln.firebaseapp.com",
@@ -177,7 +177,14 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 2. URL GOOGLE SHEETS (Hardisk Data Pemenang)
+        // 2. KODE PENGAMAN (Jika Firebase Terkunci)
+        function updateFirebase(payload) {
+            db.ref('appState').update(payload).catch(e => {
+                Swal.fire('Firebase Terkunci 🔒', 'Tombol tidak berfungsi karena Aturan (Rules) Firebase Anda belum diubah ke "true", atau Database belum di-Create.', 'error');
+            });
+        }
+
+        // 3. URL GOOGLE SHEETS
         const API_URL = 'https://script.google.com/macros/s/AKfycbwL6DH7bItVI16HnGWDt9lZEvLT6plqtqTyoD8Qq88ldrPRRQ8grJ4dKt6if-vr_RZI-w/exec';
         
         const urlParams = new URLSearchParams(window.location.search);
@@ -368,21 +375,21 @@
             if (isSpinning) return;
             if (availableNumbers.length === 0 && !prevStatus) { Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info'); return; }
             
-            db.ref('appState').update({ status: "SPINNING", spinId: Date.now() });
+            updateFirebase({ status: "SPINNING", spinId: Date.now() });
 
             const res = await fetchAPI({ action: "spin_now", prevStatus: prevStatus, prevNumber: prevNum, session: currentSession });
 
             if (res && res.status === "success") {
                 syncDataFromServer(res);
                 setTimeout(() => {
-                    db.ref('appState').update({ status: "ACTION", screenNumber: res.chosenNumber });
+                    updateFirebase({ status: "ACTION", screenNumber: res.chosenNumber });
                 }, 1500); 
 
             } else if (res && res.status === "empty") {
-                db.ref('appState').update({ status: "IDLE" });
+                updateFirebase({ status: "IDLE" });
                 Swal.fire('Habis!', 'Semua kupon telah habis diundi.', 'info');
             } else {
-                db.ref('appState').update({ status: "IDLE" });
+                updateFirebase({ status: "IDLE" });
                 Swal.fire('Koneksi Terputus', 'Gagal menghubungi server Google Sheets.', 'error');
             }
         }
@@ -411,7 +418,7 @@
             if (autoLanjut) {
                 await startSpin(statusMark, numToSave);
             } else {
-                db.ref('appState').update({ status: "IDLE", screenNumber: "0000", triggerSheetSync: Date.now() });
+                updateFirebase({ status: "IDLE", screenNumber: "0000", triggerSheetSync: Date.now() });
                 showToast(true);
                 await fetchAPI({ action: "save_and_stop", statusMark: statusMark, number: numToSave, session: sessToSave });
                 showToast(false);
@@ -452,12 +459,12 @@
                         const res = await fetchAPI({ action: "pindahSesi" });
                         if (res && res.status === "success") {
                             syncDataFromServer(res);
-                            db.ref('appState').update({ status: "IDLE", currentSession: currentSession, triggerSheetSync: Date.now() });
+                            updateFirebase({ status: "IDLE", currentSession: currentSession, triggerSheetSync: Date.now() });
                             Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 1800, showConfirmButton: false });
                         }
                         showLoader(false);
                     } else {
-                        db.ref('appState').update({ status: "IDLE" });
+                        updateFirebase({ status: "IDLE" });
                     }
                 }
             });
@@ -474,7 +481,7 @@
                 else if (askSave.isDenied) await tandai('hangus', false);
                 else return;
             }
-            db.ref('appState').update({ status: "REKAP_" + currentSession });
+            updateFirebase({ status: "REKAP_" + currentSession });
         }
 
         async function resetAll() {
@@ -484,7 +491,7 @@
                 const res = await fetchAPI({ action: "reset" });
                 if (res && res.status === "success") { 
                     syncDataFromServer(res);
-                    db.ref('appState').update({ status: "IDLE", currentSession: 1, triggerSheetSync: Date.now() });
+                    updateFirebase({ status: "IDLE", currentSession: 1, triggerSheetSync: Date.now() });
                     showLoader(false);
                     Swal.fire('Berhasil', 'Sistem kembali ke awal (500 kupon siap).', 'success'); 
                 } else { showLoader(false); Swal.fire('Gagal Reset!', 'Coba lagi nanti.', 'error'); }
