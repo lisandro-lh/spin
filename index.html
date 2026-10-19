@@ -28,10 +28,22 @@
             background-size: cover; background-position: center; background-attachment: fixed;
             background-repeat: no-repeat;
         }
+        
+        /* INDIKATOR JARINGAN */
+        .network-badge {
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
+            background: rgba(16, 185, 129, 0.9); color: white; padding: 6px 16px;
+            border-radius: 20px; font-size: 12px; font-weight: bold; z-index: 9999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+        .network-badge.offline { background: rgba(239, 68, 68, 0.9); }
+
         .header { 
             width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 10px;
             margin-bottom: 15px; background: rgba(255, 255, 255, 0.85); padding: 12px 20px;
             border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.5);
+            margin-top: 30px; /* Spacer untuk network badge */
         }
         .header-top-row { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
         .header-left { display: flex; align-items: center; justify-content: flex-start; gap: 10px; min-width: 0; }
@@ -58,7 +70,6 @@
         .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
         .layar-session-badge { display: none; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; font-weight: bold; font-size: clamp(16px, 2.5vw, 26px); padding: 10px 35px; border-radius: 50px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5); letter-spacing: 2px; border: 2px solid rgba(255,255,255,0.2); }
         
-        /* DESAIN KOTAK ANGKA */
         .spin-display { 
             font-family: 'Courier New', Courier, monospace; font-size: clamp(65px, 16vw, 140px); 
             font-weight: bold; color: var(--text-main); background: rgba(255, 255, 255, 0.98); 
@@ -68,7 +79,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; width: auto; max-width: 95vw; 
         }
 
-        /* ANIMASI SAAT MENGACAK */
         .spin-display.is-spinning {
             border-color: var(--amber); color: var(--amber);
             box-shadow: 0 0 30px rgba(245, 158, 11, 0.6), inset 0 0 15px rgba(245, 158, 11, 0.2);
@@ -79,10 +89,9 @@
             100% { transform: translateY(3px) scale(1.01); }
         }
 
-        /* ANIMASI SAAT HASIL KELUAR */
         .spin-display.is-winner {
             border-color: var(--emerald); color: var(--emerald);
-            background: #f0fdf4; /* hijau sangat muda */
+            background: #f0fdf4; 
             animation: tadaGlow 1.5s ease-out, pulseGlow 2s infinite 1.5s alternate;
         }
         @keyframes tadaGlow {
@@ -119,7 +128,7 @@
         
         body.mode-layar .dashboard-grid, body.mode-layar .controls-wrapper, body.mode-layar .history-container, body.mode-layar .header button, body.mode-layar .mobile-action-bar { display: none !important; }
         body.mode-layar .layar-session-badge { display: inline-block; }
-        body.mode-layar .header { background: transparent; box-shadow: none; backdrop-filter: none; border: none; margin-bottom: 5px; }
+        body.mode-layar .header { background: transparent; box-shadow: none; backdrop-filter: none; border: none; margin-bottom: 5px; margin-top: 5px;}
         body.mode-layar .logo-img { height: clamp(38px, 6vw, 85px); max-width: 26vw; } 
         body.mode-layar .logo-center { height: clamp(50px, 8vw, 115px); max-width: 34vw; }
         body.mode-layar .spin-display { font-size: clamp(85px, 20vw, 220px); padding: clamp(25px, 5vw, 50px) clamp(40px, 8vw, 100px); border-width: 10px; margin-top: 20px; }
@@ -127,7 +136,6 @@
         .btn-switch-mode:hover { background: rgba(0,0,0,0.9); }
         #audio-unlock-banner { position: fixed; top: 0; left: 0; width: 100%; background: #2563eb; color: white; text-align: center; padding: 12px; font-weight: bold; z-index: 9999; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; font-size: 15px; }
         
-        /* Modal Rekap Sesi */
         .rekap-wrapper { display: flex; gap: 15px; justify-content: space-between; text-align: center; margin-top: 10px; }
         .rekap-col { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 8px; }
         .rekap-col h4 { margin: 0 0 10px 0; font-size: clamp(14px, 3vw, 18px); padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
@@ -139,13 +147,14 @@
         .sesi-title { margin: 0 0 10px 0; font-size: 16px; color: var(--blue); font-weight: bold; }
 
         @media (max-width: 768px) {
-            body { padding: 10px; } .header { padding: 10px 12px; } .desktop-btn { display: none !important; }
+            body { padding: 10px; } .header { padding: 10px 12px; margin-top: 35px; } .desktop-btn { display: none !important; }
             .mobile-action-bar { display: flex; } .mobile-action-bar button { flex: 1; padding: 8px; font-size: 12px; }
             .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .rekap-wrapper { flex-direction: column; gap: 10px; }
         }
     </style>
 </head>
 <body>
+    <div id="network-status" class="network-badge">🟢 ONLINE</div>
     <div id="audio-unlock-banner" onclick="unlockAudioSession()">🔊 [KLIK DI SINI] Agar Suara Putar Spin Aktif di Layar Ini</div>
     <audio id="sound-spin" src="sounddrum.mp3" preload="auto" loop></audio>
 
@@ -212,7 +221,6 @@
 
     <script>
         // =======================================================
-        // LINK WEB APP SPREADSHEET (OTOMATIS BACKUP)
         const BACKUP_SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbyQhgsuzE-LQWP1grHpSQeeRAyZDGT5OubZc9cXJ6uwIWvH3FfClh-gA3a1mxij6FfEyQ/exec";
         // =======================================================
 
@@ -259,6 +267,24 @@
         let lastHandledSpinStatus = "IDLE";
         let isRekapModalOpen = false;
         let isAudioUnlocked = false;
+        
+        // FITUR DETEKSI OFFLINE
+        let isOnline = navigator.onLine;
+        function updateNetworkStatus() {
+            const badge = document.getElementById('network-status');
+            if (isOnline) {
+                badge.innerHTML = '🟢 ONLINE';
+                badge.classList.remove('offline');
+            } else {
+                badge.innerHTML = '🔴 OFFLINE (Disimpan Lokal)';
+                badge.classList.add('offline');
+                if(APP_MODE !== 'layar') {
+                    Swal.fire({ toast: true, position: 'top', showConfirmButton: false, timer: 3000, icon: 'warning', title: 'Koneksi Terputus!', text: 'Sistem tetap berjalan offline.'});
+                }
+            }
+        }
+        window.addEventListener('online', () => { isOnline = true; updateNetworkStatus(); Swal.fire({toast: true, position: 'top', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Kembali Online!', text: 'Data sinkron otomatis.'}); });
+        window.addEventListener('offline', () => { isOnline = false; updateNetworkStatus(); });
 
         async function setupAwal() {
             if (APP_MODE === 'layar') {
@@ -291,22 +317,16 @@
                 const newSheetName = "Acara_" + tgl + "_" + rand;
 
                 await dataRef.set({
-                    availableNumbers: nums,
-                    winners: [],
-                    forfeits: [],
-                    currentSession: 1,
-                    activeSheetName: newSheetName
+                    availableNumbers: nums, winners: [], forfeits: [], currentSession: 1, activeSheetName: newSheetName
                 });
                 await stateRef.set({ status: "IDLE", screenNumber: "0000" });
                 
-                // KIRIM SINYAL BUAT TAB SHEET BARU OTOMATIS SAAT SETUP/RESET
-                fetch(BACKUP_SPREADSHEET_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ sheetName: newSheetName, data: [] })
-                }).catch(e => console.log("Init sheet error", e));
+                if(isOnline) {
+                    fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', body: JSON.stringify({ sheetName: newSheetName, data: [] }) }).catch(e => console.log("Init sheet error", e));
+                }
                 
                 document.getElementById('display').style.fontSize = ""; 
-                Swal.fire('Berhasil', `Sistem siap dengan ${totalKupon} kupon!\n\nTab Sheet baru otomatis dibuat di Spreadsheet:${newSheetName}`, 'success');
+                Swal.fire('Berhasil', `Sistem siap dengan ${totalKupon} kupon!`, 'success');
             }
         }
 
@@ -315,7 +335,6 @@
                 var duration = 3000;
                 var animationEnd = Date.now() + duration;
                 var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
-
                 function randomInRange(min, max) { return Math.random() * (max - min) + min; }
                 
                 var interval = setInterval(function() {
@@ -332,6 +351,11 @@
             if (APP_MODE === 'layar' && !isAudioUnlocked) {
                 document.getElementById('audio-unlock-banner').style.display = 'block';
             }
+
+            db.ref('.info/connected').on('value', function(snap) {
+                isOnline = snap.val() === true;
+                updateNetworkStatus();
+            });
 
             dataRef.on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -367,7 +391,6 @@
                     setControlState('SPINNING');
                     playSpinAudio();
 
-                    // Animasi Kotak Mengacak
                     display.classList.remove('is-winner');
                     display.classList.add('is-spinning');
                     
@@ -387,7 +410,6 @@
                     isSpinning = false;
                     stopSpinAudio();
                     
-                    // Hentikan getar, nyalakan Glow & Confetti
                     display.classList.remove('is-spinning');
                     display.classList.add('is-winner');
                     display.innerText = format4(selectedNumber);
@@ -401,7 +423,6 @@
                     selectedNumber = null;
                     stopSpinAudio();
                     
-                    // Reset Animasi
                     display.classList.remove('is-spinning');
                     display.classList.remove('is-winner');
                     display.innerText = '0000';
@@ -437,13 +458,14 @@
         async function tandai(statusMark, autoLanjut = true) {
             if (!selectedNumber || isSpinning) return;
             const numToSave = selectedNumber; const sessToSave = currentSession;
+            const offlineFlag = !isOnline; // Deteksi jika sedang offline
 
             if (statusMark === 'sah') {
                 winners = winners || [];
-                winners.push({ number: numToSave, session: sessToSave });
+                winners.push({ number: numToSave, session: sessToSave, isOffline: offlineFlag });
             } else {
                 forfeits = forfeits || [];
-                forfeits.push({ number: numToSave, session: sessToSave });
+                forfeits.push({ number: numToSave, session: sessToSave, isOffline: offlineFlag });
             }
             
             let idx = availableNumbers.findIndex(x => String(x).trim() === String(numToSave).trim() || Number(x) === Number(numToSave));
@@ -452,25 +474,26 @@
             await dataRef.update({ availableNumbers, winners, forfeits });
             await stateRef.update({ status: "IDLE", screenNumber: "0000" });
 
-            if (autoLanjut) {
-                setTimeout(() => startSpin(), 600); 
-            }
+            if (autoLanjut) { setTimeout(() => startSpin(), 600); }
         }
 
-        // OTOMATIS KIRIM DATA KE SPREADSHEET SAAT KLIK PINDAH SESI
         async function pindahSesi() {
             if (isSpinning) { Swal.fire('Tunggu!', 'Putaran sedang berjalan.', 'warning'); return; }
             
-            let nowTime = new Date().toLocaleString('id-ID');
-            let backupData = [];
-            winners.filter(w => Number(w.session) === currentSession).forEach(w => backupData.push({ time: nowTime, session: w.session, number: format4(w.number), status: "SAH" }));
-            forfeits.filter(f => Number(f.session) === currentSession).forEach(f => backupData.push({ time: nowTime, session: f.session, number: format4(f.number), status: "HANGUS" }));
-            
-            if(backupData.length > 0) {
-                fetch(BACKUP_SPREADSHEET_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ sheetName: activeSheetName, data: backupData })
-                }).catch(e => console.log("Backup error", e));
+            if (isOnline) {
+                let nowTime = new Date().toLocaleString('id-ID');
+                let backupData = [];
+                winners.filter(w => Number(w.session) === currentSession).forEach(w => backupData.push({ time: nowTime, session: w.session, number: format4(w.number), status: "SAH" }));
+                forfeits.filter(f => Number(f.session) === currentSession).forEach(f => backupData.push({ time: nowTime, session: f.session, number: format4(f.number), status: "HANGUS" }));
+                
+                if(backupData.length > 0) {
+                    fetch(BACKUP_SPREADSHEET_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ sheetName: activeSheetName, data: backupData })
+                    }).catch(e => console.log("Backup error", e));
+                }
+            } else {
+                Swal.fire({ toast: true, position: 'top', showConfirmButton: false, timer: 3000, icon: 'warning', title: 'Data Backup Tertunda!', text: 'Menunggu koneksi internet.'});
             }
 
             stateRef.update({ status: "REKAP_" + currentSession });
@@ -480,7 +503,7 @@
             if (isSpinning) return;
             const ask = await Swal.fire({ 
                 title: 'Reset & Setup Ulang Acara?', 
-                text: 'Ini akan menutup sesi acara saat ini dan membuat Tab Sheet baru di Spreadsheet Anda secara otomatis!', 
+                text: 'Ini akan menutup sesi acara saat ini.', 
                 icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' 
             });
             if (ask.isConfirmed) {
@@ -494,12 +517,12 @@
                 Swal.fire('Kosong', 'Belum ada data riwayat untuk diekspor.', 'info');
                 return;
             }
-            let csv = "Waktu Tercatat,Sesi Undian,Nomor Kupon,Status Kupon\n";
+            let csv = "Waktu Tercatat,Sesi Undian,Nomor Kupon,Status Kupon,Kondisi Jaringan\n";
             let nowTime = new Date().toLocaleString('id-ID');
             
             for (let i = 1; i <= currentSession; i++) {
-                winners.filter(w => Number(w.session) === i).forEach(w => csv += `${nowTime},Sesi ${w.session},${format4(w.number)},SAH\n`);
-                forfeits.filter(f => Number(f.session) === i).forEach(f => csv += `${nowTime},Sesi ${f.session},${format4(f.number)},HANGUS\n`);
+                winners.filter(w => Number(w.session) === i).forEach(w => csv += `${nowTime},Sesi${w.session},${format4(w.number)},SAH,${w.isOffline ? 'OFFLINE' : 'ONLINE'}\n`);
+                forfeits.filter(f => Number(f.session) === i).forEach(f => csv += `${nowTime},Sesi${f.session},${format4(f.number)},HANGUS,${f.isOffline ? 'OFFLINE' : 'ONLINE'}\n`);
             }
             
             let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -530,15 +553,16 @@
         }
 
         function buildRekapHTML(sess) {
-            let sesiWinners = winners.filter(w => Number(w.session) === Number(sess)).map(w => format4(w.number));
-            let sesiForfeits = forfeits.filter(f => Number(f.session) === Number(sess)).map(f => format4(f.number));
+            let wSess = winners.filter(w => Number(w.session) === Number(sess));
+            let fSess = forfeits.filter(f => Number(f.session) === Number(sess));
+            
             return `
                 <div class="rekap-wrapper">
-                    <div class="rekap-col"><h4 style="color: #d97706;">🏆 Pemenang Sah (${sesiWinners.length})</h4>
-                        <div class="rekap-list">${sesiWinners.length > 0 ? sesiWinners.map(n => `<span class="rekap-item sah">✅ ${n}</span>`).join('') : '<span style="font-size: 14px; color: #6b7280;">Belum ada</span>'}</div>
+                    <div class="rekap-col"><h4 style="color: #d97706;">🏆 Pemenang Sah (${wSess.length})</h4>
+                        <div class="rekap-list">${wSess.length > 0 ? wSess.map(w => `<span class="rekap-item sah" title="${w.isOffline ? 'Dicatat saat OFFLINE' : ''}">✅ ${format4(w.number)}${w.isOffline ? ' <span style="font-size:12px;">⚠️</span>' : ''}</span>`).join('') : '<span style="font-size: 14px; color: #6b7280;">Belum ada</span>'}</div>
                     </div>
-                    <div class="rekap-col"><h4 style="color: #ef4444;">❌ Hangus / Gugur (${sesiForfeits.length})</h4>
-                        <div class="rekap-list">${sesiForfeits.length > 0 ? sesiForfeits.map(n => `<span class="rekap-item hangus">❌ ${n}</span>`).join('') : '<span style="font-size: 14px; color: #6b7280;">Tidak ada</span>'}</div>
+                    <div class="rekap-col"><h4 style="color: #ef4444;">❌ Hangus / Gugur (${fSess.length})</h4>
+                        <div class="rekap-list">${fSess.length > 0 ? fSess.map(f => `<span class="rekap-item hangus" title="${f.isOffline ? 'Dicatat saat OFFLINE' : ''}">❌ ${format4(f.number)}${f.isOffline ? ' <span style="font-size:12px;">⚠️</span>' : ''}</span>`).join('') : '<span style="font-size: 14px; color: #6b7280;">Tidak ada</span>'}</div>
                     </div>
                 </div>`;
         }
@@ -562,7 +586,7 @@
                         currentSession++;
                         await dataRef.update({ currentSession: currentSession });
                         await stateRef.update({ status: "IDLE" });
-                        Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!\nData Sesi ${sess} sukses terkirim ke Spreadsheet.`, icon: 'success', timer: 2500, showConfirmButton: false });
+                        Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 2000, showConfirmButton: false });
                     } else {
                         stateRef.update({ status: "IDLE" });
                     }
@@ -591,8 +615,8 @@
                     let div = document.createElement('div');
                     div.className = 'sesi-group';
                     div.innerHTML = `<div class="sesi-title">🔹 Riwayat Sesi ${i}</div>`;
-                    wSess.forEach(w => { div.innerHTML += `<span class="badge sah">✅ ${format4(w.number)}</span>`; });
-                    fSess.forEach(f => { div.innerHTML += `<span class="badge hangus">❌ ${format4(f.number)}</span>`; });
+                    wSess.forEach(w => { div.innerHTML += `<span class="badge sah" title="${w.isOffline ? 'Dicatat saat OFFLINE' : ''}">✅ ${format4(w.number)}${w.isOffline ? ' ⚠️' : ''}</span>`; });
+                    fSess.forEach(f => { div.innerHTML += `<span class="badge hangus" title="${f.isOffline ? 'Dicatat saat OFFLINE' : ''}">❌ ${format4(f.number)}${f.isOffline ? ' ⚠️' : ''}</span>`; });
                     historyList.appendChild(div);
                 }
             }
