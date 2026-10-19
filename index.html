@@ -177,14 +177,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 2. KODE PENGAMAN (Jika Firebase Terkunci)
         function updateFirebase(payload) {
             db.ref('appState').update(payload).catch(e => {
-                Swal.fire('Firebase Terkunci 🔒', 'Tombol tidak berfungsi karena Aturan (Rules) Firebase Anda belum diubah ke "true", atau Database belum di-Create.', 'error');
+                Swal.fire('Firebase Terkunci', 'Aturan Firebase belum true atau database belum aktif.', 'error');
             });
         }
 
-        // 3. URL GOOGLE SHEETS
+        // 2. URL GOOGLE SHEETS TERBARU
         const API_URL = 'https://script.google.com/macros/s/AKfycbxpb1j_t6wKCsf3_Pp3lk3yqrhpfgmsWNyx0Jf6Pzpy4wMh7nr-_hSIsds2Z00kpTs5gQ/exec';
         
         const urlParams = new URLSearchParams(window.location.search);
@@ -371,19 +370,30 @@
             if (audio) { audio.pause(); audio.currentTime = 0; }
         }
 
+        // FUNGSI SPIN: DIKUNCI PAS 4 - 4.5 DETIK
         async function startSpin(prevStatus = null, prevNum = null) {
             if (isSpinning) return;
-            if (availableNumbers.length === 0 && !prevStatus) { Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info'); return; }
+            if (availableNumbers.length === 0 && !prevStatus) { 
+                Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info'); 
+                return; 
+            }
             
-            updateFirebase({ status: "SPINNING", spinId: Date.now() });
+            const spinStartTime = Date.now();
+            updateFirebase({ status: "SPINNING", spinId: spinStartTime });
 
             const res = await fetchAPI({ action: "spin_now", prevStatus: prevStatus, prevNumber: prevNum, session: currentSession });
 
             if (res && res.status === "success") {
                 syncDataFromServer(res);
+                
+                // Menghitung sisa durasi agar pas 4500 milidetik (4,5 detik)
+                const elapsedTime = Date.now() - spinStartTime;
+                const targetDuration = 4500;
+                const remainingDelay = Math.max(0, targetDuration - elapsedTime);
+
                 setTimeout(() => {
                     updateFirebase({ status: "ACTION", screenNumber: res.chosenNumber });
-                }, 1500); 
+                }, remainingDelay); 
 
             } else if (res && res.status === "empty") {
                 updateFirebase({ status: "IDLE" });
