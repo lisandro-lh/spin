@@ -266,7 +266,6 @@
         async function initApp() {
             showLoader(true, "Menghubungkan Database...");
             
-            // Ambil data pertama kali dari Google Sheets
             const data = await fetchAPI({ action: "init" });
             if (data && data.status === "success") syncDataFromServer(data);
             showLoader(false);
@@ -275,7 +274,6 @@
                 document.getElementById('audio-unlock-banner').style.display = 'block';
             }
 
-            // MENGHAPUS POLLING! MENGGUNAKAN FIREBASE LISTENER NOL DELAY
             db.ref('appState').on('value', (snapshot) => {
                 const state = snapshot.val();
                 if (!state) return;
@@ -287,7 +285,6 @@
 
                 const serverStatus = state.status || "IDLE";
 
-                // STATUS SPINNING
                 if (serverStatus === "SPINNING" && serverStatus !== lastHandledSpinStatus) {
                     lastHandledSpinStatus = serverStatus;
                     if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
@@ -307,14 +304,12 @@
                         display.innerText = format4(num);
                     }, 50);
                 }
-                // STATUS ACTION (ANGKA MUNCUL)
                 else if (serverStatus === "ACTION" && serverStatus !== lastHandledSpinStatus) {
                     lastHandledSpinStatus = serverStatus;
                     selectedNumber = state.screenNumber;
                     clearInterval(displaySpinInterval);
                     finishSpin();
                 }
-                // STATUS IDLE (KEMBALI KE AWAL)
                 else if (serverStatus === "IDLE" && serverStatus !== lastHandledSpinStatus) {
                     lastHandledSpinStatus = serverStatus;
                     isSpinning = false;
@@ -326,13 +321,11 @@
                     setControlState('IDLE');
                     if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
                 }
-                // STATUS REKAP (POP UP)
                 else if (serverStatus.startsWith("REKAP_") && serverStatus !== lastHandledSpinStatus) {
                     lastHandledSpinStatus = serverStatus;
                     openRekapModal(currentSession);
                 }
 
-                // Cek jika ada perintah untuk update data (Background Fetch Sheets)
                 if (state.triggerSheetSync && state.triggerSheetSync !== lastTriggerSync) {
                     lastTriggerSync = state.triggerSheetSync;
                     fetchAPI({ action: "check_status" }).then(res => {
@@ -342,7 +335,6 @@
             });
         }
 
-        // PENGATURAN AUDIO UNLOCK BROWSER
         function unlockAudioSession() {
             if (isAudioUnlocked) return;
             const audio = document.getElementById('sound-spin');
@@ -372,23 +364,17 @@
             if (audio) { audio.pause(); audio.currentTime = 0; }
         }
 
-        // FUNGSI SPIN MENGGUNAKAN FIREBASE (LANGSUNG MUTER 0 DETIK)
         async function startSpin(prevStatus = null, prevNum = null) {
             if (isSpinning) return;
             if (availableNumbers.length === 0 && !prevStatus) { Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info'); return; }
             
-            // Tembak Firebase agar HP dan Laptop berputar bersamaan DETIK ITU JUGA
             db.ref('appState').update({ status: "SPINNING", spinId: Date.now() });
 
-            // Diam-diam minta Google Sheets mencarikan angka pemenang resmi
             const res = await fetchAPI({ action: "spin_now", prevStatus: prevStatus, prevNumber: prevNum, session: currentSession });
 
             if (res && res.status === "success") {
                 syncDataFromServer(res);
-                
-                // Pastikan putaran berlangsung minimal 1.5 detik agar seru
                 setTimeout(() => {
-                    // Tembak Firebase agar layar berhenti di angka pemenang
                     db.ref('appState').update({ status: "ACTION", screenNumber: res.chosenNumber });
                 }, 1500); 
 
@@ -415,7 +401,6 @@
             if (!selectedNumber || isSpinning) return;
             const numToSave = selectedNumber; const sessToSave = currentSession;
 
-            // Update UI secara Instan
             if (statusMark === 'sah') winners.push({ number: numToSave, session: sessToSave });
             else forfeits.push({ number: numToSave, session: sessToSave });
             
@@ -426,7 +411,6 @@
             if (autoLanjut) {
                 await startSpin(statusMark, numToSave);
             } else {
-                // Beri tahu Firebase dan Sheets untuk berhenti
                 db.ref('appState').update({ status: "IDLE", screenNumber: "0000", triggerSheetSync: Date.now() });
                 showToast(true);
                 await fetchAPI({ action: "save_and_stop", statusMark: statusMark, number: numToSave, session: sessToSave });
