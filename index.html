@@ -316,6 +316,7 @@
         const DURASI_SPIN_UTAMA = 4500;     // ms
         const DURASI_SPIN_HIBURAN = 4000;   // ms
         const DURASI_SPIN_GANTI = 2500;     // ms (undi ulang nomor hangus)
+        const BATAS_NOMOR_UTAMA = 350;      // Hadiah Utama hanya mengundi nomor 1 s/d angka ini. Nomor di atasnya khusus Hadiah Hiburan.
         // =======================================================
 
         const firebaseConfig = {
@@ -669,7 +670,12 @@
             }
             if (prizeMode === 'hiburan') return startSpinHiburan();
 
-            const chosen = ambilAcak(availableNumbers, 1)[0];
+            const poolUtama = availableNumbers.filter(x => Number(x) <= BATAS_NOMOR_UTAMA);
+            if (poolUtama.length === 0) {
+                Swal.fire('Habis!', 'Tidak ada kupon tersisa untuk Hadiah Utama. Lanjutkan dengan Hadiah Hiburan.', 'info');
+                return;
+            }
+            const chosen = ambilAcak(poolUtama, 1)[0];
             simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, spinId: Date.now(), durasi: DURASI_SPIN_UTAMA });
         }
 
