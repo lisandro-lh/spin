@@ -107,7 +107,7 @@
             100% { box-shadow: 0 0 50px rgba(16, 185, 129, 0.8); transform: scale(1.02); }
         }
 
-        /* ===== GRID HADIAH HIBURAN (10 NOMOR) ===== */
+        /* ===== GRID HADIAH HIBURAN (15 NOMOR) ===== */
         .hiburan-wrap { width: 100%; max-width: 1100px; margin-bottom: 20px; }
         .hiburan-title {
             width: fit-content; max-width: 100%; margin: 0 auto 14px; padding: 8px 26px; border-radius: 50px;
@@ -282,7 +282,7 @@
         <!-- Tampilan 1 nomor (Hadiah Utama) -->
         <div class="spin-display" id="display">0000</div>
 
-        <!-- Tampilan 10 nomor (Hadiah Hiburan) -->
+        <!-- Tampilan 15 nomor (Hadiah Hiburan) -->
         <div class="hiburan-wrap hidden" id="hiburan-wrap">
             <div class="hiburan-title" id="hiburan-title">🎁 PEMENANG HADIAH HIBURAN</div>
             <div class="hiburan-grid" id="hiburan-grid"></div>
@@ -291,8 +291,8 @@
         <div class="controls-wrapper">
             <div id="spin-controls" style="width: 100%;">
                 <div class="prize-tabs">
-                    <button class="prize-tab active" data-mode="utama" onclick="setPrizeMode('utama')">🏆 Hadiah Utama<span class="sub"></span></button>
-                    <button class="prize-tab" data-mode="hiburan" onclick="setPrizeMode('hiburan')">🎁 Hadiah Hiburan<span class="sub" id="tab-hiburan-sub"></span></button>
+                    <button class="prize-tab active" data-mode="utama" onclick="setPrizeMode('utama')">🏆 Hadiah Utama<span class="sub">1 nomor per putaran</span></button>
+                    <button class="prize-tab" data-mode="hiburan" onclick="setPrizeMode('hiburan')">🎁 Hadiah Hiburan<span class="sub" id="tab-hiburan-sub">15 nomor sekaligus</span></button>
                 </div>
                 <button id="btn-spin" class="btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
             </div>
@@ -338,10 +338,10 @@
         // PENGATURAN
         // =======================================================
         const BACKUP_SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbyQhgsuzE-LQWP1grHpSQeeRAyZDGT5OubZc9cXJ6uwIWvH3FfClh-gA3a1mxij6FfEyQ/exec";
-        const JUMLAH_HIBURAN = 15;          // jumlah nomor sekali spin hadiah hiburan
-        const DURASI_SPIN_UTAMA = 60000;     // ms (60 detik)
-        const DURASI_SPIN_HIBURAN = 60000;   // ms (60 detik)
-        const DURASI_SPIN_GANTI = 3500;     // ms (undi ulang nomor hangus)
+        const JUMLAH_HIBURAN = 10;          // jumlah hadiah hiburan per sesi (sekali spin cepat)
+        const DURASI_SPIN_UTAMA = 5000;     // ms (5 detik)
+        const DURASI_SPIN_HIBURAN = 5000;   // ms (5 detik)
+        const DURASI_SPIN_GANTI = 2500;     // ms (undi ulang nomor hangus)
         const BATAS_NOMOR_UTAMA = 350;      // Hadiah Utama hanya mengundi nomor 1 s/d angka ini. Nomor di atasnya khusus Hadiah Hiburan.
         // =======================================================
 
@@ -371,7 +371,7 @@
         } else {
             document.getElementById('btn-mode-label').innerText = '🖥️ Ke Mode Layar';
         }
-        document.getElementById('tab-hiburan-sub').innerText = JUMLAH_HIBURAN + ' nomor sekaligus';
+        document.getElementById('tab-hiburan-sub').innerText = JUMLAH_HIBURAN + ' hadiah per sesi';
 
         function toggleMode() { window.location.href = '?mode=' + (APP_MODE === 'layar' ? 'remote' : 'layar'); }
 
@@ -670,7 +670,12 @@
             });
             const btn = document.getElementById('btn-spin');
             btn.classList.toggle('hiburan', prizeMode === 'hiburan');
-            btn.innerHTML = prizeMode === 'hiburan' ? `⚡ SPIN CEPAT ${JUMLAH_HIBURAN} NOMOR` : '🎲 PUTAR SPIN';
+            const sisaKuota = sisaKuotaHiburan();
+            if (prizeMode === 'hiburan') {
+                btn.innerHTML = sisaKuota > 0 ? `⚡ SPIN CEPAT ${sisaKuota} NOMOR` : '✅ HIBURAN SESI INI LENGKAP';
+            } else {
+                btn.innerHTML = '🎲 PUTAR SPIN';
+            }
 
             let isHib;
             if (st.indexOf('HIBURAN') > -1) isHib = true;
@@ -705,9 +710,20 @@
             simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, spinId: Date.now(), durasi: DURASI_SPIN_UTAMA });
         }
 
+        // Sisa jatah pemenang hiburan di sesi berjalan
+        function sisaKuotaHiburan() {
+            const sudah = winners.filter(w => jenisHadiah(w) === 'hiburan' && Number(w.session) === Number(currentSession)).length;
+            return Math.max(JUMLAH_HIBURAN - sudah, 0);
+        }
+
         function startSpinHiburan() {
-            const nums = ambilAcak(availableNumbers, JUMLAH_HIBURAN);
-            if (nums.length < JUMLAH_HIBURAN) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
+            const kuota = sisaKuotaHiburan();
+            if (kuota <= 0) {
+                Swal.fire('Hadiah Hiburan Lengkap', `Sesi ${currentSession} sudah punya ${JUMLAH_HIBURAN} pemenang hiburan. Lanjutkan Hadiah Utama atau pindah ke sesi baru.`, 'info');
+                return;
+            }
+            const nums = ambilAcak(availableNumbers, kuota);
+            if (nums.length < kuota) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
             simpanState({
                 status: "SPINNING_HIBURAN", screenNumber: "0000",
                 batch: nums.map(n => ({ n: n, h: false, s: true })),
@@ -1010,6 +1026,7 @@
 
         function updateUI() {
             document.getElementById('layar-sesi-text').innerText = currentSession;
+            renderPrizeMode(currentState.status || 'IDLE');
             if (APP_MODE === 'layar') return;
 
             document.getElementById('stat-sesi').innerText = currentSession;
