@@ -378,7 +378,7 @@
         } else {
             document.getElementById('btn-mode-label').innerText = '🖥️ Ke Mode Layar';
         }
-        document.getElementById('tab-hiburan-sub').innerText = JUMLAH_HIBURAN + ' hadiah per sesi';
+        document.getElementById('tab-hiburan-sub').innerText = JUMLAH_HIBURAN + ' nomor per spin';
 
         function toggleMode() { window.location.href = '?mode=' + (APP_MODE === 'layar' ? 'remote' : 'layar'); }
 
@@ -695,7 +695,7 @@
             btn.classList.toggle('hiburan', prizeMode === 'hiburan');
             const sisaKuota = sisaKuotaHiburan();
             if (prizeMode === 'hiburan') {
-                btn.innerHTML = sisaKuota > 0 ? `⚡ SPIN CEPAT ${sisaKuota} NOMOR` : '✅ HIBURAN SESI INI LENGKAP';
+                btn.innerHTML = isPaketTambahan() ? `➕ SPIN TAMBAHAN ${sisaKuota} NOMOR` : `⚡ SPIN CEPAT ${sisaKuota} NOMOR`;
             } else {
                 btn.innerHTML = '🎲 PUTAR SPIN';
             }
@@ -734,16 +734,32 @@
         }
 
         // Sisa jatah pemenang hiburan di sesi berjalan
+        // Hiburan dihitung per paket 10. Paket yang belum lengkap (karena ada hangus tanpa diganti)
+        // dilengkapi dulu; kalau paket sudah lengkap, spin berikutnya = paket tambahan 10 lagi.
+        function jumlahHiburanSesi() {
+            return winners.filter(w => jenisHadiah(w) === 'hiburan' && Number(w.session) === Number(currentSession)).length;
+        }
         function sisaKuotaHiburan() {
-            const sudah = winners.filter(w => jenisHadiah(w) === 'hiburan' && Number(w.session) === Number(currentSession)).length;
-            return Math.max(JUMLAH_HIBURAN - sudah, 0);
+            const sisa = jumlahHiburanSesi() % JUMLAH_HIBURAN;
+            return sisa === 0 ? JUMLAH_HIBURAN : JUMLAH_HIBURAN - sisa;
+        }
+        function isPaketTambahan() {
+            const sudah = jumlahHiburanSesi();
+            return sudah > 0 && sudah % JUMLAH_HIBURAN === 0;
         }
 
-        function startSpinHiburan() {
+        async function startSpinHiburan() {
             const kuota = sisaKuotaHiburan();
-            if (kuota <= 0) {
-                Swal.fire('Hadiah Hiburan Lengkap', `Sesi ${currentSession} sudah punya ${JUMLAH_HIBURAN} pemenang hiburan. Lanjutkan Hadiah Utama atau pindah ke sesi baru.`, 'info');
-                return;
+            if (isPaketTambahan()) {
+                const ask = await Swal.fire({
+                    title: '➕ Tambah Hadiah Hiburan?',
+                    html: `Sesi ${currentSession} sudah punya <b>${jumlahHiburanSesi()}</b> pemenang hiburan.<br>Undi <b>${JUMLAH_HIBURAN} hadiah tambahan</b> lagi?`,
+                    icon: 'question', showCancelButton: true,
+                    confirmButtonText: `Ya, Spin ${JUMLAH_HIBURAN} Lagi`, cancelButtonText: 'Batal',
+                    confirmButtonColor: '#7c3aed'
+                });
+                if (!ask.isConfirmed) return;
+                if ((currentState.status || 'IDLE') !== 'IDLE' || isSpinning) return;
             }
             const nums = ambilAcak(availableNumbers, kuota);
             if (nums.length < kuota) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
