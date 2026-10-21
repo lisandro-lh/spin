@@ -56,6 +56,7 @@
             cursor: pointer; transition: all 0.2s; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); white-space: nowrap;
         }
         .btn-reset { background-color: var(--rose); }
+        .btn-restore { background-color: #4f46e5; }
         .btn-sesi { background-color: var(--blue); }
         .btn-export { background-color: var(--emerald); }
         .header button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
@@ -251,6 +252,7 @@
             <div class="header-left">
                 <img src="danatara.png" alt="Danatara" class="logo-img">
                 <button class="btn-reset desktop-btn" onclick="resetAll()">🔄 Setup Awal</button>
+                <button class="btn-restore desktop-btn" onclick="pulihkanData()">↩️ Pulihkan Data</button>
             </div>
             <div class="header-center">
                 <img src="logohibualamo.png" alt="Hibualamo" class="logo-center">
@@ -263,6 +265,7 @@
         </div>
         <div class="mobile-action-bar">
             <button class="btn-reset" onclick="resetAll()">🔄 Setup</button>
+            <button class="btn-restore" onclick="pulihkanData()">↩️ Pulihkan</button>
             <button class="btn-export" onclick="exportToCSV()">📥 Export</button>
             <button class="btn-sesi" onclick="pindahSesi()">⏭️ Sesi Baru</button>
         </div>
@@ -358,6 +361,10 @@
         const db = firebase.database();
         const dataRef = db.ref('data');
         const stateRef = db.ref('appState');
+        const cadanganRef = db.ref('cadangan');   // titik pemulihan (maks. 10 terakhir)
+        const MAKS_CADANGAN = 10;
+        let daftarCadangan = [];
+        let dataAda = false;
 
         const urlParams = new URLSearchParams(window.location.search);
         let APP_MODE = urlParams.get('mode');
@@ -418,7 +425,7 @@
         }
         function jenisHadiah(e) { return e && e.type === 'hiburan' ? 'hiburan' : 'utama'; }
         function buatEntry(num, type) {
-            return { number: Number(num), session: currentSession, type: type, time: new Date().toLocaleString('id-ID'), isOffline: !isOnline };
+            return { number: Number(num), session: currentSession, type: type, time: new Date().toLocaleString('id-ID'), isOffline: !isOnline, sent: false };
         }
         function toast(icon, title, text) {
             Swal.fire({ toast: true, position: 'top', showConfirmButton: false, timer: 3000, icon, title, text });
@@ -454,8 +461,13 @@
                 document.getElementById('display').style.fontSize = "clamp(30px, 8vw, 60px)";
                 return;
             }
-            const { value: totalKupon } = await Swal.fire({
+            await muatCadangan();
+            const hasilSetup = await Swal.fire({
                 title: '⚙️ Setup Aplikasi Undian',
+                showDenyButton: daftarCadangan.length > 0,
+                denyButtonText: '↩️ Pulihkan Data Sebelumnya',
+                denyButtonColor: '#4f46e5',
+                footer: daftarCadangan.length > 0 ? '<span style="font-size:13px;color:#4b5563;">Salah tekan Reset? Pilih <b>Pulihkan Data Sebelumnya</b>. Nomor yang sudah keluar tidak akan diundi lagi.</span>' : '',
                 input: 'number',
                 inputLabel: 'Masukkan Jumlah Total Kupon (Contoh: 1000)',
                 inputPlaceholder: 'Ketik angka batas maksimal kupon...',
@@ -469,6 +481,8 @@
                 }
             });
 
+            if (hasilSetup.isDenied) { pulihkanData(); return; }
+            const totalKupon = hasilSetup.isConfirmed ? hasilSetup.value : null;
             if (totalKupon) {
                 const total = parseInt(totalKupon, 10);
                 const nums = [];
@@ -515,8 +529,17 @@
                 updateNetworkStatus();
             });
 
+            if (APP_MODE !== 'layar') {
+                cadanganRef.on('value', (snap) => {
+                    const list = [];
+                    snap.forEach(c => { list.push(Object.assign({ key: c.key }, c.val())); });
+                    daftarCadangan = list; // urut dari terlama ke terbaru
+                });
+            }
+
             dataRef.on('value', (snapshot) => {
                 const data = snapshot.val();
+                dataAda = !!data;
                 if (!data) {
                     availableNumbers = []; winners = []; forfeits = []; currentSession = 1;
                     updateUI();
@@ -860,21 +883,111 @@
         }
 
         // ================= SESI, RESET, EXPORT =================
-        function kirimBackupSesi(sess) {
-            if (!isOnline) { toast('warning', 'Backup spreadsheet tertunda', 'Gunakan Export CSV sebagai cadangan.'); return; }
+        // Kirim ke spreadsheet semua data yang BELUM pernah terkirim (tidak dobel).
+        // Mengembalikan true bila terkirim / tidak ada yang perlu dikirim.
+        function belumTerkirim(e) {
+            return e.sent === false || (e.sent === undefined && Number(e.session) >= Number(currentSession));
+        }
+        async function kirimBackupBelumTerkirim() {
+            const wList = winners.filter(belumTerkirim);
+            const fList = forfeits.filter(belumTerkirim);
+            if (!wList.length && !fList.length) return true;
+            if (!isOnline) { toast('warning', 'Backup spreadsheet tertunda', 'Akan dikirim otomatis pada pindah sesi berikutnya saat online.'); return false; }
+
             const backupData = [];
-            winners.filter(w => Number(w.session) === Number(sess)).forEach(w => backupData.push({
+            wList.forEach(w => backupData.push({
                 time: w.time || new Date().toLocaleString('id-ID'), session: w.session, number: format4(w.number),
                 status: "SAH - " + jenisHadiah(w).toUpperCase(), jenis: jenisHadiah(w).toUpperCase()
             }));
-            forfeits.filter(f => Number(f.session) === Number(sess)).forEach(f => backupData.push({
+            fList.forEach(f => backupData.push({
                 time: f.time || new Date().toLocaleString('id-ID'), session: f.session, number: format4(f.number),
                 status: "HANGUS - " + jenisHadiah(f).toUpperCase(), jenis: jenisHadiah(f).toUpperCase()
             }));
-            if (backupData.length > 0) {
-                fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', body: JSON.stringify({ sheetName: activeSheetName, data: backupData }) })
-                    .catch(e => console.log("Backup error", e));
+            try {
+                await Promise.race([
+                    fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ sheetName: activeSheetName, data: backupData }) }),
+                    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 10000))
+                ]);
+                wList.forEach(w => w.sent = true);
+                fList.forEach(f => f.sent = true);
+                return true;
+            } catch (e) {
+                console.log("Backup error", e);
+                toast('warning', 'Backup spreadsheet gagal', 'Data tetap aman di sistem & akan dicoba lagi.');
+                return false;
             }
+        }
+
+        // ================= CADANGAN & PEMULIHAN =================
+        function muatCadangan() {
+            return Promise.race([
+                cadanganRef.once('value').then(snap => {
+                    const list = [];
+                    snap.forEach(c => { list.push(Object.assign({ key: c.key }, c.val())); });
+                    daftarCadangan = list;
+                }),
+                new Promise(res => setTimeout(res, 2500))
+            ]).catch(e => console.log(e));
+        }
+
+        function simpanCadangan(label) {
+            if (!winners.length && !forfeits.length) return; // belum ada nomor keluar, tidak perlu
+            const snap = {
+                label: label, waktu: new Date().toLocaleString('id-ID'), ts: Date.now(),
+                data: {
+                    availableNumbers: availableNumbers, winners: winners, forfeits: forfeits,
+                    currentSession: currentSession, activeSheetName: activeSheetName
+                }
+            };
+            cadanganRef.push(snap).catch(e => console.log('Gagal simpan cadangan', e));
+            // simpan hanya MAKS_CADANGAN terbaru
+            const keys = daftarCadangan.map(c => c.key);
+            while (keys.length > MAKS_CADANGAN) cadanganRef.child(keys.shift()).remove().catch(() => {});
+        }
+
+        async function pulihkanData() {
+            if (APP_MODE === 'layar') return;
+            if ((currentState.status || 'IDLE') !== 'IDLE') {
+                Swal.fire('Tunggu!', 'Selesaikan putaran yang sedang berjalan dulu.', 'warning');
+                return;
+            }
+            await muatCadangan();
+            if (!daftarCadangan.length) {
+                Swal.fire('Belum ada cadangan', 'Cadangan dibuat otomatis setiap kali Reset atau Pindah Sesi.', 'info');
+                return;
+            }
+            const opsi = {};
+            daftarCadangan.slice().reverse().forEach(c => {
+                const d = c.data || {};
+                const w = d.winners ? Object.values(d.winners).length : 0;
+                const f = d.forfeits ? Object.values(d.forfeits).length : 0;
+                opsi[c.key] = `${c.waktu} | ${c.label} | Sesi ${d.currentSession || 1} | ${w} menang, ${f} hangus`;
+            });
+            const terbaru = daftarCadangan[daftarCadangan.length - 1].key;
+
+            const pilih = await Swal.fire({
+                title: '↩️ Pulihkan Data',
+                html: 'Pilih titik cadangan. Paling atas adalah yang <b>terbaru</b>.<br>Semua nomor yang sudah keluar di cadangan itu <b>tidak akan diundi lagi</b>.',
+                input: 'select', inputOptions: opsi, inputValue: terbaru,
+                showCancelButton: true, confirmButtonText: 'Pulihkan', cancelButtonText: 'Batal',
+                confirmButtonColor: '#4f46e5', width: 'min(640px, 96vw)'
+            });
+            if (!pilih.isConfirmed || !pilih.value) {
+                if (!dataAda) setupAwal();
+                return;
+            }
+            const c = daftarCadangan.find(x => x.key === pilih.value);
+            if (!c || !c.data) return;
+
+            // data yang sedang aktif diamankan dulu, supaya pemulihan ini juga bisa dibatalkan
+            if (dataAda) simpanCadangan('Sebelum pemulihan');
+
+            const d = c.data;
+            const nW = d.winners ? Object.values(d.winners).length : 0;
+            const nF = d.forfeits ? Object.values(d.forfeits).length : 0;
+            dataRef.set(d).catch(e => console.log(e));
+            simpanState({ status: "IDLE", screenNumber: "0000", batch: null });
+            Swal.fire('Data dipulihkan', `Kembali ke Sesi ${d.currentSession || 1}. ${nW} pemenang & ${nF} hangus tetap tercatat dan nomornya tidak akan muncul lagi.`, 'success');
         }
 
         function pindahSesi() {
@@ -888,20 +1001,38 @@
 
         async function resetAll() {
             if (APP_MODE === 'layar' || isSpinning) return;
+            if ((currentState.status || 'IDLE') !== 'IDLE') {
+                Swal.fire('Tunggu!', 'Selesaikan putaran yang sedang berjalan dulu.', 'warning');
+                return;
+            }
             const ask = await Swal.fire({
                 title: 'Reset & Setup Ulang Acara?',
-                text: 'Semua data kupon & riwayat acara ini akan dihapus. Export CSV dulu bila perlu.',
-                icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Ya, Reset', cancelButtonText: 'Batal'
+                html: `Semua data acara ini akan dikosongkan.<br><br>
+                       Sebelum reset, sistem otomatis:<br>
+                       ✅ mengirim data yang belum terkirim ke spreadsheet<br>
+                       ✅ mengunduh file CSV<br>
+                       ✅ menyimpan cadangan yang bisa dipulihkan<br><br>
+                       Ketik <b>RESET</b> untuk melanjutkan:`,
+                input: 'text', inputPlaceholder: 'RESET', icon: 'warning',
+                showCancelButton: true, confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Reset Sekarang', cancelButtonText: 'Batal',
+                inputValidator: (v) => { if ((v || '').trim().toUpperCase() !== 'RESET') return 'Ketik RESET untuk konfirmasi'; }
             });
-            if (ask.isConfirmed) {
-                simpanState({ status: "IDLE", screenNumber: "0000", batch: null, prizeMode: 'utama' });
-                dataRef.remove().catch(e => console.log(e));
-            }
+            if (!ask.isConfirmed) return;
+
+            Swal.fire({ title: 'Menyimpan cadangan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            await kirimBackupBelumTerkirim();
+            if (winners.length || forfeits.length) exportToCSV(true);
+            simpanCadangan('Sebelum reset');
+
+            simpanState({ status: "IDLE", screenNumber: "0000", batch: null, prizeMode: 'utama' });
+            dataRef.remove().catch(e => console.log(e));
+            // Setelah data kosong, layar Setup muncul otomatis dengan tombol "Pulihkan Data Sebelumnya"
         }
 
-        function exportToCSV() {
+        function exportToCSV(senyap) {
             if (winners.length === 0 && forfeits.length === 0) {
+                if (senyap === true) return;
                 Swal.fire('Kosong', 'Belum ada data riwayat untuk diekspor.', 'info');
                 return;
             }
@@ -1013,7 +1144,10 @@
                 isRekapModalOpen = false;
                 if (APP_MODE === 'layar') return;
                 if (result.isConfirmed) {
-                    kirimBackupSesi(sess);
+                    simpanCadangan(`Akhir Sesi ${sess}`);
+                    kirimBackupBelumTerkirim().then(ok => {
+                        if (ok && dataAda) simpanData({ winners, forfeits }); // simpan tanda "sudah terkirim"
+                    });
                     currentSession = sess + 1;
                     simpanData({ currentSession: currentSession });
                     simpanState({ status: "IDLE", prizeMode: 'utama' });
