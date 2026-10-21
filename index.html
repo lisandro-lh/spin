@@ -211,12 +211,15 @@
         .rekap-item { font-family: 'Courier New', Courier, monospace; font-size: calc(20px * var(--rk)); font-weight: bold; padding: calc(5px * var(--rk)) 2px; border-radius: 8px; color: white; white-space: nowrap; }
         .rekap-kosong { grid-column: 1 / -1; font-size: 14px; color: #6b7280; }
         .rekap-hangus {
-            display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 18px;
-            margin-top: calc(10px * var(--rk)); padding: calc(8px * var(--rk)) 12px; background: #fef2f2;
-            border: 1px solid #fecaca; border-radius: 12px; font-size: calc(16px * var(--rk)); color: #7f1d1d;
+            margin-top: calc(10px * var(--rk)); padding: calc(8px * var(--rk)) 10px; background: #fef2f2;
+            border: 1px solid #fecaca; border-radius: 12px; text-align: center;
         }
-        .rh-title { font-weight: bold; color: var(--rose); }
-        .rh-item b { color: var(--rose); font-size: 1.15em; }
+        .rh-title { font-weight: bold; color: var(--rose); font-size: calc(17px * var(--rk)); margin-bottom: calc(6px * var(--rk)); }
+        .rh-wrap { display: flex; gap: 10px; align-items: stretch; }
+        .rh-group { flex: 1; min-width: 0; background: rgba(255,255,255,0.7); border-radius: 10px; padding: calc(6px * var(--rk)) 6px; }
+        .rh-label { font-weight: bold; color: #7f1d1d; font-size: calc(14px * var(--rk)); margin-bottom: calc(5px * var(--rk)); }
+        .rh-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(68px * var(--rk)), 1fr)); gap: calc(5px * var(--rk)); }
+        .rh-list .rekap-item { font-size: calc(17px * var(--rk)); }
         .rekap-prompt { margin: calc(10px * var(--rk)) 0 0; font-weight: bold; color: #374151; font-size: calc(15px * var(--rk)); }
         .rekap-item.utama { background-color: var(--amber); } .rekap-item.hiburan { background-color: var(--violet); } .rekap-item.hangus { background-color: var(--rose); }
 
@@ -335,10 +338,10 @@
         // PENGATURAN
         // =======================================================
         const BACKUP_SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbyQhgsuzE-LQWP1grHpSQeeRAyZDGT5OubZc9cXJ6uwIWvH3FfClh-gA3a1mxij6FfEyQ/exec";
-        const JUMLAH_HIBURAN = 10;          // jumlah nomor sekali spin hadiah hiburan
-        const DURASI_SPIN_UTAMA = 60000;     // ms (60 detik)
-        const DURASI_SPIN_HIBURAN = 60000;   // ms (60 detik)
-        const DURASI_SPIN_GANTI = 60000;     // ms (undi ulang nomor hangus)
+        const JUMLAH_HIBURAN = 15;          // jumlah nomor sekali spin hadiah hiburan
+        const DURASI_SPIN_UTAMA = 5000;     // ms (5 detik)
+        const DURASI_SPIN_HIBURAN = 5000;   // ms (5 detik)
+        const DURASI_SPIN_GANTI = 2500;     // ms (undi ulang nomor hangus)
         const BATAS_NOMOR_UTAMA = 350;      // Hadiah Utama hanya mengundi nomor 1 s/d angka ini. Nomor di atasnya khusus Hadiah Hiburan.
         // =======================================================
 
@@ -935,8 +938,8 @@
             const utama = ws.filter(w => jenisHadiah(w) === 'utama');
             const hib = ws.filter(w => jenisHadiah(w) === 'hiburan');
             const fs = forfeits.filter(f => Number(f.session) === Number(sess));
-            const fsUtama = fs.filter(f => jenisHadiah(f) === 'utama').length;
-            const fsHib = fs.length - fsUtama;
+            const fsUtama = fs.filter(f => jenisHadiah(f) === 'utama');
+            const fsHib = fs.filter(f => jenisHadiah(f) === 'hiburan');
 
             const rchip = (e, kind) => `<span class="rekap-item ${kind}" title="${e.isOffline ? 'Dicatat saat OFFLINE' : ''}">${format4(e.number)}${e.isOffline ? '<sup>⚠️</sup>' : ''}</span>`;
             const kol = (judul, warna, list, kind, flex) => `
@@ -944,16 +947,22 @@
                     <div class="rekap-list">${list.length ? list.map(e => rchip(e, kind)).join('') : '<span class="rekap-kosong">Belum ada</span>'}</div>
                 </div>`;
             const flexHib = hib.length > utama.length * 2 ? 2 : 1;
+            const grupHangus = (judul, list) => `
+                <div class="rh-group">
+                    <div class="rh-label">${judul} (${list.length})</div>
+                    <div class="rh-list">${list.length ? list.map(e => rchip(e, 'hangus')).join('') : '<span class="rekap-kosong">Tidak ada</span>'}</div>
+                </div>`;
 
             return `<div class="rekap-wrapper">
                     ${kol('🏆 Hadiah Utama', '#d97706', utama, 'utama', 1)}
                     ${kol('🎁 Hadiah Hiburan', '#7c3aed', hib, 'hiburan', flexHib)}
                 </div>
                 <div class="rekap-hangus">
-                    <span class="rh-title">❌ Kupon Hangus</span>
-                    <span class="rh-item">Hadiah Utama: <b>${fsUtama}</b></span>
-                    <span class="rh-item">Hadiah Hiburan: <b>${fsHib}</b></span>
-                    <span class="rh-item">Total: <b>${fs.length}</b></span>
+                    <div class="rh-title">❌ Kupon Hangus (Total ${fs.length})</div>
+                    <div class="rh-wrap">
+                        ${grupHangus('Hadiah Utama', fsUtama)}
+                        ${grupHangus('Hadiah Hiburan', fsHib)}
+                    </div>
                 </div>`;
         }
 
