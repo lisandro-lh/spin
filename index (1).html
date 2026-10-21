@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard Spin Doorprize</title>
+
+    <!-- Library SweetAlert & Confetti Animasi -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444; --blue: #3b82f6; --violet: #8b5cf6;
+            --text-main: #1f2937;
+            --glass-bg: rgba(255, 255, 255, 0.92);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-main); margin: 0; padding: 15px; display: flex;
+            flex-direction: column; align-items: center; min-height: 100vh; width: 100%;
+            overflow-x: hidden; background-image: url('backround.jpeg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        /* INDIKATOR JARINGAN */
+        .network-badge {
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
+            background: rgba(16, 185, 129, 0.9); color: white; padding: 6px 16px;
+            border-radius: 20px; font-size: 12px; font-weight: bold; z-index: 9999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+        .network-badge.offline { background: rgba(239, 68, 68, 0.9); }
+
+        .header {
+            width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 10px;
+            margin-bottom: 15px; background: rgba(255, 255, 255, 0.85); padding: 12px 20px;
+            border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.5);
+            margin-top: 30px;
+        }
+        .header-top-row { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+        .header-left { display: flex; align-items: center; justify-content: flex-start; gap: 10px; min-width: 0; }
+        .header-center { display: flex; align-items: center; justify-content: center; }
+        .header-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+        .logo-img { height: clamp(28px, 5vw, 52px); max-width: 100%; object-fit: contain; }
+        .logo-center { height: clamp(38px, 6.5vw, 72px); max-width: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header button {
+            padding: 8px 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px;
+            cursor: pointer; transition: all 0.2s; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); white-space: nowrap;
+        }
+        .btn-reset { background-color: var(--rose); }
+        .btn-sesi { background-color: var(--blue); }
+        .btn-export { background-color: var(--emerald); }
+        .header button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+        .header button:active { transform: scale(0.96); }
+        .mobile-action-bar { display: none; width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.1); }
+
+        .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%; max-width: 1100px; margin-bottom: 15px; }
+        .stat-card { background: var(--glass-bg); padding: 12px 10px; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.12); text-align: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.6); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-card h3 { margin: 0 0 5px 0; font-size: clamp(11px, 2.5vw, 14px); color: #4b5563; font-weight: bold; }
+        .stat-card .value { font-size: clamp(18px, 4vw, 24px); font-weight: bold; }
+        .text-emerald { color: var(--emerald); } .text-amber { color: var(--amber); } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); } .text-violet { color: var(--violet); }
+
+        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
+        .layar-session-badge { display: none; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; font-weight: bold; font-size: clamp(16px, 2.5vw, 26px); padding: 10px 35px; border-radius: 50px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5); letter-spacing: 2px; border: 2px solid rgba(255,255,255,0.2); transition: background 0.3s; }
+        .layar-session-badge.hiburan { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 8px 20px rgba(109, 40, 217, 0.5); }
+
+        .spin-display {
+            font-family: 'Courier New', Courier, monospace; font-size: clamp(65px, 16vw, 140px);
+            font-weight: bold; color: var(--text-main); background: rgba(255, 255, 255, 0.98);
+            border: 6px solid var(--blue); border-radius: 24px; padding: clamp(15px, 3vw, 30px) clamp(25px, 6vw, 60px);
+            margin-bottom: 25px; letter-spacing: clamp(4px, 1.5vw, 10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3), inset 0 0 20px rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; width: auto; max-width: 95vw;
+        }
+        .spin-display.is-spinning {
+            border-color: var(--amber); color: var(--amber);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.6), inset 0 0 15px rgba(245, 158, 11, 0.2);
+            animation: shake 0.1s infinite alternate;
+        }
+        @keyframes shake {
+            0% { transform: translateY(-3px) scale(0.99); }
+            100% { transform: translateY(3px) scale(1.01); }
+        }
+        .spin-display.is-winner {
+            border-color: var(--emerald); color: var(--emerald);
+            background: #f0fdf4;
+            animation: tadaGlow 1.5s ease-out, pulseGlow 2s infinite 1.5s alternate;
+        }
+        @keyframes tadaGlow {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+            10%, 20% { transform: scale(0.9) rotate(-2deg); }
+            30%, 50%, 70%, 90% { transform: scale(1.15) rotate(2deg); box-shadow: 0 0 60px rgba(16, 185, 129, 0.8); }
+            40%, 60%, 80% { transform: scale(1.15) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0); box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+            100% { box-shadow: 0 0 50px rgba(16, 185, 129, 0.8); transform: scale(1.02); }
+        }
+
+        /* ===== GRID HADIAH HIBURAN (15 NOMOR) ===== */
+        .hiburan-wrap { width: 100%; max-width: 1100px; margin-bottom: 20px; }
+        .hiburan-title {
+            width: fit-content; max-width: 100%; margin: 0 auto 14px; padding: 8px 26px; border-radius: 50px;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; font-weight: 800;
+            font-size: clamp(15px, 2.4vw, 30px); text-align: center; letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(109, 40, 217, 0.45);
+        }
+        .hiburan-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(6px, 1.2vw, 16px); }
+        .tile {
+            position: relative; background: rgba(255, 255, 255, 0.97); border: 4px solid var(--violet);
+            border-radius: 16px; padding: clamp(10px, 1.8vw, 24px) 4px; text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+            user-select: none;
+        }
+        .tile-no { position: absolute; top: 4px; left: 8px; font-size: clamp(9px, 1vw, 13px); color: #9ca3af; font-weight: bold; }
+        .tile-num { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: clamp(17px, 4.6vw, 56px); letter-spacing: 2px; color: #6d28d9; }
+        .tile-tag { position: absolute; bottom: 3px; left: 0; right: 0; font-size: clamp(8px, 1vw, 12px); font-weight: bold; color: var(--rose); letter-spacing: 1px; }
+        .tile.spinning { border-color: var(--amber); animation: shake 0.1s infinite alternate; }
+        .tile.spinning .tile-num { color: var(--amber); }
+        .tile.hangus { border-color: var(--rose); background: #fef2f2; opacity: 0.8; }
+        .tile.hangus .tile-num { color: var(--rose); text-decoration: line-through; }
+        .tile.reveal { animation: popIn 0.5s both; }
+        @keyframes popIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            70% { transform: scale(1.12); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .tile.clickable { cursor: pointer; }
+        .tile.clickable:active { transform: scale(0.95); }
+
+        /* ===== KONTROL ===== */
+        .controls-wrapper { background: rgba(255, 255, 255, 0.95); padding: 20px 25px; border-radius: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(0,0,0,0.05); min-height: 110px; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 520px; }
+        .prize-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+        .prize-tab {
+            flex: 1; padding: 10px 8px; border: 2px solid #e5e7eb; background: #f9fafb; border-radius: 12px;
+            font-weight: bold; font-size: 14px; cursor: pointer; color: #374151; display: flex; flex-direction: column;
+            gap: 2px; align-items: center; transition: all 0.2s; font-family: inherit;
+        }
+        .prize-tab .sub { font-size: 11px; font-weight: normal; opacity: 0.8; }
+        .prize-tab.active[data-mode="utama"] { border-color: var(--blue); background: #eff6ff; color: #1d4ed8; }
+        .prize-tab.active[data-mode="hiburan"] { border-color: var(--violet); background: #f5f3ff; color: #6d28d9; }
+        .prize-tab:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-spin { background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: clamp(18px, 4.5vw, 24px); padding: 18px 45px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; color: white; transition: all 0.2s; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4); width: 100%; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-spin.hiburan { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 8px 20px rgba(109, 40, 217, 0.4); }
+        .btn-spin:active { transform: scale(0.95); } .btn-spin:hover { transform: translateY(-3px); }
+        .spinning-status-box { font-size: 20px; font-weight: bold; color: var(--amber); display: flex; align-items: center; gap: 10px; animation: pulseText 1s infinite; text-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        @keyframes pulseText { 0% { opacity: 0.6; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } 100% { opacity: 0.6; transform: scale(0.98); } }
+        .controls-action { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+        .action-prompt { font-size: 15px; font-weight: bold; color: #374151; margin: 0; text-align: center; line-height: 1.4; }
+        .btn-action-group { display: flex; gap: 15px; justify-content: center; width: 100%; }
+        .btn-choice { flex: 1; padding: 14px 12px; border: none; border-radius: 14px; font-size: 16px; font-weight: bold; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: transform 0.15s, opacity 0.2s; font-family: inherit; }
+        .btn-choice:active { transform: scale(0.95); } .btn-choice span.sub { font-size: 11px; font-weight: normal; opacity: 0.9; }
+        .btn-choice:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn-choice.sah { background: linear-gradient(135deg, #10b981, #059669); } .btn-choice.hangus { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .jeda-group { display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; border-top: 1px dashed #d1d5db; padding-top: 12px; }
+        .btn-jeda { background: rgba(31, 41, 55, 0.85); border: none; color: white; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; flex: 1; transition: background 0.2s; }
+        .btn-jeda:hover { background: #000; }
+
+        /* ===== RIWAYAT ===== */
+        .history-container { width: 100%; max-width: 1100px; background: var(--glass-bg); border-radius: 15px; padding: 18px 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); margin-top: 20px; margin-bottom: 35px; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.5); }
+        .history-container h2 { margin-top: 0; font-size: 18px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; color: #1f2937; }
+        .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; margin: 4px; font-family: 'Courier New', Courier, monospace; font-size: 15px; font-weight: bold; color: white; box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
+        .badge.utama { background-color: var(--amber); } .badge.hiburan { background-color: var(--violet); } .badge.hangus { background-color: var(--rose); }
+        .hist-row { margin: 6px 0; }
+        .hist-label { display: inline-block; font-size: 12px; font-weight: bold; color: #4b5563; min-width: 120px; }
+        .hidden { display: none !important; }
+
+        body.mode-layar .dashboard-grid, body.mode-layar .controls-wrapper, body.mode-layar .history-container, body.mode-layar .header button, body.mode-layar .mobile-action-bar { display: none !important; }
+        body.mode-layar .layar-session-badge { display: inline-block; }
+        body.mode-layar .header { background: transparent; box-shadow: none; backdrop-filter: none; border: none; margin-bottom: 5px; margin-top: 5px; }
+        body.mode-layar .logo-img { height: clamp(38px, 6vw, 85px); max-width: 26vw; }
+        body.mode-layar .logo-center { height: clamp(50px, 8vw, 115px); max-width: 34vw; }
+        body.mode-layar .spin-display { font-size: clamp(85px, 20vw, 220px); padding: clamp(25px, 5vw, 50px) clamp(40px, 8vw, 100px); border-width: 10px; margin-top: 20px; }
+        body.mode-layar .hiburan-wrap { max-width: 1600px; }
+        body.mode-layar .tile { border-width: 6px; }
+        body.mode-layar .tile-num { font-size: clamp(28px, 5vw, 84px); }
+
+        .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 8px 14px; background: rgba(0,0,0,0.6); border: none; border-radius: 8px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; backdrop-filter: blur(5px); }
+        .btn-switch-mode:hover { background: rgba(0,0,0,0.9); }
+        #audio-unlock-banner { position: fixed; top: 0; left: 0; width: 100%; background: #2563eb; color: white; text-align: center; padding: 12px; font-weight: bold; z-index: 9999; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; font-size: 15px; }
+
+        /* ===== REKAP ===== */
+        .rekap-wrapper { display: flex; gap: 12px; justify-content: space-between; text-align: center; margin-top: 10px; }
+        .rekap-col { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 8px; }
+        .rekap-col h4 { margin: 0 0 10px 0; font-size: clamp(14px, 2.6vw, 18px); padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+        .rekap-list { max-height: 45vh; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 4px; }
+        .rekap-item { font-family: 'Courier New', Courier, monospace; font-size: clamp(14px, 3vw, 20px); font-weight: bold; padding: 5px 10px; border-radius: 8px; color: white; }
+        .rekap-item.utama { background-color: var(--amber); } .rekap-item.hiburan { background-color: var(--violet); } .rekap-item.hangus { background-color: var(--rose); }
+
+        .sesi-group { margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.7); border-radius: 12px; border-left: 5px solid var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .sesi-title { margin: 0 0 6px 0; font-size: 16px; color: var(--blue); font-weight: bold; }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; } .header { padding: 10px 12px; margin-top: 35px; } .desktop-btn { display: none !important; }
+            .mobile-action-bar { display: flex; } .mobile-action-bar button { flex: 1; padding: 8px; font-size: 12px; }
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .dashboard-grid .stat-card:last-child { grid-column: span 2; }
+            .rekap-wrapper { flex-direction: column; gap: 10px; }
+            .tile { border-width: 3px; border-radius: 12px; }
+            .tile-num { letter-spacing: 1px; }
+            .hist-label { display: block; margin-bottom: 2px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .spin-display.is-spinning, .tile.spinning, .spinning-status-box { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <div id="network-status" class="network-badge">🟢 ONLINE</div>
+    <div id="audio-unlock-banner" onclick="unlockAudioSession()">🔊 [KLIK DI SINI] Agar Suara Putar Spin Aktif di Layar Ini</div>
+    <audio id="sound-spin" src="sounddrum.mp3" preload="auto" loop></audio>
+
+    <div class="header">
+        <div class="header-top-row">
+            <div class="header-left">
+                <img src="danatara.png" alt="Danatara" class="logo-img">
+                <button class="btn-reset desktop-btn" onclick="resetAll()">🔄 Setup Awal</button>
+            </div>
+            <div class="header-center">
+                <img src="logohibualamo.png" alt="Hibualamo" class="logo-center">
+            </div>
+            <div class="header-right">
+                <button class="btn-export desktop-btn" onclick="exportToCSV()">📥 Export CSV</button>
+                <button class="btn-sesi desktop-btn" onclick="pindahSesi()">⏭️ Pindah Sesi Baru</button>
+                <img src="pln.png" alt="PLN" class="logo-img">
+            </div>
+        </div>
+        <div class="mobile-action-bar">
+            <button class="btn-reset" onclick="resetAll()">🔄 Setup</button>
+            <button class="btn-export" onclick="exportToCSV()">📥 Export</button>
+            <button class="btn-sesi" onclick="pindahSesi()">⏭️ Sesi Baru</button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="stat-card"><h3>Sesi Saat Ini</h3><div class="value text-blue" id="stat-sesi">-</div></div>
+        <div class="stat-card"><h3>Kupon Tersedia</h3><div class="value text-emerald" id="stat-tersedia">-</div></div>
+        <div class="stat-card"><h3>🏆 Hadiah Utama</h3><div class="value text-amber" id="stat-utama">-</div></div>
+        <div class="stat-card"><h3>🎁 Hadiah Hiburan</h3><div class="value text-violet" id="stat-hiburan">-</div></div>
+        <div class="stat-card"><h3>Kupon Hangus</h3><div class="value text-rose" id="stat-hangus">-</div></div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="layar-session-badge" id="layar-session-badge">SESI UNDIAN <span id="layar-sesi-text">1</span> | <span id="layar-prize-text">🏆 HADIAH UTAMA</span></div>
+
+        <!-- Tampilan 1 nomor (Hadiah Utama) -->
+        <div class="spin-display" id="display">0000</div>
+
+        <!-- Tampilan 15 nomor (Hadiah Hiburan) -->
+        <div class="hiburan-wrap hidden" id="hiburan-wrap">
+            <div class="hiburan-title" id="hiburan-title">🎁 PEMENANG HADIAH HIBURAN</div>
+            <div class="hiburan-grid" id="hiburan-grid"></div>
+        </div>
+
+        <div class="controls-wrapper">
+            <div id="spin-controls" style="width: 100%;">
+                <div class="prize-tabs">
+                    <button class="prize-tab active" data-mode="utama" onclick="setPrizeMode('utama')">🏆 Hadiah Utama<span class="sub">1 nomor per putaran</span></button>
+                    <button class="prize-tab" data-mode="hiburan" onclick="setPrizeMode('hiburan')">🎁 Hadiah Hiburan<span class="sub" id="tab-hiburan-sub">15 nomor sekaligus</span></button>
+                </div>
+                <button id="btn-spin" class="btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
+            </div>
+
+            <div id="spinning-status" class="spinning-status-box hidden">
+                <span id="spinning-text">🎰 Mengacak Nomor Kupon...</span>
+            </div>
+
+            <!-- Aksi Hadiah Utama -->
+            <div class="controls-action hidden" id="action-controls">
+                <p class="action-prompt">Tentukan Status Nomor <span id="label-nomor-keluar" style="color:var(--blue);">0000</span>:</p>
+                <div class="btn-action-group">
+                    <button class="btn-choice hangus" onclick="tandai('hangus', true)">❌ HANGUS<span class="sub">Catat Gugur & Spin Lagi</span></button>
+                    <button class="btn-choice sah" onclick="tandai('sah', true)">✔ SAH / LANJUT<span class="sub">Catat Menang & Spin Lagi</span></button>
+                </div>
+                <div class="jeda-group">
+                    <button class="btn-jeda" onclick="tandai('sah', false)">⏸️ Catat SAH & Berhenti</button>
+                    <button class="btn-jeda" style="background: rgba(185, 28, 28, 0.85);" onclick="tandai('hangus', false)">⏸️ Catat HANGUS & Berhenti</button>
+                </div>
+            </div>
+
+            <!-- Aksi Hadiah Hiburan -->
+            <div class="controls-action hidden" id="action-hiburan">
+                <p class="action-prompt"><span id="hib-count">15</span> nomor keluar. Ketuk nomor yang <span style="color:var(--rose);">tidak hadir</span> untuk ditandai HANGUS.</p>
+                <div class="btn-action-group">
+                    <button class="btn-choice hangus" id="btn-ganti" onclick="gantiHangus()" disabled>🔁 GANTI HANGUS<span class="sub" id="sub-ganti">Ketuk nomor dulu</span></button>
+                    <button class="btn-choice sah" onclick="simpanHiburan()">✔ SIMPAN SEMUA<span class="sub">Catat pemenang hiburan</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="history-container">
+        <h2>Riwayat Pemenang & Hangus</h2>
+        <div id="history-list"></div>
+    </div>
+
+    <button class="btn-switch-mode" id="btn-mode-label" onclick="toggleMode()">🔄 Ganti Mode</button>
+
+    <script>
+        // =======================================================
+        // PENGATURAN
+        // =======================================================
+        const BACKUP_SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbyQhgsuzE-LQWP1grHpSQeeRAyZDGT5OubZc9cXJ6uwIWvH3FfClh-gA3a1mxij6FfEyQ/exec";
+        const JUMLAH_HIBURAN = 15;          // jumlah nomor sekali spin hadiah hiburan
+        const DURASI_SPIN_UTAMA = 4500;     // ms
+        const DURASI_SPIN_HIBURAN = 4000;   // ms
+        const DURASI_SPIN_GANTI = 2500;     // ms (undi ulang nomor hangus)
+        // =======================================================
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzq8JfbAOkLG9Jch-nBxvGQ8r-K77DVy8",
+            authDomain: "spin-hibualamo-pln.firebaseapp.com",
+            databaseURL: "https://spin-hibualamo-pln-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "spin-hibualamo-pln",
+            storageBucket: "spin-hibualamo-pln.firebasestorage.app",
+            messagingSenderId: "1091000294809",
+            appId: "1:1091000294809:web:e66ed958bc0a6250ad0708"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const dataRef = db.ref('data');
+        const stateRef = db.ref('appState');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let APP_MODE = urlParams.get('mode');
+        if (!APP_MODE) {
+            const isMobile = window.innerWidth <= 900 || /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+            APP_MODE = isMobile ? 'remote' : 'layar';
+        }
+        if (APP_MODE === 'layar') {
+            document.body.classList.add('mode-layar');
+            document.getElementById('btn-mode-label').innerText = '📱 Ke Mode Remote';
+        } else {
+            document.getElementById('btn-mode-label').innerText = '🖥️ Ke Mode Layar';
+        }
+        document.getElementById('tab-hiburan-sub').innerText = JUMLAH_HIBURAN + ' nomor sekaligus';
+
+        function toggleMode() { window.location.href = '?mode=' + (APP_MODE === 'layar' ? 'remote' : 'layar'); }
+
+        let availableNumbers = [];
+        let winners = [];
+        let forfeits = [];
+        let currentSession = 1;
+        let activeSheetName = "Riwayat_Acara";
+
+        let currentState = { status: 'IDLE' };
+        let prizeMode = 'utama';
+        let isSpinning = false;
+        let isSaving = false;
+        let selectedNumber = null;
+        let displaySpinInterval = null;
+        let batchSpinInterval = null;
+        let finalizeTimer = null;
+        let lastHandledSpinStatus = "";
+        let lastSpinId = null;
+        let prevSpinningIdx = new Set();
+        let isRekapModalOpen = false;
+        let isAudioUnlocked = false;
+
+        // ================= UTILITAS =================
+        function randInt(n) {
+            if (window.crypto && crypto.getRandomValues) {
+                const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n;
+            }
+            return Math.floor(Math.random() * n);
+        }
+        // Ambil k nomor acak TANPA duplikat dari pool, kecuali nomor di 'exclude'
+        function ambilAcak(pool, k, exclude = []) {
+            const ex = new Set(exclude.map(Number));
+            const arr = pool.map(Number).filter(x => !ex.has(x));
+            const n = Math.min(k, arr.length);
+            for (let i = 0; i < n; i++) {
+                const j = i + randInt(arr.length - i);
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr.slice(0, n);
+        }
+        function angkaAcakTampilan() {
+            return availableNumbers.length > 0 ? availableNumbers[randInt(availableNumbers.length)] : randInt(999) + 1;
+        }
+        function jenisHadiah(e) { return e && e.type === 'hiburan' ? 'hiburan' : 'utama'; }
+        function buatEntry(num, type) {
+            return { number: Number(num), session: currentSession, type: type, time: new Date().toLocaleString('id-ID'), isOffline: !isOnline };
+        }
+        function toast(icon, title, text) {
+            Swal.fire({ toast: true, position: 'top', showConfirmButton: false, timer: 3000, icon, title, text });
+        }
+        // Tidak di-await agar tetap jalan saat offline (Firebase menyimpan & sinkron otomatis)
+        function simpanData(obj) { dataRef.update(obj).catch(e => console.log('Gagal simpan data', e)); }
+        function simpanState(obj) { stateRef.update(obj).catch(e => console.log('Gagal simpan state', e)); }
+        function format4(num) {
+            if (num === null || num === undefined || num === '' || String(num) === "0000") return "0000";
+            return String(num).padStart(4, '0');
+        }
+
+        // ================= DETEKSI OFFLINE =================
+        let isOnline = navigator.onLine;
+        function updateNetworkStatus() {
+            const badge = document.getElementById('network-status');
+            if (isOnline) {
+                badge.innerHTML = '🟢 ONLINE';
+                badge.classList.remove('offline');
+            } else {
+                badge.innerHTML = '🔴 OFFLINE (Disimpan Lokal)';
+                badge.classList.add('offline');
+                if (APP_MODE !== 'layar') toast('warning', 'Koneksi Terputus!', 'Sistem tetap berjalan offline.');
+            }
+        }
+        window.addEventListener('online', () => { isOnline = true; updateNetworkStatus(); toast('success', 'Kembali Online!', 'Data sinkron otomatis.'); });
+        window.addEventListener('offline', () => { isOnline = false; updateNetworkStatus(); });
+
+        // ================= SETUP =================
+        async function setupAwal() {
+            if (APP_MODE === 'layar') {
+                document.getElementById('display').innerText = "MENUNGGU HOST";
+                document.getElementById('display').style.fontSize = "clamp(30px, 8vw, 60px)";
+                return;
+            }
+            const { value: totalKupon } = await Swal.fire({
+                title: '⚙️ Setup Aplikasi Undian',
+                input: 'number',
+                inputLabel: 'Masukkan Jumlah Total Kupon (Contoh: 1000)',
+                inputPlaceholder: 'Ketik angka batas maksimal kupon...',
+                allowOutsideClick: false,
+                showCancelButton: true,
+                confirmButtonText: 'Mulai Acara 🚀',
+                confirmButtonColor: '#10b981',
+                cancelButtonText: 'Batal',
+                inputValidator: (value) => {
+                    if (!value || Number(value) <= 0) return 'Masukkan angka yang valid!';
+                }
+            });
+
+            if (totalKupon) {
+                const total = parseInt(totalKupon, 10);
+                const nums = [];
+                for (let i = 1; i <= total; i++) nums.push(i);
+
+                const tgl = new Date().toISOString().slice(0, 10);
+                const rand = Math.floor(Math.random() * 1000);
+                const newSheetName = "Acara_" + tgl + "_" + rand;
+
+                dataRef.set({ availableNumbers: nums, winners: [], forfeits: [], currentSession: 1, activeSheetName: newSheetName }).catch(e => console.log(e));
+                stateRef.set({ status: "IDLE", screenNumber: "0000", prizeMode: 'utama' }).catch(e => console.log(e));
+
+                if (isOnline) {
+                    fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', body: JSON.stringify({ sheetName: newSheetName, data: [] }) }).catch(e => console.log("Init sheet error", e));
+                }
+                document.getElementById('display').style.fontSize = "";
+                Swal.fire('Berhasil', `Sistem siap dengan ${total} kupon!`, 'success');
+            }
+        }
+
+        function fireConfetti() {
+            if (APP_MODE !== 'layar') return;
+            const duration = 3000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            const interval = setInterval(function () {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // ================= INIT & LISTENER =================
+        function initApp() {
+            if (APP_MODE === 'layar' && !isAudioUnlocked) {
+                document.getElementById('audio-unlock-banner').style.display = 'block';
+            }
+
+            db.ref('.info/connected').on('value', function (snap) {
+                isOnline = snap.val() === true;
+                updateNetworkStatus();
+            });
+
+            dataRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    availableNumbers = []; winners = []; forfeits = []; currentSession = 1;
+                    updateUI();
+                    if (APP_MODE !== 'layar') setupAwal();
+                    else {
+                        document.getElementById('display').innerText = "MENUNGGU HOST";
+                        document.getElementById('display').style.fontSize = "clamp(30px, 8vw, 60px)";
+                    }
+                    return;
+                }
+                if (document.getElementById('display').innerText === "MENUNGGU HOST") {
+                    document.getElementById('display').innerText = "0000";
+                }
+                document.getElementById('display').style.fontSize = "";
+                availableNumbers = data.availableNumbers ? Object.values(data.availableNumbers) : [];
+                winners = data.winners ? Object.values(data.winners) : [];
+                forfeits = data.forfeits ? Object.values(data.forfeits) : [];
+                currentSession = data.currentSession || 1;
+                activeSheetName = data.activeSheetName || "Riwayat_Acara";
+                updateUI();
+            });
+
+            stateRef.on('value', (snapshot) => {
+                const state = snapshot.val() || { status: 'IDLE' };
+                currentState = state;
+                prizeMode = state.prizeMode === 'hiburan' ? 'hiburan' : 'utama';
+
+                const st = state.status || 'IDLE';
+                const changed = st !== lastHandledSpinStatus || (st.startsWith('SPINNING') && (state.spinId || null) !== lastSpinId);
+                lastHandledSpinStatus = st;
+                lastSpinId = state.spinId || null;
+                renderPrizeMode(st);
+
+                const display = document.getElementById('display');
+
+                if (st === "SPINNING") {
+                    if (!changed) return;
+                    if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
+                    isSpinning = true;
+                    showView('single');
+                    setControlState('SPINNING');
+                    playSpinAudio();
+                    display.classList.remove('is-winner');
+                    display.classList.add('is-spinning');
+                    clearInterval(displaySpinInterval);
+                    displaySpinInterval = setInterval(() => { display.innerText = format4(angkaAcakTampilan()); }, 50);
+                    jadwalkanSelesai(state, 'ACTION');
+                }
+                else if (st === "ACTION") {
+                    if (!changed) return;
+                    selectedNumber = state.screenNumber;
+                    clearInterval(displaySpinInterval);
+                    isSpinning = false;
+                    stopSpinAudio();
+                    showView('single');
+                    display.classList.remove('is-spinning');
+                    display.classList.add('is-winner');
+                    display.innerText = format4(selectedNumber);
+                    fireConfetti();
+                    setControlState('ACTION');
+                }
+                else if (st === "SPINNING_HIBURAN") {
+                    const batch = state.batch ? Object.values(state.batch) : [];
+                    if (changed) {
+                        if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
+                        isSpinning = true;
+                        showView('batch');
+                        setControlState('SPINNING_HIBURAN');
+                        playSpinAudio();
+                        prevSpinningIdx = new Set(batch.map((b, i) => b.s ? i : -1).filter(i => i >= 0));
+                        document.getElementById('spinning-text').innerText = `⚡ Mengacak ${prevSpinningIdx.size} Nomor...`;
+                        clearInterval(batchSpinInterval);
+                        batchSpinInterval = setInterval(() => {
+                            document.querySelectorAll('#hiburan-grid .tile.spinning .tile-num').forEach(el => { el.textContent = format4(angkaAcakTampilan()); });
+                        }, 60);
+                        jadwalkanSelesai(state, 'ACTION_HIBURAN');
+                    }
+                    renderBatch(batch);
+                }
+                else if (st === "ACTION_HIBURAN") {
+                    const batch = state.batch ? Object.values(state.batch) : [];
+                    if (changed) {
+                        clearInterval(batchSpinInterval);
+                        isSpinning = false;
+                        stopSpinAudio();
+                        showView('batch');
+                        const reveal = prevSpinningIdx.size ? prevSpinningIdx : new Set(batch.map((_, i) => i));
+                        renderBatch(batch, { reveal });
+                        prevSpinningIdx = new Set();
+                        fireConfetti();
+                        setControlState('ACTION_HIBURAN');
+                    } else {
+                        renderBatch(batch);
+                    }
+                    updateTombolHiburan(batch);
+                }
+                else if (st === "IDLE") {
+                    if (!changed) return;
+                    clearInterval(displaySpinInterval);
+                    clearInterval(batchSpinInterval);
+                    clearTimeout(finalizeTimer);
+                    isSpinning = false;
+                    selectedNumber = null;
+                    stopSpinAudio();
+                    showView('single');
+                    display.classList.remove('is-spinning', 'is-winner');
+                    if (display.innerText !== "MENUNGGU HOST") display.innerText = '0000';
+                    display.style.color = '';
+                    setControlState('IDLE');
+                    if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
+                }
+                else if (st.startsWith("REKAP_")) {
+                    if (!changed) return;
+                    openRekapModal(currentSession);
+                }
+            });
+        }
+
+        // Menyelesaikan putaran otomatis. Dijalankan di remote & layar (layar sebagai cadangan
+        // bila HP remote terkunci/refresh saat spin), hanya berlaku sekali per spinId.
+        function jadwalkanSelesai(state, next) {
+            clearTimeout(finalizeTimer);
+            const id = state.spinId;
+            const st = state.status;
+            const tunggu = Math.min(Number(state.durasi) || DURASI_SPIN_UTAMA, 8000) + (APP_MODE === 'layar' ? 1500 : 0);
+            finalizeTimer = setTimeout(async () => {
+                try {
+                    const s = (await stateRef.once('value')).val();
+                    if (!s || s.spinId !== id || s.status !== st) return;
+                    const upd = { status: next };
+                    if (next === 'ACTION_HIBURAN') {
+                        upd.batch = (s.batch ? Object.values(s.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h, s: false }));
+                    }
+                    stateRef.update(upd);
+                } catch (e) { console.log('Finalize error', e); }
+            }, tunggu);
+        }
+
+        // ================= MODE HADIAH =================
+        function setPrizeMode(mode) {
+            if (APP_MODE === 'layar') return;
+            if ((currentState.status || 'IDLE') !== 'IDLE') return;
+            simpanState({ prizeMode: mode });
+        }
+
+        function renderPrizeMode(st) {
+            const idle = st === 'IDLE';
+            document.querySelectorAll('.prize-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.mode === prizeMode);
+                t.disabled = !idle;
+            });
+            const btn = document.getElementById('btn-spin');
+            btn.classList.toggle('hiburan', prizeMode === 'hiburan');
+            btn.innerHTML = prizeMode === 'hiburan' ? `⚡ SPIN CEPAT ${JUMLAH_HIBURAN} NOMOR` : '🎲 PUTAR SPIN';
+
+            let isHib;
+            if (st.indexOf('HIBURAN') > -1) isHib = true;
+            else if (st === 'SPINNING' || st === 'ACTION') isHib = false;
+            else isHib = prizeMode === 'hiburan';
+            document.getElementById('layar-prize-text').innerText = isHib ? '🎁 HADIAH HIBURAN' : '🏆 HADIAH UTAMA';
+            document.getElementById('layar-session-badge').classList.toggle('hiburan', isHib);
+        }
+
+        function showView(view) {
+            document.getElementById('display').classList.toggle('hidden', view !== 'single');
+            document.getElementById('hiburan-wrap').classList.toggle('hidden', view !== 'batch');
+        }
+
+        // ================= SPIN =================
+        function startSpin() {
+            if (APP_MODE === 'layar') return;
+            if (isSpinning || isSaving) return;
+            if ((currentState.status || 'IDLE') !== 'IDLE') return;
+            if (availableNumbers.length === 0) {
+                Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info');
+                return;
+            }
+            if (prizeMode === 'hiburan') return startSpinHiburan();
+
+            const chosen = ambilAcak(availableNumbers, 1)[0];
+            simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, spinId: Date.now(), durasi: DURASI_SPIN_UTAMA });
+        }
+
+        function startSpinHiburan() {
+            const nums = ambilAcak(availableNumbers, JUMLAH_HIBURAN);
+            if (nums.length < JUMLAH_HIBURAN) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
+            simpanState({
+                status: "SPINNING_HIBURAN", screenNumber: "0000",
+                batch: nums.map(n => ({ n: n, h: false, s: true })),
+                spinId: Date.now(), durasi: DURASI_SPIN_HIBURAN
+            });
+        }
+
+        // ================= AKSI HADIAH UTAMA =================
+        function tandai(statusMark, autoLanjut = true) {
+            if (APP_MODE === 'layar' || isSaving || isSpinning) return;
+            if (currentState.status !== 'ACTION') return;
+            const num = currentState.screenNumber;
+            if (num === null || num === undefined || String(num) === '0000') return;
+
+            isSaving = true;
+            const entry = buatEntry(num, 'utama');
+            if (statusMark === 'sah') winners.push(entry); else forfeits.push(entry);
+            availableNumbers = availableNumbers.filter(x => Number(x) !== Number(num));
+
+            simpanData({ availableNumbers, winners, forfeits });
+            simpanState({ status: "IDLE", screenNumber: "0000" });
+            isSaving = false;
+
+            if (autoLanjut) setTimeout(() => startSpin(), 600);
+        }
+
+        // ================= AKSI HADIAH HIBURAN =================
+        function toggleHangusBatch(i) {
+            if (APP_MODE === 'layar' || isSaving || currentState.status !== 'ACTION_HIBURAN') return;
+            const batch = currentState.batch ? Object.values(currentState.batch) : [];
+            if (!batch[i]) return;
+            stateRef.child('batch/' + i + '/h').set(!batch[i].h).catch(e => console.log(e));
+        }
+
+        function gantiHangus() {
+            if (APP_MODE === 'layar' || isSaving || currentState.status !== 'ACTION_HIBURAN') return;
+            const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h, s: false }));
+            const idxHangus = batch.map((b, i) => b.h ? i : -1).filter(i => i >= 0);
+            if (!idxHangus.length) { toast('info', 'Belum ada yang ditandai', 'Ketuk nomor yang tidak hadir dulu.'); return; }
+
+            isSaving = true;
+            // 1. Catat nomor hangus & buang dari pool
+            idxHangus.forEach(i => forfeits.push(buatEntry(batch[i].n, 'hiburan')));
+            const setHangus = new Set(idxHangus.map(i => batch[i].n));
+            availableNumbers = availableNumbers.filter(x => !setHangus.has(Number(x)));
+
+            // 2. Undi pengganti (tidak boleh sama dengan nomor yang sedang tampil)
+            const tetap = batch.filter(b => !b.h).map(b => b.n);
+            const pengganti = ambilAcak(availableNumbers, idxHangus.length, tetap);
+            let k = 0;
+            const batchBaru = batch.map(b => {
+                if (!b.h) return b;
+                if (k < pengganti.length) return { n: pengganti[k++], h: false, s: true };
+                return null;
+            }).filter(Boolean);
+
+            simpanData({ availableNumbers, forfeits });
+            if (pengganti.length) {
+                simpanState({ status: 'SPINNING_HIBURAN', batch: batchBaru, spinId: Date.now(), durasi: DURASI_SPIN_GANTI });
+                if (pengganti.length < idxHangus.length) toast('warning', 'Kupon hampir habis', `Hanya ${pengganti.length} nomor pengganti tersedia.`);
+            } else {
+                simpanState({ batch: batchBaru });
+                toast('warning', 'Kupon habis', 'Tidak ada nomor pengganti.');
+            }
+            isSaving = false;
+        }
+
+        async function simpanHiburan() {
+            if (APP_MODE === 'layar' || isSaving || currentState.status !== 'ACTION_HIBURAN') return;
+            const cek = currentState.batch ? Object.values(currentState.batch) : [];
+            const nHangusAwal = cek.filter(b => b.h).length;
+            if (nHangusAwal) {
+                const ask = await Swal.fire({
+                    title: 'Simpan hasil hiburan?',
+                    html: `<b>${nHangusAwal}</b> nomor yang ditandai akan dicatat <b style="color:#ef4444">HANGUS</b> tanpa diganti.<br><br>Pakai tombol <b>Ganti Hangus</b> jika ingin mengundi penggantinya.`,
+                    icon: 'question', showCancelButton: true,
+                    confirmButtonText: 'Ya, Simpan', cancelButtonText: 'Kembali', confirmButtonColor: '#10b981'
+                });
+                if (!ask.isConfirmed || currentState.status !== 'ACTION_HIBURAN') return;
+            }
+
+            isSaving = true;
+            const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h }));
+            batch.forEach(b => (b.h ? forfeits : winners).push(buatEntry(b.n, 'hiburan')));
+            const semua = new Set(batch.map(b => b.n));
+            availableNumbers = availableNumbers.filter(x => !semua.has(Number(x)));
+
+            simpanData({ availableNumbers, winners, forfeits });
+            simpanState({ status: "IDLE", screenNumber: "0000", batch: null });
+            isSaving = false;
+            toast('success', `${batch.filter(b => !b.h).length} pemenang hiburan tercatat`);
+        }
+
+        function renderBatch(batch, opts = {}) {
+            const grid = document.getElementById('hiburan-grid');
+            const st = currentState.status;
+            const bisaKlik = APP_MODE !== 'layar' && st === 'ACTION_HIBURAN';
+            let urut = 0;
+            grid.innerHTML = batch.map((b, i) => {
+                const cls = ['tile'];
+                if (b.s) cls.push('spinning');
+                if (b.h) cls.push('hangus');
+                if (bisaKlik) cls.push('clickable');
+                let style = '';
+                if (opts.reveal && opts.reveal.has(i)) { cls.push('reveal'); style = ` style="animation-delay:${(urut++) * 90}ms"`; }
+                const klik = bisaKlik ? ` onclick="toggleHangusBatch(${i})"` : '';
+                return `<div class="${cls.join(' ')}"${style}${klik}><span class="tile-no">${i + 1}</span><span class="tile-num">${b.s ? '····' : format4(b.n)}</span>${b.h ? '<span class="tile-tag">HANGUS</span>' : ''}</div>`;
+            }).join('');
+
+            const judul = document.getElementById('hiburan-title');
+            if (st === 'SPINNING_HIBURAN') judul.innerText = `⚡ MENGACAK ${batch.filter(b => b.s).length} NOMOR...`;
+            else judul.innerText = `🎁 ${batch.filter(b => !b.h).length} PEMENANG HADIAH HIBURAN`;
+        }
+
+        function updateTombolHiburan(batch) {
+            const n = batch.filter(b => b.h).length;
+            document.getElementById('hib-count').innerText = batch.length;
+            document.getElementById('btn-ganti').disabled = n === 0;
+            document.getElementById('sub-ganti').innerText = n ? `Undi ulang ${n} nomor` : 'Ketuk nomor dulu';
+        }
+
+        // ================= SESI, RESET, EXPORT =================
+        function kirimBackupSesi(sess) {
+            if (!isOnline) { toast('warning', 'Backup spreadsheet tertunda', 'Gunakan Export CSV sebagai cadangan.'); return; }
+            const backupData = [];
+            winners.filter(w => Number(w.session) === Number(sess)).forEach(w => backupData.push({
+                time: w.time || new Date().toLocaleString('id-ID'), session: w.session, number: format4(w.number),
+                status: "SAH - " + jenisHadiah(w).toUpperCase(), jenis: jenisHadiah(w).toUpperCase()
+            }));
+            forfeits.filter(f => Number(f.session) === Number(sess)).forEach(f => backupData.push({
+                time: f.time || new Date().toLocaleString('id-ID'), session: f.session, number: format4(f.number),
+                status: "HANGUS - " + jenisHadiah(f).toUpperCase(), jenis: jenisHadiah(f).toUpperCase()
+            }));
+            if (backupData.length > 0) {
+                fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', body: JSON.stringify({ sheetName: activeSheetName, data: backupData }) })
+                    .catch(e => console.log("Backup error", e));
+            }
+        }
+
+        function pindahSesi() {
+            if (APP_MODE === 'layar') return;
+            if ((currentState.status || 'IDLE') !== 'IDLE') {
+                Swal.fire('Tunggu!', 'Selesaikan putaran atau hasil undian yang sedang tampil dulu.', 'warning');
+                return;
+            }
+            simpanState({ status: "REKAP_" + currentSession });
+        }
+
+        async function resetAll() {
+            if (APP_MODE === 'layar' || isSpinning) return;
+            const ask = await Swal.fire({
+                title: 'Reset & Setup Ulang Acara?',
+                text: 'Semua data kupon & riwayat acara ini akan dihapus. Export CSV dulu bila perlu.',
+                icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Ya, Reset', cancelButtonText: 'Batal'
+            });
+            if (ask.isConfirmed) {
+                simpanState({ status: "IDLE", screenNumber: "0000", batch: null, prizeMode: 'utama' });
+                dataRef.remove().catch(e => console.log(e));
+            }
+        }
+
+        function exportToCSV() {
+            if (winners.length === 0 && forfeits.length === 0) {
+                Swal.fire('Kosong', 'Belum ada data riwayat untuk diekspor.', 'info');
+                return;
+            }
+            const q = v => `"${String(v).replace(/"/g, '""')}"`;
+            const rows = [["Waktu Tercatat", "Sesi Undian", "Jenis Hadiah", "Nomor Kupon", "Status Kupon", "Kondisi Jaringan"]];
+            for (let i = 1; i <= currentSession; i++) {
+                const ws = winners.filter(w => Number(w.session) === i);
+                ws.filter(w => jenisHadiah(w) === 'utama').concat(ws.filter(w => jenisHadiah(w) === 'hiburan')).forEach(w =>
+                    rows.push([w.time || '-', 'Sesi ' + w.session, jenisHadiah(w).toUpperCase(), format4(w.number), 'SAH', w.isOffline ? 'OFFLINE' : 'ONLINE']));
+                forfeits.filter(f => Number(f.session) === i).forEach(f =>
+                    rows.push([f.time || '-', 'Sesi ' + f.session, jenisHadiah(f).toUpperCase(), format4(f.number), 'HANGUS', f.isOffline ? 'OFFLINE' : 'ONLINE']));
+            }
+            const csv = '\uFEFF' + rows.map(r => r.map(q).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Backup_Spin_${activeSheetName}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        // ================= TAMPILAN =================
+        function setControlState(state) {
+            if (APP_MODE === 'layar') return;
+            const ids = ['spin-controls', 'spinning-status', 'action-controls', 'action-hiburan'];
+            ids.forEach(id => document.getElementById(id).classList.add('hidden'));
+
+            if (state === 'IDLE') document.getElementById('spin-controls').classList.remove('hidden');
+            else if (state === 'SPINNING') {
+                document.getElementById('spinning-text').innerText = '🎰 Mengacak Nomor Kupon...';
+                document.getElementById('spinning-status').classList.remove('hidden');
+            }
+            else if (state === 'SPINNING_HIBURAN') document.getElementById('spinning-status').classList.remove('hidden');
+            else if (state === 'ACTION') {
+                document.getElementById('label-nomor-keluar').innerText = format4(selectedNumber);
+                document.getElementById('action-controls').classList.remove('hidden');
+            }
+            else if (state === 'ACTION_HIBURAN') document.getElementById('action-hiburan').classList.remove('hidden');
+        }
+
+        function chip(e, kind, base) {
+            const icon = kind === 'hangus' ? '❌' : (kind === 'hiburan' ? '🎁' : '🏆');
+            const warn = e.isOffline ? ' <span style="font-size:12px;">⚠️</span>' : '';
+            return `<span class="${base} ${kind}" title="${e.isOffline ? 'Dicatat saat OFFLINE' : ''}">${icon} ${format4(e.number)}${warn}</span>`;
+        }
+
+        function buildRekapHTML(sess) {
+            const ws = winners.filter(w => Number(w.session) === Number(sess));
+            const utama = ws.filter(w => jenisHadiah(w) === 'utama');
+            const hib = ws.filter(w => jenisHadiah(w) === 'hiburan');
+            const fs = forfeits.filter(f => Number(f.session) === Number(sess));
+            const kol = (judul, warna, list, kind, kosong) => `
+                <div class="rekap-col"><h4 style="color:${warna};">${judul} (${list.length})</h4>
+                    <div class="rekap-list">${list.length ? list.map(e => chip(e, kind, 'rekap-item')).join('') : `<span style="font-size:14px;color:#6b7280;">${kosong}</span>`}</div>
+                </div>`;
+            return `<div class="rekap-wrapper">
+                ${kol('🏆 Hadiah Utama', '#d97706', utama, 'utama', 'Belum ada')}
+                ${kol('🎁 Hadiah Hiburan', '#7c3aed', hib, 'hiburan', 'Belum ada')}
+                ${kol('❌ Hangus / Gugur', '#ef4444', fs, 'hangus', 'Tidak ada')}
+            </div>`;
+        }
+
+        function openRekapModal(sess) {
+            if (isRekapModalOpen) return;
+            isRekapModalOpen = true;
+            const htmlRekap = buildRekapHTML(sess) + (APP_MODE !== 'layar' ? `<p style="margin-top: 15px; font-weight: bold; color: #374151;">Tutup Sesi ${sess} dan lanjut ke Sesi ${sess + 1}?</p>` : ``);
+
+            Swal.fire({
+                title: `🏁 REKAP HASIL SESI ${sess}`, html: htmlRekap, width: '94%',
+                showCancelButton: APP_MODE !== 'layar', allowOutsideClick: false,
+                confirmButtonColor: '#3b82f6', cancelButtonColor: '#6b7280',
+                confirmButtonText: APP_MODE !== 'layar' ? `⏭️ Lanjut Sesi ${sess + 1}` : 'Tutup Tampilan',
+                cancelButtonText: 'Batal / Kembali'
+            }).then((result) => {
+                isRekapModalOpen = false;
+                if (APP_MODE === 'layar') return;
+                if (result.isConfirmed) {
+                    kirimBackupSesi(sess);
+                    currentSession = sess + 1;
+                    simpanData({ currentSession: currentSession });
+                    simpanState({ status: "IDLE", prizeMode: 'utama' });
+                    Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 2000, showConfirmButton: false });
+                } else if ((currentState.status || '').startsWith('REKAP_')) {
+                    simpanState({ status: "IDLE" });
+                }
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('layar-sesi-text').innerText = currentSession;
+            if (APP_MODE === 'layar') return;
+
+            document.getElementById('stat-sesi').innerText = currentSession;
+            document.getElementById('stat-tersedia').innerText = availableNumbers.length;
+            document.getElementById('stat-utama').innerText = winners.filter(w => jenisHadiah(w) === 'utama').length;
+            document.getElementById('stat-hiburan').innerText = winners.filter(w => jenisHadiah(w) === 'hiburan').length;
+            document.getElementById('stat-hangus').innerText = forfeits.length;
+
+            const historyList = document.getElementById('history-list');
+            let html = '';
+            for (let i = currentSession; i >= 1; i--) {
+                const ws = winners.filter(w => Number(w.session) === i);
+                const u = ws.filter(w => jenisHadiah(w) === 'utama');
+                const h = ws.filter(w => jenisHadiah(w) === 'hiburan');
+                const f = forfeits.filter(x => Number(x.session) === i);
+                if (!u.length && !h.length && !f.length) continue;
+                html += `<div class="sesi-group"><div class="sesi-title">🔹 Riwayat Sesi ${i}</div>`;
+                if (u.length) html += `<div class="hist-row"><span class="hist-label">🏆 Utama (${u.length})</span>${u.map(e => chip(e, 'utama', 'badge')).join('')}</div>`;
+                if (h.length) html += `<div class="hist-row"><span class="hist-label">🎁 Hiburan (${h.length})</span>${h.map(e => chip(e, 'hiburan', 'badge')).join('')}</div>`;
+                if (f.length) html += `<div class="hist-row"><span class="hist-label">❌ Hangus (${f.length})</span>${f.map(e => chip(e, 'hangus', 'badge')).join('')}</div>`;
+                html += `</div>`;
+            }
+            historyList.innerHTML = html || '<span style="font-size: 14px; color: #6b7280;">Belum ada riwayat.</span>';
+        }
+
+        // ================= AUDIO =================
+        function unlockAudioSession() {
+            if (isAudioUnlocked) return;
+            const audio = document.getElementById('sound-spin');
+            if (audio) {
+                audio.play().then(() => {
+                    audio.pause(); audio.currentTime = 0;
+                    isAudioUnlocked = true;
+                    document.getElementById('audio-unlock-banner').style.display = 'none';
+                }).catch(e => console.log("Gagal Unlock Audio:", e));
+            }
+        }
+        document.addEventListener('click', () => { if (!isAudioUnlocked) unlockAudioSession(); }, { once: true });
+
+        function playSpinAudio() {
+            const audio = document.getElementById('sound-spin');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(() => {
+                    if (APP_MODE === 'layar') document.getElementById('audio-unlock-banner').style.display = 'block';
+                });
+            }
+        }
+        function stopSpinAudio() {
+            const audio = document.getElementById('sound-spin');
+            if (audio) { audio.pause(); audio.currentTime = 0; }
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
