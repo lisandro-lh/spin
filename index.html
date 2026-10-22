@@ -108,7 +108,7 @@
             100% { box-shadow: 0 0 50px rgba(16, 185, 129, 0.8); transform: scale(1.02); }
         }
 
-        /* ===== GRID HADIAH HIBURAN (15 NOMOR) ===== */
+        /* ===== GRID HADIAH HIBURAN ===== */
         .hiburan-wrap { width: 100%; max-width: 1100px; margin-bottom: 20px; }
         .hiburan-title {
             width: fit-content; max-width: 100%; margin: 0 auto 14px; padding: 8px 26px; border-radius: 50px;
@@ -116,7 +116,7 @@
             font-size: clamp(15px, 2.4vw, 30px); text-align: center; letter-spacing: 1px;
             box-shadow: 0 8px 20px rgba(109, 40, 217, 0.45);
         }
-        .hiburan-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(6px, 1.2vw, 16px); }
+        .hiburan-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(6px, 1.2vw, 16px); margin: 0 auto; }
         .tile {
             position: relative; background: rgba(255, 255, 255, 0.97); border: 4px solid var(--violet);
             border-radius: 16px; padding: clamp(10px, 1.8vw, 24px) 4px; text-align: center;
@@ -151,6 +151,21 @@
         .prize-tab.active[data-mode="utama"] { border-color: var(--blue); background: #eff6ff; color: #1d4ed8; }
         .prize-tab.active[data-mode="hiburan"] { border-color: var(--violet); background: #f5f3ff; color: #6d28d9; }
         .prize-tab:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Panel jumlah hadiah hiburan */
+        .hib-stok { background: #f5f3ff; border: 2px solid #ddd6fe; border-radius: 14px; padding: 10px 12px; margin-bottom: 14px; }
+        .hs-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .hs-label { font-size: 13px; font-weight: bold; color: #5b21b6; }
+        .hs-ctrl { display: flex; align-items: center; gap: 6px; }
+        .hs-ctrl button { width: 36px; height: 36px; border: none; border-radius: 10px; background: #7c3aed; color: white; font-size: 20px; font-weight: bold; cursor: pointer; font-family: inherit; }
+        .hs-ctrl button.hs-edit { background: #ede9fe; color: #5b21b6; font-size: 15px; }
+        .hs-ctrl button:active { transform: scale(0.92); }
+        .hs-ctrl button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .hs-target { min-width: 44px; text-align: center; font-size: 22px; font-weight: 800; color: #5b21b6; }
+        .hs-info { display: flex; gap: 8px; margin-top: 8px; }
+        .hs-pill { flex: 1; text-align: center; background: white; border-radius: 8px; padding: 5px; font-size: 12px; color: #4b5563; }
+        .hs-pill b { display: block; font-size: 18px; color: #1f2937; }
+        .hs-pill.sisa b { color: #7c3aed; }
 
         .btn-spin { background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: clamp(18px, 4.5vw, 24px); padding: 18px 45px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; color: white; transition: all 0.2s; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4); width: 100%; text-transform: uppercase; letter-spacing: 1px; }
         .btn-spin.hiburan { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 8px 20px rgba(109, 40, 217, 0.4); }
@@ -192,7 +207,9 @@
         body.mode-layar .spin-display { font-size: clamp(85px, 20vw, 220px); padding: clamp(25px, 5vw, 50px) clamp(40px, 8vw, 100px); border-width: 10px; margin-top: 20px; }
         body.mode-layar .hiburan-wrap { max-width: 1600px; }
         body.mode-layar .tile { border-width: 6px; }
-        body.mode-layar .tile-num { font-size: clamp(28px, 5vw, 84px); }
+        body.mode-layar .tile { padding: clamp(18px, 3vw, 44px) 6px; }
+        body.mode-layar .tile-num { font-size: clamp(32px, 5.5vw, 100px); }
+        body.mode-layar .tile-no { font-size: clamp(11px, 1.2vw, 18px); }
 
         .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 8px 14px; background: rgba(0,0,0,0.6); border: none; border-radius: 8px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; backdrop-filter: blur(5px); }
         .btn-switch-mode:hover { background: rgba(0,0,0,0.9); }
@@ -285,7 +302,7 @@
         <!-- Tampilan 1 nomor (Hadiah Utama) -->
         <div class="spin-display" id="display">0000</div>
 
-        <!-- Tampilan 15 nomor (Hadiah Hiburan) -->
+        <!-- Tampilan banyak nomor (Hadiah Hiburan) -->
         <div class="hiburan-wrap hidden" id="hiburan-wrap">
             <div class="hiburan-title" id="hiburan-title">🎁 PEMENANG HADIAH HIBURAN</div>
             <div class="hiburan-grid" id="hiburan-grid"></div>
@@ -295,7 +312,22 @@
             <div id="spin-controls" style="width: 100%;">
                 <div class="prize-tabs">
                     <button class="prize-tab active" data-mode="utama" onclick="setPrizeMode('utama')">🏆 Hadiah Utama<span class="sub">1 nomor per putaran</span></button>
-                    <button class="prize-tab" data-mode="hiburan" onclick="setPrizeMode('hiburan')">🎁 Hadiah Hiburan<span class="sub" id="tab-hiburan-sub">15 nomor sekaligus</span></button>
+                    <button class="prize-tab" data-mode="hiburan" onclick="setPrizeMode('hiburan')">🎁 Hadiah Hiburan<span class="sub" id="tab-hiburan-sub">5 nomor per spin</span></button>
+                </div>
+                <div class="hib-stok hidden" id="hib-stok">
+                    <div class="hs-row">
+                        <span class="hs-label">🎁 Jumlah hadiah hiburan sesi ini</span>
+                        <div class="hs-ctrl">
+                            <button id="hs-minus" onclick="ubahStokHiburan(-1)">−</button>
+                            <span class="hs-target" id="hs-target">0</span>
+                            <button onclick="ubahStokHiburan(1)">+</button>
+                            <button class="hs-edit" onclick="aturStokHiburan()">✏️</button>
+                        </div>
+                    </div>
+                    <div class="hs-info">
+                        <div class="hs-pill">Sudah menang<b id="hs-sudah">0</b></div>
+                        <div class="hs-pill sisa">Sisa hadiah<b id="hs-sisa">0</b></div>
+                    </div>
                 </div>
                 <button id="btn-spin" class="btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
             </div>
@@ -320,7 +352,7 @@
 
             <!-- Aksi Hadiah Hiburan -->
             <div class="controls-action hidden" id="action-hiburan">
-                <p class="action-prompt"><span id="hib-count">15</span> nomor keluar. Ketuk nomor yang <span style="color:var(--rose);">tidak hadir</span> untuk ditandai HANGUS.</p>
+                <p class="action-prompt"><span id="hib-count">5</span> nomor keluar. Ketuk nomor yang <span style="color:var(--rose);">tidak hadir</span> untuk ditandai HANGUS.</p>
                 <div class="btn-action-group">
                     <button class="btn-choice hangus" id="btn-ganti" onclick="gantiHangus()" disabled>🔁 GANTI HANGUS<span class="sub" id="sub-ganti">Ketuk nomor dulu</span></button>
                     <button class="btn-choice sah" onclick="simpanHiburan()">✔ SIMPAN SEMUA<span class="sub">Catat pemenang hiburan</span></button>
@@ -341,11 +373,10 @@
         // PENGATURAN
         // =======================================================
         const BACKUP_SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbyQhgsuzE-LQWP1grHpSQeeRAyZDGT5OubZc9cXJ6uwIWvH3FfClh-gA3a1mxij6FfEyQ/exec";
-        const JUMLAH_HIBURAN = 10;          // jumlah hadiah hiburan per sesi (sekali spin cepat)
-        const DURASI_SPIN_UTAMA = 5000;     // ms (5 detik)
-        const DURASI_SPIN_HIBURAN = 5000;   // ms (5 detik)
-        const DURASI_SPIN_GANTI = 2500;     // ms (undi ulang nomor hangus)
-        const BATAS_NOMOR_UTAMA = 350;      // Hadiah Utama hanya mengundi nomor 1 s/d angka ini. Nomor di atasnya khusus Hadiah Hiburan.
+        const HIBURAN_PER_SPIN = 5;         // jumlah nomor sekali spin hadiah hiburan
+        const DURASI_SPIN_UTAMA = 60000;     // ms (60 detik)
+        const DURASI_SPIN_HIBURAN = 60000;   // ms (60 detik)
+        const DURASI_SPIN_GANTI = 30000;     // ms (undi ulang nomor hangus)
         // =======================================================
 
         const firebaseConfig = {
@@ -378,7 +409,7 @@
         } else {
             document.getElementById('btn-mode-label').innerText = '🖥️ Ke Mode Layar';
         }
-        document.getElementById('tab-hiburan-sub').innerText = JUMLAH_HIBURAN + ' nomor per spin';
+        document.getElementById('tab-hiburan-sub').innerText = HIBURAN_PER_SPIN + ' nomor per spin';
 
         function toggleMode() { window.location.href = '?mode=' + (APP_MODE === 'layar' ? 'remote' : 'layar'); }
 
@@ -387,6 +418,7 @@
         let forfeits = [];
         let currentSession = 1;
         let activeSheetName = "Riwayat_Acara";
+        let targetHiburan = {};   // jumlah hadiah hiburan per sesi, contoh { s1: 20, s2: 15 }
 
         let currentState = { status: 'IDLE' };
         let prizeMode = 'utama';
@@ -496,7 +528,7 @@
                 stateRef.set({ status: "IDLE", screenNumber: "0000", prizeMode: 'utama' }).catch(e => console.log(e));
 
                 if (isOnline) {
-                    fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', body: JSON.stringify({ sheetName: newSheetName, data: [] }) }).catch(e => console.log("Init sheet error", e));
+                    fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ sheetName: newSheetName, data: [] }) }).catch(e => console.log("Init sheet error", e));
                 }
                 document.getElementById('display').style.fontSize = "";
                 Swal.fire('Berhasil', `Sistem siap dengan ${total} kupon!`, 'success');
@@ -541,7 +573,7 @@
                 const data = snapshot.val();
                 dataAda = !!data;
                 if (!data) {
-                    availableNumbers = []; winners = []; forfeits = []; currentSession = 1;
+                    availableNumbers = []; winners = []; forfeits = []; currentSession = 1; targetHiburan = {};
                     updateUI();
                     if (APP_MODE !== 'layar') setupAwal();
                     else {
@@ -559,6 +591,7 @@
                 forfeits = data.forfeits ? Object.values(data.forfeits) : [];
                 currentSession = data.currentSession || 1;
                 activeSheetName = data.activeSheetName || "Riwayat_Acara";
+                targetHiburan = data.targetHiburan || {};
                 updateUI();
             });
 
@@ -693,9 +726,19 @@
             });
             const btn = document.getElementById('btn-spin');
             btn.classList.toggle('hiburan', prizeMode === 'hiburan');
-            const sisaKuota = sisaKuotaHiburan();
+            document.getElementById('hib-stok').classList.toggle('hidden', prizeMode !== 'hiburan');
             if (prizeMode === 'hiburan') {
-                btn.innerHTML = isPaketTambahan() ? `➕ SPIN TAMBAHAN ${sisaKuota} NOMOR` : `⚡ SPIN CEPAT ${sisaKuota} NOMOR`;
+                const target = getTargetHiburan();
+                const sudah = jumlahHiburanSesi();
+                const sisa = sisaHadiahHiburan();
+                document.getElementById('hs-target').innerText = target;
+                document.getElementById('hs-sudah').innerText = sudah;
+                document.getElementById('hs-sisa').innerText = sisa;
+                document.getElementById('hs-minus').disabled = target <= sudah;
+                const n = Math.min(HIBURAN_PER_SPIN, sisa);
+                if (target === 0) btn.innerHTML = '⚙️ ATUR JUMLAH HADIAH DULU';
+                else if (sisa === 0) btn.innerHTML = '✅ HADIAH HIBURAN HABIS';
+                else btn.innerHTML = `⚡ SPIN CEPAT ${n} NOMOR`;
             } else {
                 btn.innerHTML = '🎲 PUTAR SPIN';
             }
@@ -724,44 +767,73 @@
             }
             if (prizeMode === 'hiburan') return startSpinHiburan();
 
-            const poolUtama = availableNumbers.filter(x => Number(x) <= BATAS_NOMOR_UTAMA);
-            if (poolUtama.length === 0) {
-                Swal.fire('Habis!', 'Tidak ada kupon tersisa untuk Hadiah Utama. Lanjutkan dengan Hadiah Hiburan.', 'info');
-                return;
-            }
-            const chosen = ambilAcak(poolUtama, 1)[0];
+            const chosen = ambilAcak(availableNumbers, 1)[0];
             simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, spinId: Date.now(), durasi: DURASI_SPIN_UTAMA });
         }
 
-        // Sisa jatah pemenang hiburan di sesi berjalan
-        // Hiburan dihitung per paket 10. Paket yang belum lengkap (karena ada hangus tanpa diganti)
-        // dilengkapi dulu; kalau paket sudah lengkap, spin berikutnya = paket tambahan 10 lagi.
+        // ================= HADIAH HIBURAN: JUMLAH HADIAH PER SESI =================
+        // Operator mengisi jumlah hadiah hiburan per sesi (misal 22).
+        // Tiap spin mengeluarkan maks. 5 nomor; bila sisa hadiah 4, spin mengeluarkan 4 nomor.
+        function keySesi() { return 's' + currentSession; }
+        function getTargetHiburan() { return Number(targetHiburan[keySesi()]) || 0; }
         function jumlahHiburanSesi() {
             return winners.filter(w => jenisHadiah(w) === 'hiburan' && Number(w.session) === Number(currentSession)).length;
         }
-        function sisaKuotaHiburan() {
-            const sisa = jumlahHiburanSesi() % JUMLAH_HIBURAN;
-            return sisa === 0 ? JUMLAH_HIBURAN : JUMLAH_HIBURAN - sisa;
+        function sisaHadiahHiburan() { return Math.max(getTargetHiburan() - jumlahHiburanSesi(), 0); }
+
+        function setTargetHiburan(n) {
+            n = Math.max(parseInt(n, 10) || 0, jumlahHiburanSesi());
+            targetHiburan[keySesi()] = n;
+            simpanData({ ['targetHiburan/' + keySesi()]: n });
+            renderPrizeMode(currentState.status || 'IDLE');
         }
-        function isPaketTambahan() {
+        function ubahStokHiburan(delta) {
+            if (APP_MODE === 'layar' || (currentState.status || 'IDLE') !== 'IDLE') return;
+            setTargetHiburan(getTargetHiburan() + delta);
+        }
+        async function aturStokHiburan() {
+            if (APP_MODE === 'layar' || (currentState.status || 'IDLE') !== 'IDLE') return false;
             const sudah = jumlahHiburanSesi();
-            return sudah > 0 && sudah % JUMLAH_HIBURAN === 0;
+            // usulan awal: nilai sesi ini, atau nilai sesi sebelumnya
+            const sebelumnya = Number(targetHiburan['s' + (currentSession - 1)]) || '';
+            const nilaiAwal = getTargetHiburan() || sebelumnya;
+            const r = await Swal.fire({
+                title: '🎁 Jumlah Hadiah Hiburan',
+                html: `Sesi ${currentSession}. Tiap spin mengeluarkan maks. <b>${HIBURAN_PER_SPIN}</b> nomor.` + (sudah ? `<br>Sudah menang di sesi ini: <b>${sudah}</b>` : ''),
+                input: 'number', inputValue: nilaiAwal, inputPlaceholder: 'Contoh: 20',
+                inputAttributes: { min: String(sudah), step: '1' },
+                showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal', confirmButtonColor: '#7c3aed',
+                inputValidator: (v) => {
+                    const n = parseInt(v, 10);
+                    if (!n || n <= 0) return 'Masukkan jumlah hadiah yang valid';
+                    if (n < sudah) return `Tidak boleh kurang dari ${sudah} (sudah menang)`;
+                }
+            });
+            if (!r.isConfirmed) return false;
+            setTargetHiburan(r.value);
+            return true;
         }
 
         async function startSpinHiburan() {
-            const kuota = sisaKuotaHiburan();
-            if (isPaketTambahan()) {
-                const ask = await Swal.fire({
-                    title: '➕ Tambah Hadiah Hiburan?',
-                    html: `Sesi ${currentSession} sudah punya <b>${jumlahHiburanSesi()}</b> pemenang hiburan.<br>Undi <b>${JUMLAH_HIBURAN} hadiah tambahan</b> lagi?`,
-                    icon: 'question', showCancelButton: true,
-                    confirmButtonText: `Ya, Spin ${JUMLAH_HIBURAN} Lagi`, cancelButtonText: 'Batal',
-                    confirmButtonColor: '#7c3aed'
-                });
-                if (!ask.isConfirmed) return;
-                if ((currentState.status || 'IDLE') !== 'IDLE' || isSpinning) return;
+            if (getTargetHiburan() === 0) {
+                const ok = await aturStokHiburan();
+                if (!ok) return;
             }
+            if (sisaHadiahHiburan() === 0) {
+                const r = await Swal.fire({
+                    title: 'Hadiah Hiburan Habis',
+                    html: `Sesi ${currentSession} sudah <b>${jumlahHiburanSesi()}</b> dari <b>${getTargetHiburan()}</b> hadiah.<br>Tambah jumlah hadiah jika stok masih ada.`,
+                    icon: 'info', showCancelButton: true, confirmButtonText: '➕ Tambah Jumlah', cancelButtonText: 'Tutup', confirmButtonColor: '#7c3aed'
+                });
+                if (!r.isConfirmed) return;
+                const ok = await aturStokHiburan();
+                if (!ok || sisaHadiahHiburan() === 0) return;
+            }
+            if ((currentState.status || 'IDLE') !== 'IDLE' || isSpinning) return;
+
+            const kuota = Math.min(HIBURAN_PER_SPIN, sisaHadiahHiburan());
             const nums = ambilAcak(availableNumbers, kuota);
+            if (!nums.length) { Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info'); return; }
             if (nums.length < kuota) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
             simpanState({
                 status: "SPINNING_HIBURAN", screenNumber: "0000",
@@ -872,6 +944,9 @@
 
         function renderBatch(batch, opts = {}) {
             const grid = document.getElementById('hiburan-grid');
+            const kolom = Math.max(Math.min(batch.length, 5), 1);
+            grid.style.gridTemplateColumns = `repeat(${kolom}, minmax(0, 1fr))`;
+            grid.style.maxWidth = (kolom * (APP_MODE === 'layar' ? 320 : 220)) + 'px';
             const st = currentState.status;
             const bisaKlik = APP_MODE !== 'layar' && st === 'ACTION_HIBURAN';
             let urut = 0;
@@ -924,8 +999,11 @@
                     fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ sheetName: activeSheetName, data: backupData }) }),
                     new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 10000))
                 ]);
-                wList.forEach(w => w.sent = true);
-                fList.forEach(f => f.sent = true);
+                // tandai berdasarkan nomor kupon (unik), pada data TERBARU,
+                // karena array bisa sudah diganti oleh listener saat menunggu
+                const nomorTerkirim = new Set(wList.concat(fList).map(e => Number(e.number)));
+                winners.forEach(w => { if (nomorTerkirim.has(Number(w.number))) w.sent = true; });
+                forfeits.forEach(f => { if (nomorTerkirim.has(Number(f.number))) f.sent = true; });
                 return true;
             } catch (e) {
                 console.log("Backup error", e);
@@ -952,7 +1030,8 @@
                 label: label, waktu: new Date().toLocaleString('id-ID'), ts: Date.now(),
                 data: {
                     availableNumbers: availableNumbers, winners: winners, forfeits: forfeits,
-                    currentSession: currentSession, activeSheetName: activeSheetName
+                    currentSession: currentSession, activeSheetName: activeSheetName,
+                    targetHiburan: targetHiburan
                 }
             };
             cadanganRef.push(snap).catch(e => console.log('Gagal simpan cadangan', e));
@@ -1017,6 +1096,7 @@
 
         async function resetAll() {
             if (APP_MODE === 'layar' || isSpinning) return;
+            if (!dataAda) { setupAwal(); return; }   // belum ada acara: langsung ke Setup
             if ((currentState.status || 'IDLE') !== 'IDLE') {
                 Swal.fire('Tunggu!', 'Selesaikan putaran yang sedang berjalan dulu.', 'warning');
                 return;
