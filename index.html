@@ -356,7 +356,7 @@
             <div id="spin-controls" style="width: 100%;">
                 <div class="prize-tabs">
                     <button class="prize-tab active" data-mode="utama" onclick="setPrizeMode('utama')">🏆 Hadiah Utama<span class="sub">1 nomor per putaran</span></button>
-                    <button class="prize-tab" data-mode="hiburan" onclick="setPrizeMode('hiburan')">🎁 Hadiah Hiburan<span class="sub" id="tab-hiburan-sub">maks. 10 nomor per spin</span></button>
+                    <button class="prize-tab" data-mode="hiburan" onclick="setPrizeMode('hiburan')">🎁 Hadiah Hiburan<span class="sub" id="tab-hiburan-sub">maks. 5 nomor per spin</span></button>
                 </div>
                 <div class="hib-stok utama" id="hib-stok">
                     <div class="hs-row">
@@ -396,7 +396,7 @@
 
             <!-- Aksi Hadiah Hiburan -->
             <div class="controls-action hidden" id="action-hiburan">
-                <p class="action-prompt"><span id="hib-count">10</span> nomor keluar. Ketuk nomor yang <span style="color:var(--rose);">tidak hadir</span> untuk ditandai HANGUS.</p>
+                <p class="action-prompt"><span id="hib-count">5</span> nomor keluar. Ketuk nomor yang <span style="color:var(--rose);">tidak hadir</span> untuk ditandai HANGUS.</p>
                 <div class="btn-action-group">
                     <button class="btn-choice hangus" id="btn-ganti" onclick="gantiHangus()" disabled>🔁 GANTI HANGUS<span class="sub" id="sub-ganti">Ketuk nomor dulu</span></button>
                     <button class="btn-choice sah" onclick="simpanHiburan()">✔ SIMPAN SEMUA<span class="sub">Catat pemenang hiburan</span></button>
@@ -419,7 +419,7 @@
         // PENGATURAN
         // =======================================================
         const BACKUP_SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbyQhgsuzE-LQWP1grHpSQeeRAyZDGT5OubZc9cXJ6uwIWvH3FfClh-gA3a1mxij6FfEyQ/exec";
-        const HIBURAN_PER_SPIN = 10;        // maksimal nomor sekali spin hadiah hiburan (menyesuaikan sisa hadiah)
+        const HIBURAN_PER_SPIN = 5;         // maksimal nomor sekali spin hadiah hiburan (spin terakhir menyesuaikan sisa hadiah)
         // Spin TIDAK punya batas waktu: berputar terus sampai tombol STOP ditekan.
         // =======================================================
 
@@ -602,7 +602,7 @@
                         <label>🎟️ Jumlah total kupon<input id="su-kupon" type="number" min="1" inputmode="numeric" class="swal2-input" placeholder="Contoh: 1000"></label>
                         <label>🏆 Jumlah Hadiah Utama (total acara)<input id="su-utama" type="number" min="0" inputmode="numeric" class="swal2-input" placeholder="Contoh: 5"></label>
                         <label>🎁 Jumlah Hadiah Hiburan (total acara)<input id="su-hiburan" type="number" min="0" inputmode="numeric" class="swal2-input" placeholder="Contoh: 20"></label>
-                        <p class="setup-note">Sisa hadiah berkurang otomatis setiap ada pemenang SAH (kupon hangus tidak mengurangi). Hadiah Hiburan keluar maks. 10 nomor per spin, dan spin terakhir menyesuaikan sisa hadiah.</p>
+                        <p class="setup-note">Sisa hadiah berkurang otomatis setiap ada pemenang SAH (kupon hangus tidak mengurangi). Hadiah Hiburan keluar per 5 nomor tiap spin, dan spin terakhir menyesuaikan sisa hadiah.</p>
                        </div>`,
                 focusConfirm: false,
                 allowOutsideClick: false,
