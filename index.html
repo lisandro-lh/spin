@@ -249,6 +249,13 @@
         body.mode-tunggal.panel-tersembunyi .btn-buka-panel { display: block; }
         .network-badge.connecting { background: rgba(107, 114, 128, 0.9); }
 
+        /* ===== TAMPILAN DI OBS (Browser Source) ===== */
+        body.mode-obs { overflow: hidden; }
+        body.mode-obs .btn-switch-mode, body.mode-obs #audio-unlock-banner { display: none !important; }
+        body.mode-obs .network-badge:not(.offline) { display: none; }   /* badge hanya muncul bila offline */
+        body.mode-obs .rekap-popup .swal2-actions { display: none !important; }
+        body.latar-transparan { background: transparent !important; }
+
         .btn-switch-mode { position: fixed; bottom: 10px; left: 10px; font-size: 12px; padding: 8px 14px; background: rgba(0,0,0,0.6); border: none; border-radius: 8px; cursor: pointer; color: white; z-index: 100; transition: background 0.3s; backdrop-filter: blur(5px); }
         .btn-switch-mode:hover { background: rgba(0,0,0,0.9); }
         #audio-unlock-banner { position: fixed; top: 0; left: 0; width: 100%; background: #2563eb; color: white; text-align: center; padding: 12px; font-weight: bold; z-index: 9999; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; font-size: 15px; }
@@ -444,6 +451,10 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         let APP_MODE = urlParams.get('mode');
+        // OBS Studio (Browser Source) otomatis dikenali lewat window.obsstudio -> selalu tampil sebagai LAYAR.
+        // Bisa juga dipaksa dengan menambahkan ?obs=1 di alamat.
+        const IS_OBS = !!window.obsstudio || urlParams.get('obs') === '1';
+        if (IS_OBS) APP_MODE = 'layar';
         if (!APP_MODE) {
             const isMobile = window.innerWidth <= 900 || /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
             APP_MODE = isMobile ? 'remote' : 'layar';
@@ -452,6 +463,8 @@
         const LABEL_MODE = { layar: '🖥️ Layar', remote: '📱 Remote', tunggal: '💻 Satu Perangkat' };
         if (APP_MODE === 'layar') document.body.classList.add('mode-layar');
         if (APP_MODE === 'tunggal') document.body.classList.add('mode-tunggal');
+        if (IS_OBS) document.body.classList.add('mode-obs');
+        if (urlParams.get('latar') === 'transparan') document.body.classList.add('latar-transparan');
         document.getElementById('btn-mode-label').innerText = '🔄 Mode: ' + LABEL_MODE[APP_MODE];
         const TAMPIL_BESAR = APP_MODE === 'layar' || APP_MODE === 'tunggal'; // efek konfeti & suara untuk penonton
         document.getElementById('tab-hiburan-sub').innerText = 'maks. ' + HIBURAN_PER_SPIN + ' nomor per spin';
@@ -512,7 +525,7 @@
         let lastSpinId = null;
         let prevSpinningIdx = new Set();
         let isRekapModalOpen = false;
-        let isAudioUnlocked = false;
+        let isAudioUnlocked = IS_OBS;   // di OBS suara langsung aktif, tidak perlu klik
 
         // ================= UTILITAS =================
         function randInt(n) {
@@ -581,7 +594,7 @@
         window.addEventListener('offline', () => { isOnline = false; updateNetworkStatus(); });
         // Cegah halaman tertutup/ter-refresh saat offline (data antrean bisa hilang & halaman gagal dibuka)
         window.addEventListener('beforeunload', (e) => {
-            if (!isOnline && !izinkanTutup) { e.preventDefault(); e.returnValue = ''; return ''; }
+            if (!isOnline && !izinkanTutup && !IS_OBS) { e.preventDefault(); e.returnValue = ''; return ''; }
         });
 
         // ================= SETUP =================
@@ -1368,7 +1381,7 @@
             Swal.fire({
                 title: `🏁 REKAP HASIL SESI ${sess}`, html: htmlRekap, width: '96vw',
                 customClass: { popup: 'rekap-popup' }, heightAuto: false,
-                showCancelButton: APP_MODE !== 'layar', allowOutsideClick: false,
+                showCancelButton: APP_MODE !== 'layar', allowOutsideClick: false, showConfirmButton: !IS_OBS,
                 confirmButtonColor: '#3b82f6', cancelButtonColor: '#6b7280',
                 confirmButtonText: APP_MODE !== 'layar' ? `⏭️ Lanjut Sesi ${sess + 1}` : 'Tutup Tampilan',
                 cancelButtonText: 'Batal / Kembali',
