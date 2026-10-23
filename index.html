@@ -143,7 +143,11 @@
         }
         .tile-no { position: absolute; top: 4px; left: 8px; font-size: clamp(9px, 1vw, 13px); color: #9ca3af; font-weight: bold; }
         .tile-num { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: clamp(17px, 4.6vw, 56px); letter-spacing: 2px; color: var(--tc-dark); }
-        .tile-tag { position: absolute; bottom: 3px; left: 0; right: 0; font-size: clamp(8px, 1vw, 12px); font-weight: bold; color: var(--rose); letter-spacing: 1px; }
+        .tile-tag { position: absolute; top: 4px; right: 8px; font-size: clamp(8px, 1vw, 12px); font-weight: bold; color: var(--rose); letter-spacing: 1px; }
+        .tile-prize { display: block; margin-top: 2px; font-size: clamp(10px, 1.3vw, 18px); font-weight: 800; color: #374151; line-height: 1.2; padding: 0 4px; }
+        .tile.hangus .tile-prize { color: var(--rose); }
+        body.mode-layar .tile-prize { font-size: clamp(13px, 1.7vw, 28px); }
+        body.mode-tunggal .tile-prize { font-size: clamp(12px, 1.5vw, 24px); }
         .tile.spinning { border-color: var(--amber); animation: shake 0.1s infinite alternate; }
         .tile.spinning .tile-num { color: var(--amber); }
         .tile.hangus { border-color: var(--rose); background: #fef2f2; opacity: 0.8; }
@@ -364,7 +368,7 @@
             <div id="spin-controls" style="width: 100%;">
                 <div class="next-panel">
                     <div class="np-head"><span id="np-sesi">Sesi 1 dari 3</span><span id="np-progress">0 / 0 hadiah</span></div>
-                    <label class="np-label" for="pilih-hadiah">Hadiah yang akan diundi</label>
+                    <label class="np-label" for="pilih-hadiah">Mulai dari spin (otomatis mengikuti urutan)</label>
                     <select id="pilih-hadiah" onchange="pilihHadiah(this.value)"></select>
                     <div class="np-info" id="np-info"></div>
                 </div>
@@ -418,42 +422,40 @@
         const MAKS_PER_SPIN = { utama: 1, menengah: 5, hiburan: 5 };   // spin terakhir menyesuaikan sisa unit
         const BATAS_NOMOR_KHUSUS = 350;   // nomor 1–350 boleh semua kategori; nomor di atasnya hanya Hadiah Hiburan
 
-        // Daftar & pembagian 98 hadiah per sesi. Urutan di tiap sesi = urutan undian.
-        // gong: true = hadiah puncak (efek spesial).
-        const RUNDOWN = {
+        // URUTAN SPIN RESMI (98 hadiah) sesuai tabel panitia. Satu baris = satu unit hadiah = satu "Spin #".
+        // Format: [Nama Hadiah, Kategori, Keterangan]. Keterangan kosong = Reguler.
+        // Baris berketerangan "Puncak"/"Grand Prize" dan semua Hadiah Utama diundi SENDIRI (1 nomor).
+        const H = 'hiburan', M = 'menengah', U = 'utama';
+        const URUTAN_SPIN = {
             1: [
-                { id: 'powerbank-1',       nama: 'Powerbank',          kategori: 'hiburan',  jumlah: 10 },
-                { id: 'lampu-emergency',   nama: 'Lampu Emergency',    kategori: 'hiburan',  jumlah: 5 },
-                { id: 'kipas-angin',       nama: 'Kipas Angin Tangan', kategori: 'hiburan',  jumlah: 8 },
-                { id: 'blender',           nama: 'Blender',            kategori: 'menengah', jumlah: 3 },
-                { id: 'coffee-maker',      nama: 'Coffee Maker',       kategori: 'menengah', jumlah: 3 },
-                { id: 'air-cooler',        nama: 'Air Cooler',         kategori: 'menengah', jumlah: 2 },
-                { id: 'kulkas',            nama: 'Kulkas',             kategori: 'utama',    jumlah: 1 },
-                { id: 'microwave',         nama: 'Microwave',          kategori: 'utama',    jumlah: 1 }
+                ['Powerbank', H], ['Payung', H], ['Kipas Angin Tangan', H], ['Tumbler', H], ['Powerbank', H],
+                ['Lampu Belajar', H], ['Diffuser', H], ['Powerbank', H], ['Jam Dinding', H], ['Kipas Angin Tangan', H],
+                ['Setrika', H], ['Lampu Emergency', H], ['Powerbank', H], ['Teko Listrik', H], ['Hand Mixer', H],
+                ['Powerbank', H], ['Kipas Angin Tangan', H], ['Diffuser', H], ['Setrika', H], ['Lampu Emergency', H],
+                ['Powerbank', H], ['Teko Listrik', H], ['Powerbank', H],
+                ['Blender', M], ['Coffee Maker', M], ['Kompor Induksi', M], ['Rice Cooker', M], ['Vacuum Cleaner', M],
+                ['Oven Toaster', M], ['Air Cooler', M], ['Air Fryer', M, 'Puncak Menengah Sesi 1'],
+                ['Microwave', U, 'Hadiah Utama Sesi 1'], ['Kulkas', U, 'Puncak Sesi 1']
             ],
             2: [
-                { id: 'powerbank-2',       nama: 'Powerbank',          kategori: 'hiburan',  jumlah: 5 },
-                { id: 'setrika',           nama: 'Setrika',            kategori: 'hiburan',  jumlah: 7 },
-                { id: 'teko-listrik',      nama: 'Teko Listrik',       kategori: 'hiburan',  jumlah: 5 },
-                { id: 'diffuser',          nama: 'Diffuser',           kategori: 'hiburan',  jumlah: 6 },
-                { id: 'kompor-induksi',    nama: 'Kompor Induksi',     kategori: 'menengah', jumlah: 3 },
-                { id: 'oven-toaster',      nama: 'Oven Toaster',       kategori: 'menengah', jumlah: 3 },
-                { id: 'air-fryer',         nama: 'Air Fryer',          kategori: 'menengah', jumlah: 2 },
-                { id: 'mesin-cuci',        nama: 'Mesin Cuci',         kategori: 'utama',    jumlah: 1 }
+                ['Powerbank', H], ['Payung', H], ['Kipas Angin Tangan', H], ['Tumbler', H], ['Jam Dinding', H],
+                ['Powerbank', H], ['Lampu Belajar', H], ['Diffuser', H], ['Setrika', H], ['Powerbank', H],
+                ['Kipas Angin Tangan', H], ['Teko Listrik', H], ['Tumbler', H], ['Powerbank', H], ['Lampu Emergency', H],
+                ['Hand Mixer', H], ['Powerbank', H], ['Kipas Angin Tangan', H], ['Diffuser', H], ['Setrika', H],
+                ['Teko Listrik', H], ['Powerbank', H], ['Powerbank', H],
+                ['Coffee Maker', M], ['Blender', M], ['Chopper', M], ['Kompor Induksi', M], ['Oven Toaster', M],
+                ['Rice Cooker', M], ['Rice Cooker PLTMG', M], ['Air Fryer', M, 'Puncak Menengah Sesi 2'],
+                ['Mesin Cuci', U, 'Puncak Sesi 2']
             ],
             3: [
-                { id: 'powerbank-3',       nama: 'Powerbank',          kategori: 'hiburan',  jumlah: 5 },
-                { id: 'tumbler',           nama: 'Tumbler',            kategori: 'hiburan',  jumlah: 5 },
-                { id: 'jam-dinding',       nama: 'Jam Dinding',        kategori: 'hiburan',  jumlah: 4 },
-                { id: 'hand-mixer',        nama: 'Hand Mixer',         kategori: 'hiburan',  jumlah: 3 },
-                { id: 'lampu-belajar',     nama: 'Lampu Belajar',      kategori: 'hiburan',  jumlah: 3 },
-                { id: 'payung',            nama: 'Payung',             kategori: 'hiburan',  jumlah: 3 },
-                { id: 'chopper',           nama: 'Chopper',            kategori: 'menengah', jumlah: 2 },
-                { id: 'rice-cooker',       nama: 'Rice Cooker',        kategori: 'menengah', jumlah: 2 },
-                { id: 'rice-cooker-pltmg', nama: 'Rice Cooker PLTMG',  kategori: 'menengah', jumlah: 2 },
-                { id: 'vacuum-cleaner',    nama: 'Vacuum Cleaner',     kategori: 'menengah', jumlah: 2 },
-                { id: 'tv-led',            nama: 'TV LED',             kategori: 'utama',    jumlah: 1 },
-                { id: 'motor-listrik',     nama: 'Motor Listrik',      kategori: 'utama',    jumlah: 1, gong: true }
+                ['Powerbank', H], ['Payung', H], ['Kipas Angin Tangan', H], ['Tumbler', H], ['Jam Dinding', H],
+                ['Powerbank', H], ['Lampu Belajar', H], ['Diffuser', H], ['Setrika', H], ['Lampu Emergency', H],
+                ['Powerbank', H], ['Kipas Angin Tangan', H], ['Tumbler', H], ['Teko Listrik', H], ['Setrika', H],
+                ['Powerbank', H], ['Diffuser', H], ['Jam Dinding', H], ['Lampu Emergency', H], ['Powerbank', H],
+                ['Setrika', H], ['Hand Mixer', H], ['Powerbank', H],
+                ['Coffee Maker', M], ['Blender', M], ['Chopper', M], ['Kompor Induksi', M], ['Oven Toaster', M],
+                ['Rice Cooker PLTMG', M], ['Vacuum Cleaner', M], ['Air Cooler', M, 'Puncak Menengah Sesi 3'],
+                ['TV LED', U, 'Hadiah Utama Sesi 3'], ['Motor Listrik', U, 'Grand Prize Terakhir']
             ]
         };
         // =======================================================
@@ -464,10 +466,24 @@
             hiburan:  { label: 'Hadiah Hiburan',  icon: '🎁', warna: '#7c3aed' }
         };
         const URUTAN_KATEGORI = ['utama', 'menengah', 'hiburan'];
-        const SEMUA_HADIAH = [];
-        Object.keys(RUNDOWN).forEach(s => RUNDOWN[s].forEach(h => { h.sesi = Number(s); SEMUA_HADIAH.push(h); }));
-        const TOTAL_HADIAH = SEMUA_HADIAH.reduce((a, h) => a + h.jumlah, 0);
-        function totalKategori(kat) { return SEMUA_HADIAH.filter(h => h.kategori === kat).reduce((a, h) => a + h.jumlah, 0); }
+        const SEMUA_HADIAH = [];   // 98 slot, urut Spin #1 s/d #98
+        const RUNDOWN = {};
+        (function () {
+            let no = 0;
+            Object.keys(URUTAN_SPIN).forEach(s => {
+                RUNDOWN[s] = URUTAN_SPIN[s].map(([nama, kategori, ket]) => {
+                    no++;
+                    const k = ket || 'Reguler';
+                    const istimewa = /puncak|grand/i.test(k);
+                    const slot = { id: 'spin-' + no, no: no, nama: nama, kategori: kategori, ket: k, sesi: Number(s),
+                                   sendiri: kategori === 'utama' || istimewa, gong: kategori === 'utama' && istimewa };
+                    SEMUA_HADIAH.push(slot);
+                    return slot;
+                });
+            });
+        })();
+        const TOTAL_HADIAH = SEMUA_HADIAH.length;
+        function totalKategori(kat) { return SEMUA_HADIAH.filter(h => h.kategori === kat).length; }
 
         const firebaseConfig = {
             apiKey: "AIzaSyBzq8JfbAOkLG9Jch-nBxvGQ8r-K77DVy8",
@@ -567,34 +583,49 @@
             return String(num).padStart(4, '0');
         }
 
-        // ================= HADIAH =================
+        // ================= HADIAH (SLOT URUTAN SPIN) =================
         function cariHadiah(id) { return SEMUA_HADIAH.find(h => h.id === id) || null; }
-        function menangHadiah(id) { return winners.filter(w => w.prizeId === id).length; }
-        function sisaItem(h) { return h ? Math.max(h.jumlah - menangHadiah(h.id), 0) : 0; }
+        function terisi(id) { return winners.some(w => w.prizeId === id); }
         function menangKategori(kat) { return winners.filter(w => jenisHadiah(w) === kat).length; }
-        function infoPrize(h) { return { id: h.id, nama: h.nama, kategori: h.kategori, gong: !!h.gong, sesi: h.sesi }; }
-        function satuPerSpin(kat) { return (MAKS_PER_SPIN[kat] || 1) <= 1; }
+        function spinSendiri(h) { return !!h.sendiri || (MAKS_PER_SPIN[h.kategori] || 1) <= 1; }
+        function infoPrize(h) { return { id: h.id, no: h.no, nama: h.nama, kategori: h.kategori, gong: !!h.gong, ket: h.ket, sesi: h.sesi }; }
         // Kupon yang boleh ikut untuk kategori tertentu
         function poolUntuk(kat) {
             if (kat === 'hiburan') return availableNumbers;
             return availableNumbers.filter(x => Number(x) <= BATAS_NOMOR_KHUSUS);
         }
-        // Hadiah sesi berjalan + sisa hadiah sesi sebelumnya yang belum terundi
+        // Slot yang belum ada pemenangnya: sesi berjalan dulu, lalu sisa sesi sebelumnya
         function daftarPilihan() {
-            const cur = (RUNDOWN[currentSession] || []).slice();
+            const cur = (RUNDOWN[currentSession] || []).filter(x => !terisi(x.id));
             const lalu = [];
-            for (let s = 1; s < currentSession; s++) (RUNDOWN[s] || []).forEach(h => { if (sisaItem(h) > 0) lalu.push(h); });
+            for (let s = 1; s < currentSession; s++) (RUNDOWN[s] || []).forEach(x => { if (!terisi(x.id)) lalu.push(x); });
             return cur.concat(lalu);
         }
-        function hadiahAktif() {
-            const sel = cariHadiah(currentState.prizeId);
-            if (sel && sel.sesi <= currentSession && sisaItem(sel) > 0) return sel;
-            return daftarPilihan().find(h => sisaItem(h) > 0) || null;
+        // Kelompok spin berikutnya: maks. 5 slot berurutan dengan kategori sama; slot istimewa diundi sendiri
+        function kelompokBerikut() {
+            const daftar = daftarPilihan();
+            if (!daftar.length) return [];
+            let i = daftar.findIndex(x => x.id === currentState.prizeId);
+            if (i < 0) i = 0;
+            const awal = daftar[i];
+            if (spinSendiri(awal)) return [awal];
+            const g = [];
+            for (let j = i; j < daftar.length && g.length < (MAKS_PER_SPIN[awal.kategori] || 1); j++) {
+                const x = daftar[j];
+                if (x.kategori !== awal.kategori || x.sesi !== awal.sesi || spinSendiri(x)) break;
+                g.push(x);
+            }
+            return g;
+        }
+        function hadiahAktif() { return kelompokBerikut()[0] || null; }
+        function rentangSpin(list) {
+            if (!list.length) return '';
+            const a = list[0].no, b = list[list.length - 1].no;
+            return a === b ? `#${a}` : `#${a}–${b}`;
         }
         function hadiahSesi(sess) { return RUNDOWN[sess] || []; }
-        function jumlahUnitSesi(sess) { return hadiahSesi(sess).reduce((a, h) => a + h.jumlah, 0); }
-        function terundiSesi(sess) { return hadiahSesi(sess).reduce((a, h) => a + Math.min(menangHadiah(h.id), h.jumlah), 0); }
-        function nomorPerSpin(h) { return Math.min(MAKS_PER_SPIN[h.kategori] || 1, sisaItem(h)); }
+        function jumlahUnitSesi(sess) { return hadiahSesi(sess).length; }
+        function terundiSesi(sess) { return hadiahSesi(sess).filter(x => terisi(x.id)).length; }
 
         // ================= DETEKSI OFFLINE =================
         let isOnline = navigator.onLine;
@@ -898,30 +929,28 @@
             updateUI();
         }
 
-        // Panel kontrol: daftar hadiah, tombol spin
+        // Panel kontrol: urutan spin & tombol spin
         function renderPanel() {
             const st = normStatus(currentState.status);
             const idle = st === 'IDLE';
-            const h = dataAda ? hadiahAktif() : null;
+            const g = dataAda ? kelompokBerikut() : [];
+            const h = g[0] || null;
             const sel = document.getElementById('pilih-hadiah');
             const btn = document.getElementById('btn-spin');
 
             document.getElementById('np-sesi').innerText = `Sesi ${currentSession} dari ${JUMLAH_SESI}`;
             document.getElementById('np-progress').innerText = `${terundiSesi(currentSession)} / ${jumlahUnitSesi(currentSession)} hadiah terundi`;
 
-            // isi dropdown (hanya dibangun ulang bila isinya berubah)
-            let html = '';
-            const cur = hadiahSesi(currentSession);
-            const grup = (judul, list) => {
-                if (!list.length) return '';
-                return `<optgroup label="${judul}">` + list.map(x => {
-                    const s = sisaItem(x);
-                    const k = KATEGORI[x.kategori];
-                    return `<option value="${x.id}" ${s === 0 ? 'disabled' : ''}>${k.icon} ${x.nama} — ${s === 0 ? 'selesai ✓' : 'sisa ' + s + ' dari ' + x.jumlah}</option>`;
-                }).join('') + `</optgroup>`;
+            // dropdown "mulai dari spin" (dibangun ulang hanya bila isinya berubah)
+            const opsi = x => {
+                const sudah = terisi(x.id);
+                return `<option value="${x.id}" ${sudah ? 'disabled' : ''}>#${x.no} ${KATEGORI[x.kategori].icon} ${x.nama}${x.ket !== 'Reguler' ? ' (' + x.ket + ')' : ''}${sudah ? ' ✓' : ''}</option>`;
             };
-            html += grup(`Sesi ${currentSession}`, cur);
-            for (let s = 1; s < currentSession; s++) html += grup(`Sisa dari Sesi ${s}`, hadiahSesi(s).filter(x => sisaItem(x) > 0));
+            let html = `<optgroup label="Urutan Spin Sesi ${currentSession}">` + hadiahSesi(currentSession).map(opsi).join('') + `</optgroup>`;
+            for (let s = 1; s < currentSession; s++) {
+                const sisa = hadiahSesi(s).filter(x => !terisi(x.id));
+                if (sisa.length) html += `<optgroup label="Sisa dari Sesi ${s}">` + sisa.map(opsi).join('') + `</optgroup>`;
+            }
             if (!h) html = `<option value="">— semua hadiah sesi ini sudah diundi —</option>` + html;
             if (html !== htmlPilihanTerakhir) { sel.innerHTML = html; htmlPilihanTerakhir = html; }
             sel.value = h ? h.id : '';
@@ -935,16 +964,14 @@
                 btn.classList.add('selesai');
                 if (currentSession < JUMLAH_SESI) { btn.innerHTML = `✅ SESI ${currentSession} SELESAI — PINDAH SESI`; info.innerText = 'Semua hadiah sesi ini sudah ada pemenangnya.'; }
                 else { btn.innerHTML = acaraSelesai ? '🏁 ACARA SELESAI' : '🏁 SEMUA HADIAH SELESAI — REKAP AKHIR'; info.innerText = `Semua ${TOTAL_HADIAH} hadiah sudah diundi.`; }
+            } else if (g.length === 1 && spinSendiri(h)) {
+                btn.classList.add(h.kategori);
+                btn.innerHTML = h.gong ? `🥁 SPIN #${h.no} — ${h.nama}` : `🎲 SPIN #${h.no} — ${h.nama}`;
+                info.innerText = `${KATEGORI[h.kategori].label}${h.ket !== 'Reguler' ? ' | ' + h.ket : ''} | 1 nomor`;
             } else {
                 btn.classList.add(h.kategori);
-                const n = nomorPerSpin(h);
-                if (satuPerSpin(h.kategori)) {
-                    btn.innerHTML = h.gong ? `🥁 SPIN GRAND PRIZE — ${h.nama}` : `🎲 SPIN — ${h.nama}`;
-                    info.innerText = `${KATEGORI[h.kategori].label} | 1 nomor per spin`;
-                } else {
-                    btn.innerHTML = `⚡ SPIN ${n} NOMOR — ${h.nama}`;
-                    info.innerText = `${KATEGORI[h.kategori].label} | sisa ${sisaItem(h)} unit, keluar ${n} nomor`;
-                }
+                btn.innerHTML = `⚡ SPIN ${g.length} NOMOR — ${rentangSpin(g)}`;
+                info.innerText = `${KATEGORI[h.kategori].label}: ` + g.map(x => x.nama).join(', ');
             }
         }
 
@@ -958,25 +985,36 @@
             document.getElementById('layar-sesi-text').innerText = currentSession;
             if (!dataAda) { el.classList.add('hidden'); return; }
 
-            let h = null, teks = 'HADIAH BERIKUTNYA';
-            if (st === 'SPINNING' || st === 'SPINNING_BATCH') { h = currentState.prize; teks = 'SEDANG DIUNDI'; }
-            else if (st === 'ACTION' || st === 'ACTION_BATCH') { h = currentState.prize; teks = 'SELAMAT KEPADA PEMENANG'; }
-            else h = hadiahAktif();
+            let p = null, teks = 'HADIAH BERIKUTNYA';
+            if (st === 'SPINNING' || st === 'SPINNING_BATCH') { p = currentState.prize; teks = 'SEDANG DIUNDI'; }
+            else if (st === 'ACTION' || st === 'ACTION_BATCH') { p = currentState.prize; teks = 'SELAMAT KEPADA PEMENANG'; }
+            else {
+                const g = kelompokBerikut();
+                if (g.length === 1 && spinSendiri(g[0])) p = infoPrize(g[0]);
+                else if (g.length) p = { batch: true, kategori: g[0].kategori, rentang: rentangSpin(g), daftar: g.map(x => x.nama).join(', ') };
+            }
 
             el.classList.remove('hidden', 'utama', 'menengah', 'hiburan', 'selesai', 'gong');
-            if (!h || !h.kategori) {
+            if (!p || !p.kategori) {
                 el.classList.add('selesai');
                 label.innerText = `SESI ${currentSession}`;
                 nama.innerText = currentSession < JUMLAH_SESI ? '✅ SEMUA HADIAH SESI INI SUDAH DIUNDI' : '🎉 TERIMA KASIH';
                 info.innerText = currentSession < JUMLAH_SESI ? 'Bersiap untuk sesi berikutnya' : 'Seluruh hadiah sudah ada pemenangnya';
                 return;
             }
-            const k = KATEGORI[h.kategori];
-            el.classList.add(h.kategori);
-            if (h.gong) el.classList.add('gong');
-            label.innerText = h.gong ? `🥁 GRAND PRIZE | ${teks}` : teks;
-            nama.innerText = `${k.icon} ${String(h.nama).toUpperCase()}`;
-            info.innerText = k.label;
+            const k = KATEGORI[p.kategori];
+            el.classList.add(p.kategori);
+            if (p.batch) {
+                label.innerText = teks;
+                nama.innerText = `${k.icon} ${k.label.toUpperCase()}`;
+                info.innerText = `Spin ${p.rentang || ''}` + (teks === 'HADIAH BERIKUTNYA' && p.daftar ? ': ' + p.daftar : '');
+            } else {
+                if (p.gong) el.classList.add('gong');
+                const ket = p.ket && p.ket !== 'Reguler' ? String(p.ket).toUpperCase() + ' | ' : '';
+                label.innerText = (p.gong ? '🥁 ' : '') + ket + teks;
+                nama.innerText = `${k.icon} ${String(p.nama).toUpperCase()}`;
+                info.innerText = `Spin #${p.no} | ${k.label}`;
+            }
         }
 
         function showView(view) {
@@ -991,28 +1029,31 @@
             if (normStatus(currentState.status) !== 'IDLE') return;
             if (!dataAda) { setupAwal(); return; }
 
-            const h = hadiahAktif();
-            if (!h) {
+            const g = kelompokBerikut();
+            if (!g.length) {
                 if (currentSession < JUMLAH_SESI || !acaraSelesai) pindahSesi();
                 else Swal.fire('Acara Selesai 🎉', `Semua ${TOTAL_HADIAH} hadiah sudah ada pemenangnya. Jangan lupa Export CSV.`, 'success');
                 return;
             }
-            const pool = poolUntuk(h.kategori);
+            const awal = g[0];
+            const pool = poolUntuk(awal.kategori);
             if (!pool.length) {
                 Swal.fire('Kupon Habis', 'Tidak ada kupon tersisa yang bisa diundi untuk hadiah ini.', 'info');
                 return;
             }
 
-            if (satuPerSpin(h.kategori)) {
+            if (g.length === 1 && spinSendiri(awal)) {
                 const chosen = ambilAcak(pool, 1)[0];
-                simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, prize: infoPrize(h), prizeId: h.id, spinId: Date.now() });
+                simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, prize: infoPrize(awal), prizeId: awal.id, spinId: Date.now() });
             } else {
-                const k = nomorPerSpin(h);
-                const nums = ambilAcak(pool, k);
-                if (nums.length < k) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
+                const nums = ambilAcak(pool, g.length);
+                if (nums.length < g.length) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
+                const pakai = g.slice(0, nums.length);
                 simpanState({
-                    status: "SPINNING_BATCH", screenNumber: "0000", prize: infoPrize(h), prizeId: h.id,
-                    batch: nums.map(n => ({ n: n, h: false, s: true })), spinId: Date.now()
+                    status: "SPINNING_BATCH", screenNumber: "0000", prizeId: awal.id,
+                    prize: { batch: true, kategori: awal.kategori, nama: KATEGORI[awal.kategori].label, rentang: rentangSpin(pakai), sesi: awal.sesi },
+                    batch: pakai.map((sl, i) => ({ n: nums[i], h: false, s: true, slot: sl.id, nama: sl.nama, no: sl.no })),
+                    spinId: Date.now()
                 });
             }
         }
@@ -1024,7 +1065,7 @@
             if (st === 'SPINNING') {
                 simpanState({ status: 'ACTION' });
             } else if (st === 'SPINNING_BATCH') {
-                const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h, s: false }));
+                const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => Object.assign({}, b, { n: Number(b.n), h: !!b.h, s: false }));
                 simpanState({ status: 'ACTION_BATCH', batch });
             }
         }
@@ -1058,24 +1099,27 @@
             stateRef.child('batch/' + i + '/h').set(!batch[i].h).catch(e => console.log(e));
         }
 
+        function slotDariTile(b, kategori) { return { id: b.slot || null, nama: b.nama || '-', kategori: kategori }; }
+
         function gantiHangus() {
             if (APP_MODE === 'layar' || isSaving || normStatus(currentState.status) !== 'ACTION_BATCH') return;
-            const prize = currentState.prize || { kategori: 'hiburan', nama: '-' };
-            const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h, s: false }));
+            const prize = currentState.prize || { kategori: 'hiburan' };
+            const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => Object.assign({}, b, { n: Number(b.n), h: !!b.h, s: false }));
             const idxHangus = batch.map((b, i) => b.h ? i : -1).filter(i => i >= 0);
             if (!idxHangus.length) { toast('info', 'Belum ada yang ditandai', 'Ketuk nomor yang tidak hadir dulu.'); return; }
 
             isSaving = true;
-            idxHangus.forEach(i => forfeits.push(buatEntry(batch[i].n, prize)));
+            idxHangus.forEach(i => forfeits.push(buatEntry(batch[i].n, slotDariTile(batch[i], prize.kategori))));
             const setHangus = new Set(idxHangus.map(i => batch[i].n));
             availableNumbers = availableNumbers.filter(x => !setHangus.has(Number(x)));
 
+            // undi nomor baru untuk kotak (hadiah) yang sama
             const tetap = batch.filter(b => !b.h).map(b => b.n);
             const pengganti = ambilAcak(poolUntuk(prize.kategori), idxHangus.length, tetap);
             let k = 0;
             const batchBaru = batch.map(b => {
                 if (!b.h) return b;
-                if (k < pengganti.length) return { n: pengganti[k++], h: false, s: true };
+                if (k < pengganti.length) return Object.assign({}, b, { n: pengganti[k++], h: false, s: true });
                 return null;
             }).filter(Boolean);
 
@@ -1097,7 +1141,7 @@
             if (nHangusAwal) {
                 const ask = await Swal.fire({
                     title: 'Simpan hasil undian?',
-                    html: `<b>${nHangusAwal}</b> nomor yang ditandai akan dicatat <b style="color:#ef4444">HANGUS</b> tanpa diganti.<br>Sisa unitnya bisa diundi di spin berikutnya.<br><br>Pakai <b>Ganti Hangus</b> jika ingin langsung mengundi penggantinya.`,
+                    html: `<b>${nHangusAwal}</b> nomor yang ditandai akan dicatat <b style="color:#ef4444">HANGUS</b> tanpa diganti.<br>Hadiahnya otomatis ikut di spin berikutnya.<br><br>Pakai <b>Ganti Hangus</b> jika ingin langsung mengundi penggantinya.`,
                     icon: 'question', showCancelButton: true,
                     confirmButtonText: 'Ya, Simpan', cancelButtonText: 'Kembali', confirmButtonColor: '#10b981'
                 });
@@ -1105,20 +1149,20 @@
             }
 
             isSaving = true;
-            const prize = currentState.prize || { kategori: 'hiburan', nama: '-' };
-            const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h }));
-            batch.forEach(b => (b.h ? forfeits : winners).push(buatEntry(b.n, prize)));
+            const prize = currentState.prize || { kategori: 'hiburan' };
+            const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => Object.assign({}, b, { n: Number(b.n), h: !!b.h }));
+            batch.forEach(b => (b.h ? forfeits : winners).push(buatEntry(b.n, slotDariTile(b, prize.kategori))));
             const semua = new Set(batch.map(b => b.n));
             availableNumbers = availableNumbers.filter(x => !semua.has(Number(x)));
 
             simpanData({ availableNumbers, winners, forfeits });
             simpanState({ status: "IDLE", screenNumber: "0000", batch: null });
             isSaving = false;
-            toast('success', `${batch.filter(b => !b.h).length} pemenang ${prize.nama} tercatat`);
+            toast('success', `${batch.filter(b => !b.h).length} pemenang ${KATEGORI[prize.kategori].label} tercatat`);
         }
 
         function renderBatch(batch, opts = {}) {
-            const prize = currentState.prize || { kategori: 'hiburan', nama: '' };
+            const prize = currentState.prize || { kategori: 'hiburan' };
             const wrap = document.getElementById('batch-wrap');
             wrap.classList.toggle('menengah', prize.kategori === 'menengah');
             const grid = document.getElementById('batch-grid');
@@ -1136,13 +1180,13 @@
                 let style = '';
                 if (opts.reveal && opts.reveal.has(i)) { cls.push('reveal'); style = ` style="animation-delay:${(urut++) * 90}ms"`; }
                 const klik = bisaKlik ? ` onclick="toggleHangusBatch(${i})"` : '';
-                return `<div class="${cls.join(' ')}"${style}${klik}><span class="tile-no">${i + 1}</span><span class="tile-num">${b.s ? '····' : format4(b.n)}</span>${b.h ? '<span class="tile-tag">HANGUS</span>' : ''}</div>`;
+                return `<div class="${cls.join(' ')}"${style}${klik}><span class="tile-no">#${b.no || i + 1}</span>${b.h ? '<span class="tile-tag">HANGUS</span>' : ''}<span class="tile-num">${b.s ? '····' : format4(b.n)}</span><span class="tile-prize">${b.nama || ''}</span></div>`;
             }).join('');
 
             const judul = document.getElementById('batch-title');
-            const icon = (KATEGORI[prize.kategori] || KATEGORI.hiburan).icon;
+            const k = KATEGORI[prize.kategori] || KATEGORI.hiburan;
             if (st === 'SPINNING_BATCH') judul.innerText = `⚡ MENGACAK ${batch.filter(b => b.s).length} NOMOR...`;
-            else judul.innerText = `${icon} ${batch.filter(b => !b.h).length} PEMENANG ${String(prize.nama || '').toUpperCase()}`;
+            else judul.innerText = `${k.icon} ${batch.filter(b => !b.h).length} PEMENANG ${k.label.toUpperCase()}`;
         }
 
         function updateTombolBatch(batch) {
@@ -1165,7 +1209,7 @@
 
             const baris = (e, status) => ({
                 time: e.time || new Date().toLocaleString('id-ID'), session: e.session, number: format4(e.number),
-                status: `${status} - ${jenisHadiah(e).toUpperCase()} (${e.prize || '-'})`,
+                status: `${status} - ${jenisHadiah(e).toUpperCase()} (${(cariHadiah(e.prizeId) ? '#' + cariHadiah(e.prizeId).no + ' ' : '') + (e.prize || '-')})`,
                 jenis: jenisHadiah(e).toUpperCase(), hadiah: e.prize || '-'
             });
             const backupData = wList.map(w => baris(w, 'SAH')).concat(fList.map(f => baris(f, 'HANGUS')));
@@ -1274,7 +1318,7 @@
                 Swal.fire('Tunggu!', 'Selesaikan putaran atau hasil undian yang sedang tampil dulu.', 'warning');
                 return;
             }
-            const sisa = daftarPilihan().reduce((a, h) => a + sisaItem(h), 0);
+            const sisa = daftarPilihan().length;
             if (sisa > 0) {
                 const akhir = currentSession >= JUMLAH_SESI;
                 const ask = await Swal.fire({
@@ -1327,14 +1371,15 @@
                 return;
             }
             const q = v => `"${String(v).replace(/"/g, '""')}"`;
-            const rows = [["Waktu Tercatat", "Sesi", "Kategori", "Nama Hadiah", "Nomor Kupon", "Status", "Kondisi Jaringan"]];
+            const rows = [["Waktu Tercatat", "Sesi", "No Spin", "Kategori", "Nama Hadiah", "Nomor Kupon", "Status", "Kondisi Jaringan"]];
+            const noSpin = e => { const s = cariHadiah(e.prizeId); return s ? s.no : '-'; };
             for (let i = 1; i <= JUMLAH_SESI; i++) {
                 URUTAN_KATEGORI.forEach(kat => {
                     winners.filter(w => Number(w.session) === i && jenisHadiah(w) === kat).forEach(w =>
-                        rows.push([w.time || '-', 'Sesi ' + w.session, KATEGORI[kat].label, w.prize || '-', format4(w.number), 'SAH', w.isOffline ? 'OFFLINE' : 'ONLINE']));
+                        rows.push([w.time || '-', 'Sesi ' + w.session, noSpin(w), KATEGORI[kat].label, w.prize || '-', format4(w.number), 'SAH', w.isOffline ? 'OFFLINE' : 'ONLINE']));
                 });
                 forfeits.filter(f => Number(f.session) === i).forEach(f =>
-                    rows.push([f.time || '-', 'Sesi ' + f.session, KATEGORI[jenisHadiah(f)].label, f.prize || '-', format4(f.number), 'HANGUS', f.isOffline ? 'OFFLINE' : 'ONLINE']));
+                    rows.push([f.time || '-', 'Sesi ' + f.session, noSpin(f), KATEGORI[jenisHadiah(f)].label, f.prize || '-', format4(f.number), 'HANGUS', f.isOffline ? 'OFFLINE' : 'ONLINE']));
             }
             const csv = '\uFEFF' + rows.map(r => r.map(q).join(',')).join('\n');
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
