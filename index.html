@@ -368,7 +368,7 @@
             <div id="spin-controls" style="width: 100%;">
                 <div class="next-panel">
                     <div class="np-head"><span id="np-sesi">Sesi 1 dari 3</span><span id="np-progress">0 / 0 hadiah</span></div>
-                    <label class="np-label" for="pilih-hadiah">Mulai dari spin (otomatis mengikuti urutan)</label>
+                    <label class="np-label" for="pilih-hadiah">Mulai dari stiker (otomatis mengikuti urutan)</label>
                     <select id="pilih-hadiah" onchange="pilihHadiah(this.value)"></select>
                     <div class="np-info" id="np-info"></div>
                 </div>
@@ -422,40 +422,44 @@
         const MAKS_PER_SPIN = { utama: 1, menengah: 5, hiburan: 5 };   // spin terakhir menyesuaikan sisa unit
         const BATAS_NOMOR_KHUSUS = 350;   // nomor 1–350 boleh semua kategori; nomor di atasnya hanya Hadiah Hiburan
 
-        // URUTAN SPIN RESMI (98 hadiah) sesuai tabel panitia. Satu baris = satu unit hadiah = satu "Spin #".
-        // Format: [Nama Hadiah, Kategori, Keterangan]. Keterangan kosong = Reguler.
-        // Baris berketerangan "Puncak"/"Grand Prize" dan semua Hadiah Utama diundi SENDIRI (1 nomor).
+        // URUTAN SPIN RESMI (104 hadiah) sesuai tabel panitia terbaru.
+        // Format: [No. Stiker, Nama Hadiah, Kategori, Keterangan]. Urutan baris = urutan undian.
+        // Keterangan kosong = Reguler (Hiburan/Menengah reguler keluar per 5 nomor).
+        // Baris berketerangan "Spesial", "Puncak" atau "Grand Prize", serta semua Hadiah Utama, diundi SENDIRI (1 nomor).
         const H = 'hiburan', M = 'menengah', U = 'utama';
         const URUTAN_SPIN = {
             1: [
-                ['Powerbank', H], ['Payung', H], ['Kipas Angin Tangan', H], ['Tumbler', H], ['Powerbank', H],
-                ['Lampu Belajar', H], ['Diffuser', H], ['Powerbank', H], ['Jam Dinding', H], ['Kipas Angin Tangan', H],
-                ['Setrika', H], ['Lampu Emergency', H], ['Powerbank', H], ['Teko Listrik', H], ['Hand Mixer', H],
-                ['Powerbank', H], ['Kipas Angin Tangan', H], ['Diffuser', H], ['Setrika', H], ['Lampu Emergency', H],
-                ['Powerbank', H], ['Teko Listrik', H], ['Powerbank', H],
-                ['Blender', M], ['Coffee Maker', M], ['Kompor Induksi', M], ['Rice Cooker', M], ['Vacuum Cleaner', M],
-                ['Oven Toaster', M], ['Air Cooler', M], ['Air Fryer', M, 'Puncak Menengah Sesi 1'],
-                ['Microwave', U, 'Hadiah Utama Sesi 1'], ['Kulkas', U, 'Puncak Sesi 1']
+                [1, 'Powerbank', H], [2, 'Payung', H], [3, 'Kipas Angin Tangan', H], [4, 'Tumbler', H], [5, 'Powerbank', H],
+                [6, 'Lampu Belajar', H], [7, 'Diffuser', H], [8, 'Powerbank', H], [9, 'Jam Dinding', H], [10, 'Kipas Angin Tangan', H],
+                [11, 'Setrika', H], [12, 'Lampu Emergency', H], [13, 'Powerbank', H], [14, 'Teko Listrik', H], [15, 'Hand Mixer', H],
+                [16, 'Powerbank', H], [17, 'Kipas Angin Tangan', H], [18, 'Diffuser', H], [19, 'Setrika', H], [20, 'Lampu Emergency', H],
+                [21, 'Powerbank', H], [22, 'Teko Listrik', H], [23, 'Powerbank', H],
+                [24, 'Blender', M], [25, 'Coffee Maker', M], [26, 'Kompor Induksi', M], [27, 'Rice Cooker', M], [28, 'Vacuum Cleaner', M],
+                [29, 'Oven Toaster', M], [30, 'Air Cooler', M], [31, 'Air Fryer', M],
+                [101, 'Toaster Oven', M, 'Menengah Spesial'], [100, 'Sandwich Maker', M, 'Menengah Spesial'],
+                [32, 'Microwave', U, 'Hadiah Utama Sesi 1'], [33, 'Kulkas', U, 'Puncak Sesi 1']
             ],
             2: [
-                ['Powerbank', H], ['Payung', H], ['Kipas Angin Tangan', H], ['Tumbler', H], ['Jam Dinding', H],
-                ['Powerbank', H], ['Lampu Belajar', H], ['Diffuser', H], ['Setrika', H], ['Powerbank', H],
-                ['Kipas Angin Tangan', H], ['Teko Listrik', H], ['Tumbler', H], ['Powerbank', H], ['Lampu Emergency', H],
-                ['Hand Mixer', H], ['Powerbank', H], ['Kipas Angin Tangan', H], ['Diffuser', H], ['Setrika', H],
-                ['Teko Listrik', H], ['Powerbank', H], ['Powerbank', H],
-                ['Coffee Maker', M], ['Blender', M], ['Chopper', M], ['Kompor Induksi', M], ['Oven Toaster', M],
-                ['Rice Cooker', M], ['Rice Cooker PLTMG', M], ['Air Fryer', M, 'Puncak Menengah Sesi 2'],
-                ['Mesin Cuci', U, 'Puncak Sesi 2']
+                [34, 'Powerbank', H], [35, 'Payung', H], [36, 'Kipas Angin Tangan', H], [37, 'Tumbler', H], [38, 'Jam Dinding', H],
+                [39, 'Powerbank', H], [40, 'Lampu Belajar', H], [41, 'Diffuser', H], [42, 'Setrika', H], [43, 'Powerbank', H],
+                [44, 'Kipas Angin Tangan', H], [45, 'Teko Listrik', H], [46, 'Tumbler', H], [47, 'Powerbank', H], [48, 'Lampu Emergency', H],
+                [49, 'Hand Mixer', H], [50, 'Powerbank', H], [51, 'Kipas Angin Tangan', H], [52, 'Diffuser', H], [53, 'Setrika', H],
+                [54, 'Teko Listrik', H], [55, 'Powerbank', H], [56, 'Powerbank', H],
+                [57, 'Coffee Maker', M], [58, 'Blender', M], [59, 'Chopper', M], [60, 'Kompor Induksi', M], [61, 'Oven Toaster', M],
+                [62, 'Rice Cooker', M], [63, 'Rice Cooker PLTMG', M], [64, 'Air Fryer', M],
+                [99, 'Sandwich Maker', M, 'Menengah Spesial'], [102, 'Toaster Oven', M, 'Menengah Spesial'],
+                [65, 'Mesin Cuci', U, 'Puncak Sesi 2']
             ],
             3: [
-                ['Powerbank', H], ['Payung', H], ['Kipas Angin Tangan', H], ['Tumbler', H], ['Jam Dinding', H],
-                ['Powerbank', H], ['Lampu Belajar', H], ['Diffuser', H], ['Setrika', H], ['Lampu Emergency', H],
-                ['Powerbank', H], ['Kipas Angin Tangan', H], ['Tumbler', H], ['Teko Listrik', H], ['Setrika', H],
-                ['Powerbank', H], ['Diffuser', H], ['Jam Dinding', H], ['Lampu Emergency', H], ['Powerbank', H],
-                ['Setrika', H], ['Hand Mixer', H], ['Powerbank', H],
-                ['Coffee Maker', M], ['Blender', M], ['Chopper', M], ['Kompor Induksi', M], ['Oven Toaster', M],
-                ['Rice Cooker PLTMG', M], ['Vacuum Cleaner', M], ['Air Cooler', M, 'Puncak Menengah Sesi 3'],
-                ['TV LED', U, 'Hadiah Utama Sesi 3'], ['Motor Listrik', U, 'Grand Prize Terakhir']
+                [66, 'Powerbank', H], [67, 'Payung', H], [68, 'Kipas Angin Tangan', H], [69, 'Tumbler', H], [70, 'Jam Dinding', H],
+                [71, 'Powerbank', H], [72, 'Lampu Belajar', H], [73, 'Diffuser', H], [74, 'Setrika', H], [75, 'Lampu Emergency', H],
+                [76, 'Powerbank', H], [77, 'Kipas Angin Tangan', H], [78, 'Tumbler', H], [79, 'Teko Listrik', H], [80, 'Setrika', H],
+                [81, 'Powerbank', H], [82, 'Diffuser', H], [83, 'Jam Dinding', H], [84, 'Lampu Emergency', H], [85, 'Powerbank', H],
+                [86, 'Setrika', H], [87, 'Hand Mixer', H], [88, 'Powerbank', H],
+                [89, 'Coffee Maker', M], [90, 'Blender', M], [91, 'Chopper', M], [92, 'Kompor Induksi', M], [93, 'Oven Toaster', M],
+                [94, 'Rice Cooker PLTMG', M], [95, 'Vacuum Cleaner', M], [96, 'Air Cooler', M],
+                [103, 'Toaster Oven', M, 'Menengah Spesial'], [104, 'Air Fryer', M, 'Menengah Spesial'],
+                [97, 'TV LED', U, 'Hadiah Utama Sesi 3'], [98, 'Motor Listrik', U, 'Grand Prize Terakhir']
             ]
         };
         // =======================================================
@@ -466,23 +470,25 @@
             hiburan:  { label: 'Hadiah Hiburan',  icon: '🎁', warna: '#7c3aed' }
         };
         const URUTAN_KATEGORI = ['utama', 'menengah', 'hiburan'];
-        const SEMUA_HADIAH = [];   // 98 slot, urut Spin #1 s/d #98
+        const SEMUA_HADIAH = [];   // semua slot hadiah, urut sesuai urutan undian
         const RUNDOWN = {};
         (function () {
-            let no = 0;
             Object.keys(URUTAN_SPIN).forEach(s => {
-                RUNDOWN[s] = URUTAN_SPIN[s].map(([nama, kategori, ket]) => {
-                    no++;
+                RUNDOWN[s] = URUTAN_SPIN[s].map(([no, nama, kategori, ket]) => {
                     const k = ket || 'Reguler';
-                    const istimewa = /puncak|grand/i.test(k);
-                    const slot = { id: 'spin-' + no, no: no, nama: nama, kategori: kategori, ket: k, sesi: Number(s),
-                                   sendiri: kategori === 'utama' || istimewa, gong: kategori === 'utama' && istimewa };
+                    const istimewa = /puncak|grand|spesial/i.test(k);
+                    const slot = { id: 'stiker-' + no, no: no, nama: nama, kategori: kategori, ket: k, sesi: Number(s),
+                                   sendiri: kategori === 'utama' || istimewa, gong: kategori === 'utama' && /puncak|grand/i.test(k) };
                     SEMUA_HADIAH.push(slot);
                     return slot;
                 });
             });
         })();
         const TOTAL_HADIAH = SEMUA_HADIAH.length;
+        (function cekStiker() {   // peringatan di console bila ada nomor stiker dobel
+            const seen = new Set();
+            SEMUA_HADIAH.forEach(x => { if (seen.has(x.no)) console.warn('Nomor stiker dobel:', x.no); seen.add(x.no); });
+        })();
         function totalKategori(kat) { return SEMUA_HADIAH.filter(h => h.kategori === kat).length; }
 
         const firebaseConfig = {
@@ -620,8 +626,10 @@
         function hadiahAktif() { return kelompokBerikut()[0] || null; }
         function rentangSpin(list) {
             if (!list.length) return '';
-            const a = list[0].no, b = list[list.length - 1].no;
-            return a === b ? `#${a}` : `#${a}–${b}`;
+            const nos = list.map(x => x.no);
+            const urut = nos.every((n, i) => i === 0 || n === nos[i - 1] + 1);
+            if (nos.length === 1) return `#${nos[0]}`;
+            return urut ? `#${nos[0]}–${nos[nos.length - 1]}` : nos.map(n => '#' + n).join(', ');
         }
         function hadiahSesi(sess) { return RUNDOWN[sess] || []; }
         function jumlahUnitSesi(sess) { return hadiahSesi(sess).length; }
@@ -946,7 +954,7 @@
                 const sudah = terisi(x.id);
                 return `<option value="${x.id}" ${sudah ? 'disabled' : ''}>#${x.no} ${KATEGORI[x.kategori].icon} ${x.nama}${x.ket !== 'Reguler' ? ' (' + x.ket + ')' : ''}${sudah ? ' ✓' : ''}</option>`;
             };
-            let html = `<optgroup label="Urutan Spin Sesi ${currentSession}">` + hadiahSesi(currentSession).map(opsi).join('') + `</optgroup>`;
+            let html = `<optgroup label="Urutan Undian Sesi ${currentSession}">` + hadiahSesi(currentSession).map(opsi).join('') + `</optgroup>`;
             for (let s = 1; s < currentSession; s++) {
                 const sisa = hadiahSesi(s).filter(x => !terisi(x.id));
                 if (sisa.length) html += `<optgroup label="Sisa dari Sesi ${s}">` + sisa.map(opsi).join('') + `</optgroup>`;
@@ -966,11 +974,11 @@
                 else { btn.innerHTML = acaraSelesai ? '🏁 ACARA SELESAI' : '🏁 SEMUA HADIAH SELESAI — REKAP AKHIR'; info.innerText = `Semua ${TOTAL_HADIAH} hadiah sudah diundi.`; }
             } else if (g.length === 1 && spinSendiri(h)) {
                 btn.classList.add(h.kategori);
-                btn.innerHTML = h.gong ? `🥁 SPIN #${h.no} — ${h.nama}` : `🎲 SPIN #${h.no} — ${h.nama}`;
+                btn.innerHTML = h.gong ? `🥁 SPIN STIKER #${h.no} — ${h.nama}` : `🎲 SPIN STIKER #${h.no} — ${h.nama}`;
                 info.innerText = `${KATEGORI[h.kategori].label}${h.ket !== 'Reguler' ? ' | ' + h.ket : ''} | 1 nomor`;
             } else {
                 btn.classList.add(h.kategori);
-                btn.innerHTML = `⚡ SPIN ${g.length} NOMOR — ${rentangSpin(g)}`;
+                btn.innerHTML = `⚡ SPIN ${g.length} NOMOR — STIKER ${rentangSpin(g)}`;
                 info.innerText = `${KATEGORI[h.kategori].label}: ` + g.map(x => x.nama).join(', ');
             }
         }
@@ -1007,13 +1015,13 @@
             if (p.batch) {
                 label.innerText = teks;
                 nama.innerText = `${k.icon} ${k.label.toUpperCase()}`;
-                info.innerText = `Spin ${p.rentang || ''}` + (teks === 'HADIAH BERIKUTNYA' && p.daftar ? ': ' + p.daftar : '');
+                info.innerText = `Stiker ${p.rentang || ''}` + (teks === 'HADIAH BERIKUTNYA' && p.daftar ? ': ' + p.daftar : '');
             } else {
                 if (p.gong) el.classList.add('gong');
                 const ket = p.ket && p.ket !== 'Reguler' ? String(p.ket).toUpperCase() + ' | ' : '';
                 label.innerText = (p.gong ? '🥁 ' : '') + ket + teks;
                 nama.innerText = `${k.icon} ${String(p.nama).toUpperCase()}`;
-                info.innerText = `Spin #${p.no} | ${k.label}`;
+                info.innerText = `Stiker #${p.no} | ${k.label}`;
             }
         }
 
@@ -1371,7 +1379,7 @@
                 return;
             }
             const q = v => `"${String(v).replace(/"/g, '""')}"`;
-            const rows = [["Waktu Tercatat", "Sesi", "No Spin", "Kategori", "Nama Hadiah", "Nomor Kupon", "Status", "Kondisi Jaringan"]];
+            const rows = [["Waktu Tercatat", "Sesi", "No Stiker", "Kategori", "Nama Hadiah", "Nomor Kupon", "Status", "Kondisi Jaringan"]];
             const noSpin = e => { const s = cariHadiah(e.prizeId); return s ? s.no : '-'; };
             for (let i = 1; i <= JUMLAH_SESI; i++) {
                 URUTAN_KATEGORI.forEach(kat => {
