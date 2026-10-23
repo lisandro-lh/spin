@@ -15,7 +15,7 @@
 
     <style>
         :root {
-            --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444; --blue: #3b82f6; --violet: #8b5cf6;
+            --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444; --blue: #3b82f6; --violet: #8b5cf6; --teal: #0d9488;
             --text-main: #1f2937;
             --glass-bg: rgba(255, 255, 255, 0.92);
         }
@@ -35,9 +35,10 @@
             background: rgba(16, 185, 129, 0.9); color: white; padding: 6px 16px;
             border-radius: 20px; font-size: 12px; font-weight: bold; z-index: 9999;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2); backdrop-filter: blur(5px);
-            transition: all 0.3s;
+            transition: all 0.3s; white-space: nowrap;
         }
         .network-badge.offline { background: rgba(239, 68, 68, 0.9); }
+        .network-badge.connecting { background: rgba(107, 114, 128, 0.9); }
 
         .header {
             width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 10px;
@@ -63,16 +64,31 @@
         .header button:active { transform: scale(0.96); }
         .mobile-action-bar { display: none; width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.1); }
 
-        .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%; max-width: 1100px; margin-bottom: 15px; }
-        .stat-card { background: var(--glass-bg); padding: 12px 10px; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.12); text-align: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.6); transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-3px); }
-        .stat-card h3 { margin: 0 0 5px 0; font-size: clamp(11px, 2.5vw, 14px); color: #4b5563; font-weight: bold; }
-        .stat-card .value { font-size: clamp(18px, 4vw, 24px); font-weight: bold; }
-        .text-emerald { color: var(--emerald); } .text-amber { color: var(--amber); } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); } .text-violet { color: var(--violet); }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; width: 100%; max-width: 1100px; margin-bottom: 15px; }
+        .stat-card { background: var(--glass-bg); padding: 12px 8px; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.12); text-align: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.6); }
+        .stat-card h3 { margin: 0 0 5px 0; font-size: clamp(11px, 2.3vw, 13px); color: #4b5563; font-weight: bold; }
+        .stat-card .value { font-size: clamp(17px, 3.6vw, 22px); font-weight: bold; }
+        .text-emerald { color: var(--emerald); } .text-amber { color: #d97706; } .text-rose { color: var(--rose); } .text-blue { color: var(--blue); } .text-violet { color: var(--violet); } .text-teal { color: var(--teal); }
 
         .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
-        .layar-session-badge { display: none; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; font-weight: bold; font-size: clamp(16px, 2.5vw, 26px); padding: 10px 35px; border-radius: 50px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5); letter-spacing: 2px; border: 2px solid rgba(255,255,255,0.2); transition: background 0.3s; }
-        .layar-session-badge.hiburan { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 8px 20px rgba(109, 40, 217, 0.5); }
+        .layar-session-badge { display: none; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; font-weight: bold; font-size: clamp(15px, 2.2vw, 24px); padding: 8px 32px; border-radius: 50px; margin-bottom: 12px; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5); letter-spacing: 2px; border: 2px solid rgba(255,255,255,0.2); }
+
+        /* ===== BANNER NAMA HADIAH ===== */
+        .prize-banner {
+            display: flex; flex-direction: column; align-items: center; gap: 2px; margin-bottom: 16px;
+            padding: 10px 34px; border-radius: 22px; color: white; text-align: center; max-width: 95vw;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.25);
+        }
+        .prize-banner.utama { background: linear-gradient(135deg, #d97706, #b45309); }
+        .prize-banner.menengah { background: linear-gradient(135deg, #14b8a6, #0f766e); }
+        .prize-banner.hiburan { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .prize-banner.selesai { background: linear-gradient(135deg, #10b981, #047857); }
+        .prize-banner.gong { background: linear-gradient(135deg, #fbbf24, #d97706, #b45309); border-color: #fde68a; animation: gongPulse 1.4s ease-in-out infinite alternate; }
+        @keyframes gongPulse { 0% { box-shadow: 0 0 20px rgba(251,191,36,0.5); transform: scale(1); } 100% { box-shadow: 0 0 55px rgba(251,191,36,0.95); transform: scale(1.03); } }
+        .pb-label { font-size: clamp(11px, 1.3vw, 17px); letter-spacing: 3px; font-weight: 700; opacity: 0.9; }
+        .pb-nama { font-size: clamp(22px, 3.8vw, 52px); font-weight: 900; letter-spacing: 1px; line-height: 1.15; text-shadow: 0 3px 8px rgba(0,0,0,0.25); }
+        .pb-info { font-size: clamp(11px, 1.2vw, 16px); opacity: 0.92; font-weight: 600; }
 
         .spin-display {
             font-family: 'Courier New', Courier, monospace; font-size: clamp(65px, 16vw, 140px);
@@ -96,6 +112,7 @@
             background: #f0fdf4;
             animation: tadaGlow 1.5s ease-out, pulseGlow 2s infinite 1.5s alternate;
         }
+        .spin-display.is-winner.is-gong { border-color: #f59e0b; color: #b45309; background: #fffbeb; }
         @keyframes tadaGlow {
             0% { transform: scale(1); box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
             10%, 20% { transform: scale(0.9) rotate(-2deg); }
@@ -108,23 +125,24 @@
             100% { box-shadow: 0 0 50px rgba(16, 185, 129, 0.8); transform: scale(1.02); }
         }
 
-        /* ===== GRID HADIAH HIBURAN ===== */
-        .hiburan-wrap { width: 100%; max-width: 1100px; margin-bottom: 20px; }
-        .hiburan-title {
+        /* ===== GRID BANYAK NOMOR (MENENGAH & HIBURAN) ===== */
+        .batch-wrap { --tc: #8b5cf6; --tc-dark: #6d28d9; width: 100%; max-width: 1100px; margin-bottom: 20px; }
+        .batch-wrap.menengah { --tc: #14b8a6; --tc-dark: #0f766e; }
+        .batch-title {
             width: fit-content; max-width: 100%; margin: 0 auto 14px; padding: 8px 26px; border-radius: 50px;
-            background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; font-weight: 800;
-            font-size: clamp(15px, 2.4vw, 30px); text-align: center; letter-spacing: 1px;
-            box-shadow: 0 8px 20px rgba(109, 40, 217, 0.45);
+            background: linear-gradient(135deg, var(--tc), var(--tc-dark)); color: white; font-weight: 800;
+            font-size: clamp(15px, 2.2vw, 28px); text-align: center; letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
-        .hiburan-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(6px, 1.2vw, 16px); margin: 0 auto; }
+        .batch-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(6px, 1.2vw, 16px); margin: 0 auto; }
         .tile {
-            position: relative; background: rgba(255, 255, 255, 0.97); border: 4px solid var(--violet);
+            position: relative; background: rgba(255, 255, 255, 0.97); border: 4px solid var(--tc);
             border-radius: 16px; padding: clamp(10px, 1.8vw, 24px) 4px; text-align: center;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: border-color 0.2s, background 0.2s, opacity 0.2s;
             user-select: none;
         }
         .tile-no { position: absolute; top: 4px; left: 8px; font-size: clamp(9px, 1vw, 13px); color: #9ca3af; font-weight: bold; }
-        .tile-num { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: clamp(17px, 4.6vw, 56px); letter-spacing: 2px; color: #6d28d9; }
+        .tile-num { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: clamp(17px, 4.6vw, 56px); letter-spacing: 2px; color: var(--tc-dark); }
         .tile-tag { position: absolute; bottom: 3px; left: 0; right: 0; font-size: clamp(8px, 1vw, 12px); font-weight: bold; color: var(--rose); letter-spacing: 1px; }
         .tile.spinning { border-color: var(--amber); animation: shake 0.1s infinite alternate; }
         .tile.spinning .tile-num { color: var(--amber); }
@@ -140,47 +158,22 @@
         .tile.clickable:active { transform: scale(0.95); }
 
         /* ===== KONTROL ===== */
-        .controls-wrapper { background: rgba(255, 255, 255, 0.95); padding: 20px 25px; border-radius: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(0,0,0,0.05); min-height: 110px; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 520px; }
-        .prize-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-        .prize-tab {
-            flex: 1; padding: 10px 8px; border: 2px solid #e5e7eb; background: #f9fafb; border-radius: 12px;
-            font-weight: bold; font-size: 14px; cursor: pointer; color: #374151; display: flex; flex-direction: column;
-            gap: 2px; align-items: center; transition: all 0.2s; font-family: inherit;
-        }
-        .prize-tab .sub { font-size: 11px; font-weight: normal; opacity: 0.8; }
-        .prize-tab.active[data-mode="utama"] { border-color: var(--blue); background: #eff6ff; color: #1d4ed8; }
-        .prize-tab.active[data-mode="hiburan"] { border-color: var(--violet); background: #f5f3ff; color: #6d28d9; }
-        .prize-tab:disabled { opacity: 0.5; cursor: not-allowed; }
+        .controls-wrapper { background: rgba(255, 255, 255, 0.95); padding: 20px 25px; border-radius: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(0,0,0,0.05); min-height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 520px; }
 
-        /* Form setup */
-        .setup-form label { display: block; text-align: left; font-weight: bold; font-size: 14px; margin-top: 12px; color: #374151; }
-        .setup-form .swal2-input { width: 100%; margin: 6px 0 0; box-sizing: border-box; height: 2.6em; }
-        .setup-note { font-size: 12px; color: #6b7280; margin: 12px 0 0; text-align: left; line-height: 1.4; }
+        .next-panel { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 10px 12px; margin-bottom: 14px; }
+        .np-head { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 8px; }
+        .np-label { display: block; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 4px; }
+        #pilih-hadiah { width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #cbd5e1; font-size: 15px; font-weight: 600; font-family: inherit; background: white; color: #1f2937; }
+        #pilih-hadiah:disabled { opacity: 0.6; }
+        .np-info { font-size: 12px; color: #64748b; margin-top: 6px; text-align: center; }
 
-        /* Panel jumlah hadiah (utama = biru, hiburan = ungu) */
-        .hib-stok.utama { background: #eff6ff; border-color: #bfdbfe; }
-        .hib-stok.utama .hs-label, .hib-stok.utama .hs-target { color: #1d4ed8; }
-        .hib-stok.utama .hs-ctrl button { background: #2563eb; }
-        .hib-stok.utama .hs-ctrl button.hs-edit { background: #dbeafe; color: #1d4ed8; }
-        .hib-stok.utama .hs-pill.sisa b { color: #2563eb; }
-        .hib-stok { background: #f5f3ff; border: 2px solid #ddd6fe; border-radius: 14px; padding: 10px 12px; margin-bottom: 14px; }
-        .hs-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-        .hs-label { font-size: 13px; font-weight: bold; color: #5b21b6; }
-        .hs-ctrl { display: flex; align-items: center; gap: 6px; }
-        .hs-ctrl button { width: 36px; height: 36px; border: none; border-radius: 10px; background: #7c3aed; color: white; font-size: 20px; font-weight: bold; cursor: pointer; font-family: inherit; }
-        .hs-ctrl button.hs-edit { background: #ede9fe; color: #5b21b6; font-size: 15px; }
-        .hs-ctrl button:active { transform: scale(0.92); }
-        .hs-ctrl button:disabled { opacity: 0.4; cursor: not-allowed; }
-        .hs-target { min-width: 44px; text-align: center; font-size: 22px; font-weight: 800; color: #5b21b6; }
-        .hs-info { display: flex; gap: 8px; margin-top: 8px; }
-        .hs-pill { flex: 1; text-align: center; background: white; border-radius: 8px; padding: 5px; font-size: 12px; color: #4b5563; }
-        .hs-pill b { display: block; font-size: 18px; color: #1f2937; }
-        .hs-pill.sisa b { color: #7c3aed; }
-
-        .btn-spin { background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: clamp(18px, 4.5vw, 24px); padding: 18px 45px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; color: white; transition: all 0.2s; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4); width: 100%; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-spin { background: linear-gradient(135deg, #3b82f6, #2563eb); font-size: clamp(16px, 4vw, 21px); padding: 17px 20px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; color: white; transition: all 0.2s; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4); width: 100%; text-transform: uppercase; letter-spacing: 1px; font-family: inherit; }
+        .btn-spin.utama { background: linear-gradient(135deg, #f59e0b, #b45309); box-shadow: 0 8px 20px rgba(180, 83, 9, 0.4); }
+        .btn-spin.menengah { background: linear-gradient(135deg, #14b8a6, #0f766e); box-shadow: 0 8px 20px rgba(15, 118, 110, 0.4); }
         .btn-spin.hiburan { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 8px 20px rgba(109, 40, 217, 0.4); }
+        .btn-spin.selesai { background: linear-gradient(135deg, #10b981, #047857); }
         .btn-spin:active { transform: scale(0.95); } .btn-spin:hover { transform: translateY(-3px); }
-        .spinning-status-box { font-size: 20px; font-weight: bold; color: var(--amber); display: flex; flex-direction: column; align-items: center; gap: 14px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; width: 100%; }
+        .spinning-status-box { font-size: 18px; font-weight: bold; color: var(--amber); display: flex; flex-direction: column; align-items: center; gap: 14px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; width: 100%; }
         .spin-text { animation: pulseText 1s infinite; }
         .btn-stop {
             width: 100%; padding: 16px 30px; border: none; border-radius: 50px; cursor: pointer; font-family: inherit;
@@ -197,44 +190,48 @@
         .btn-choice:disabled { opacity: 0.45; cursor: not-allowed; }
         .btn-choice.sah { background: linear-gradient(135deg, #10b981, #059669); } .btn-choice.hangus { background: linear-gradient(135deg, #ef4444, #dc2626); }
         .jeda-group { display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; border-top: 1px dashed #d1d5db; padding-top: 12px; }
-        .btn-jeda { background: rgba(31, 41, 55, 0.85); border: none; color: white; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; flex: 1; transition: background 0.2s; }
-        .btn-jeda:hover { background: #000; }
+        .btn-jeda { background: rgba(185, 28, 28, 0.85); border: none; color: white; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; flex: 1; transition: background 0.2s; font-family: inherit; }
+        .btn-jeda:hover { background: #7f1d1d; }
 
         /* ===== RIWAYAT ===== */
         .history-container { width: 100%; max-width: 1100px; background: var(--glass-bg); border-radius: 15px; padding: 18px 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); margin-top: 20px; margin-bottom: 35px; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.5); }
         .history-container h2 { margin-top: 0; font-size: 18px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; color: #1f2937; }
-        .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; margin: 4px; font-family: 'Courier New', Courier, monospace; font-size: 15px; font-weight: bold; color: white; box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
-        .badge.utama { background-color: var(--amber); } .badge.hiburan { background-color: var(--violet); } .badge.hangus { background-color: var(--rose); }
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; margin: 3px; font-family: 'Courier New', Courier, monospace; font-size: 14px; font-weight: bold; color: white; box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
+        .badge.utama { background-color: var(--amber); } .badge.menengah { background-color: var(--teal); } .badge.hiburan { background-color: var(--violet); } .badge.hangus { background-color: var(--rose); }
         .hist-row { margin: 6px 0; }
-        .hist-label { display: inline-block; font-size: 12px; font-weight: bold; color: #4b5563; min-width: 120px; }
+        .hist-label { display: inline-block; font-size: 12px; font-weight: bold; color: #4b5563; min-width: 170px; }
         .hidden { display: none !important; }
 
+        /* ===== MODE LAYAR ===== */
         body.mode-layar .dashboard-grid, body.mode-layar .controls-wrapper, body.mode-layar .history-container, body.mode-layar .header button, body.mode-layar .mobile-action-bar { display: none !important; }
         body.mode-layar .layar-session-badge { display: inline-block; }
         body.mode-layar .header { background: transparent; box-shadow: none; backdrop-filter: none; border: none; margin-bottom: 5px; margin-top: 5px; }
         body.mode-layar .logo-img { height: clamp(38px, 6vw, 85px); max-width: 26vw; }
         body.mode-layar .logo-center { height: clamp(50px, 8vw, 115px); max-width: 34vw; }
-        body.mode-layar .spin-display { font-size: clamp(85px, 20vw, 220px); padding: clamp(25px, 5vw, 50px) clamp(40px, 8vw, 100px); border-width: 10px; margin-top: 20px; }
-        body.mode-layar .hiburan-wrap { max-width: 1600px; }
-        body.mode-layar .tile { border-width: 6px; }
-        body.mode-layar .tile { padding: clamp(18px, 3vw, 44px) 6px; }
+        body.mode-layar .spin-display { font-size: clamp(85px, 19vw, 210px); padding: clamp(22px, 4.5vw, 46px) clamp(40px, 8vw, 100px); border-width: 10px; margin-top: 10px; }
+        body.mode-layar .pb-nama { font-size: clamp(28px, 4.8vw, 74px); }
+        body.mode-layar .prize-banner { padding: 12px 48px; margin-bottom: 34px; }
+        body.mode-tunggal .prize-banner { margin-bottom: 30px; }
+        body.mode-layar .batch-wrap { max-width: 1600px; }
+        body.mode-layar .tile { border-width: 6px; padding: clamp(18px, 3vw, 44px) 6px; }
         body.mode-layar .tile-num { font-size: clamp(32px, 5.5vw, 100px); }
         body.mode-layar .tile-no { font-size: clamp(11px, 1.2vw, 18px); }
 
-        /* ===== MODE SATU PERANGKAT (tampilan layar + panel kontrol di 1 laptop, tetap jalan saat offline) ===== */
+        /* ===== MODE SATU PERANGKAT ===== */
         body.mode-tunggal .dashboard-grid, body.mode-tunggal .history-container, body.mode-tunggal .header button, body.mode-tunggal .mobile-action-bar { display: none !important; }
         body.mode-tunggal .layar-session-badge { display: inline-block; }
         body.mode-tunggal .header { background: transparent; box-shadow: none; backdrop-filter: none; border: none; margin-bottom: 5px; margin-top: 5px; }
         body.mode-tunggal .logo-img { height: clamp(34px, 5vw, 75px); max-width: 24vw; }
         body.mode-tunggal .logo-center { height: clamp(44px, 7vw, 100px); max-width: 30vw; }
         body.mode-tunggal .spin-display { font-size: clamp(70px, 14vw, 200px); padding: clamp(20px, 4vw, 45px) clamp(35px, 7vw, 90px); border-width: 10px; margin-top: 10px; }
-        body.mode-tunggal .hiburan-wrap { max-width: 1400px; }
+        body.mode-tunggal .pb-nama { font-size: clamp(26px, 4.2vw, 64px); }
+        body.mode-tunggal .batch-wrap { max-width: 1400px; }
         body.mode-tunggal .tile { border-width: 6px; padding: clamp(16px, 2.6vw, 40px) 6px; }
         body.mode-tunggal .tile-num { font-size: clamp(28px, 4.6vw, 90px); }
         body.mode-tunggal .main-wrapper { padding-right: 370px; }
         body.mode-tunggal .controls-wrapper {
             position: fixed; right: 12px; bottom: 12px; width: 350px; max-width: calc(100vw - 24px);
-            max-height: calc(100vh - 24px); overflow-y: auto; flex-direction: column; justify-content: flex-start;
+            max-height: calc(100vh - 24px); overflow-y: auto; justify-content: flex-start;
             padding: 14px; z-index: 500;
         }
         body.mode-tunggal.panel-tersembunyi .controls-wrapper { display: none; }
@@ -247,12 +244,11 @@
         body.mode-tunggal .tunggal-hint { display: block; width: 100%; margin-top: 10px; font-size: 11px; color: #6b7280; text-align: center; }
         .btn-buka-panel { display: none; position: fixed; right: 12px; bottom: 12px; z-index: 500; padding: 10px 14px; border: none; border-radius: 12px; background: rgba(31,41,55,0.85); color: white; font-weight: bold; cursor: pointer; }
         body.mode-tunggal.panel-tersembunyi .btn-buka-panel { display: block; }
-        .network-badge.connecting { background: rgba(107, 114, 128, 0.9); }
 
-        /* ===== TAMPILAN DI OBS (Browser Source) ===== */
+        /* ===== OBS (Browser Source) ===== */
         body.mode-obs { overflow: hidden; }
         body.mode-obs .btn-switch-mode, body.mode-obs #audio-unlock-banner { display: none !important; }
-        body.mode-obs .network-badge:not(.offline) { display: none; }   /* badge hanya muncul bila offline */
+        body.mode-obs .network-badge:not(.offline) { display: none; }
         body.mode-obs .rekap-popup .swal2-actions { display: none !important; }
         body.latar-transparan { background: transparent !important; }
 
@@ -260,33 +256,29 @@
         .btn-switch-mode:hover { background: rgba(0,0,0,0.9); }
         #audio-unlock-banner { position: fixed; top: 0; left: 0; width: 100%; background: #2563eb; color: white; text-align: center; padding: 12px; font-weight: bold; z-index: 9999; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; font-size: 15px; }
 
-        /* ===== REKAP ===== */
-        /* --rk = skala otomatis agar rekap muat 1 layar tanpa scroll */
+        /* ===== REKAP (muat 1 layar, landscape) ===== */
         .rekap-popup { --rk: 1; padding: 12px 16px 14px !important; }
         .rekap-popup .swal2-title { font-size: calc(26px * var(--rk)) !important; padding: 2px 0 0 !important; margin: 0 !important; }
         .rekap-popup .swal2-html-container { margin: 10px 0 0 !important; padding: 0 !important; overflow: visible !important; }
         .rekap-popup .swal2-actions { margin-top: calc(12px * var(--rk)) !important; }
         .rekap-popup .swal2-styled { padding: calc(10px * var(--rk)) calc(20px * var(--rk)) !important; font-size: calc(16px * var(--rk)) !important; }
-        .rekap-wrapper { display: flex; gap: 12px; text-align: center; align-items: stretch; }
-        .rekap-col { min-width: 0; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: calc(10px * var(--rk)) 8px; }
-        .rekap-col h4 { margin: 0 0 calc(8px * var(--rk)) 0; font-size: calc(18px * var(--rk)); padding-bottom: calc(6px * var(--rk)); border-bottom: 2px solid #e5e7eb; }
-        .rekap-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(76px * var(--rk)), 1fr)); gap: calc(6px * var(--rk)); }
-        .rekap-item { font-family: 'Courier New', Courier, monospace; font-size: calc(20px * var(--rk)); font-weight: bold; padding: calc(5px * var(--rk)) 2px; border-radius: 8px; color: white; white-space: nowrap; }
+        .rekap-wrapper { display: flex; gap: 10px; text-align: center; align-items: stretch; }
+        .rekap-col { min-width: 0; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: calc(8px * var(--rk)) 8px; }
+        .rekap-col h4 { margin: 0 0 calc(6px * var(--rk)) 0; font-size: calc(18px * var(--rk)); padding-bottom: calc(5px * var(--rk)); border-bottom: 2px solid #e5e7eb; }
+        .rk-grup { margin-bottom: calc(6px * var(--rk)); }
+        .rk-nama { font-size: calc(13px * var(--rk)); font-weight: bold; color: #374151; margin-bottom: calc(3px * var(--rk)); text-align: left; }
+        .rekap-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(70px * var(--rk)), 1fr)); gap: calc(5px * var(--rk)); }
+        .rekap-item { font-family: 'Courier New', Courier, monospace; font-size: calc(18px * var(--rk)); font-weight: bold; padding: calc(4px * var(--rk)) 2px; border-radius: 8px; color: white; white-space: nowrap; }
+        .rekap-item.utama { background-color: var(--amber); } .rekap-item.menengah { background-color: var(--teal); } .rekap-item.hiburan { background-color: var(--violet); } .rekap-item.hangus { background-color: var(--rose); }
         .rekap-kosong { grid-column: 1 / -1; font-size: 14px; color: #6b7280; }
-        .rekap-hangus {
-            margin-top: calc(10px * var(--rk)); padding: calc(8px * var(--rk)) 10px; background: #fef2f2;
-            border: 1px solid #fecaca; border-radius: 12px; text-align: center;
-        }
-        .rh-title { font-weight: bold; color: var(--rose); font-size: calc(17px * var(--rk)); margin-bottom: calc(6px * var(--rk)); }
+        .rekap-hangus { margin-top: calc(8px * var(--rk)); padding: calc(6px * var(--rk)) 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; text-align: center; }
+        .rh-title { font-weight: bold; color: var(--rose); font-size: calc(16px * var(--rk)); margin-bottom: calc(5px * var(--rk)); }
         .rh-wrap { display: flex; gap: 10px; align-items: stretch; }
-        .rh-group { flex: 1; min-width: 0; background: rgba(255,255,255,0.7); border-radius: 10px; padding: calc(6px * var(--rk)) 6px; }
-        .rh-label { font-weight: bold; color: #7f1d1d; font-size: calc(14px * var(--rk)); margin-bottom: calc(5px * var(--rk)); }
-        .rh-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(68px * var(--rk)), 1fr)); gap: calc(5px * var(--rk)); }
-        .rh-list .rekap-item { font-size: calc(17px * var(--rk)); }
-        .rekap-sisa { font-size: calc(14px * var(--rk)); color: #374151; margin-bottom: calc(8px * var(--rk)); }
-        .rekap-sisa b { font-size: 1.15em; }
-        .rekap-prompt { margin: calc(10px * var(--rk)) 0 0; font-weight: bold; color: #374151; font-size: calc(15px * var(--rk)); }
-        .rekap-item.utama { background-color: var(--amber); } .rekap-item.hiburan { background-color: var(--violet); } .rekap-item.hangus { background-color: var(--rose); }
+        .rh-group { flex: 1; min-width: 0; background: rgba(255,255,255,0.7); border-radius: 10px; padding: calc(5px * var(--rk)) 6px; }
+        .rh-label { font-weight: bold; color: #7f1d1d; font-size: calc(13px * var(--rk)); margin-bottom: calc(4px * var(--rk)); }
+        .rh-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(62px * var(--rk)), 1fr)); gap: calc(4px * var(--rk)); }
+        .rh-list .rekap-item { font-size: calc(15px * var(--rk)); }
+        .rekap-prompt { margin: calc(8px * var(--rk)) 0 0; font-weight: bold; color: #374151; font-size: calc(15px * var(--rk)); }
 
         .sesi-group { margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.7); border-radius: 12px; border-left: 5px solid var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .sesi-title { margin: 0 0 6px 0; font-size: 16px; color: var(--blue); font-weight: bold; }
@@ -294,15 +286,15 @@
         @media (max-width: 768px) {
             body { padding: 10px; } .header { padding: 10px 12px; margin-top: 35px; } .desktop-btn { display: none !important; }
             .mobile-action-bar { display: flex; } .mobile-action-bar button { flex: 1; padding: 8px; font-size: 12px; }
-            .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-            .dashboard-grid .stat-card:last-child { grid-column: span 2; }
-            .rekap-wrapper { gap: 8px; }
+            .dashboard-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .rekap-wrapper { gap: 6px; }
             .tile { border-width: 3px; border-radius: 12px; }
             .tile-num { letter-spacing: 1px; }
             .hist-label { display: block; margin-bottom: 2px; }
+            .prize-banner { padding: 8px 18px; }
         }
         @media (prefers-reduced-motion: reduce) {
-            .spin-display.is-spinning, .tile.spinning, .spin-text { animation: none; }
+            .spin-display.is-spinning, .tile.spinning, .spin-text, .prize-banner.gong { animation: none; }
         }
     </style>
 </head>
@@ -323,7 +315,7 @@
             </div>
             <div class="header-right">
                 <button class="btn-export desktop-btn" onclick="exportToCSV()">📥 Export CSV</button>
-                <button class="btn-sesi desktop-btn" onclick="pindahSesi()">⏭️ Pindah Sesi Baru</button>
+                <button class="btn-sesi desktop-btn" onclick="pindahSesi()">⏭️ Pindah Sesi</button>
                 <img src="pln.png" alt="PLN" class="logo-img">
             </div>
         </div>
@@ -331,28 +323,36 @@
             <button class="btn-reset" onclick="resetAll()">🔄 Setup</button>
             <button class="btn-restore" onclick="pulihkanData()">↩️ Pulihkan</button>
             <button class="btn-export" onclick="exportToCSV()">📥 Export</button>
-            <button class="btn-sesi" onclick="pindahSesi()">⏭️ Sesi Baru</button>
+            <button class="btn-sesi" onclick="pindahSesi()">⏭️ Sesi</button>
         </div>
     </div>
 
     <div class="dashboard-grid">
-        <div class="stat-card"><h3>Sesi Saat Ini</h3><div class="value text-blue" id="stat-sesi">-</div></div>
+        <div class="stat-card"><h3>Sesi</h3><div class="value text-blue" id="stat-sesi">-</div></div>
         <div class="stat-card"><h3>Kupon Tersedia</h3><div class="value text-emerald" id="stat-tersedia">-</div></div>
-        <div class="stat-card"><h3>🏆 Hadiah Utama</h3><div class="value text-amber" id="stat-utama">-</div></div>
-        <div class="stat-card"><h3>🎁 Hadiah Hiburan</h3><div class="value text-violet" id="stat-hiburan">-</div></div>
-        <div class="stat-card"><h3>Kupon Hangus</h3><div class="value text-rose" id="stat-hangus">-</div></div>
+        <div class="stat-card"><h3>🏆 Utama</h3><div class="value text-amber" id="stat-utama">-</div></div>
+        <div class="stat-card"><h3>⭐ Menengah</h3><div class="value text-teal" id="stat-menengah">-</div></div>
+        <div class="stat-card"><h3>🎁 Hiburan</h3><div class="value text-violet" id="stat-hiburan">-</div></div>
+        <div class="stat-card"><h3>❌ Hangus</h3><div class="value text-rose" id="stat-hangus">-</div></div>
     </div>
 
     <div class="main-wrapper">
-        <div class="layar-session-badge" id="layar-session-badge">SESI UNDIAN <span id="layar-sesi-text">1</span> | <span id="layar-prize-text">🏆 HADIAH UTAMA</span></div>
+        <div class="layar-session-badge" id="layar-session-badge">SESI UNDIAN <span id="layar-sesi-text">1</span></div>
 
-        <!-- Tampilan 1 nomor (Hadiah Utama) -->
+        <!-- Nama hadiah yang sedang / akan diundi -->
+        <div class="prize-banner hidden" id="prize-banner">
+            <span class="pb-label" id="pb-label">HADIAH BERIKUTNYA</span>
+            <span class="pb-nama" id="pb-nama">-</span>
+            <span class="pb-info" id="pb-info"></span>
+        </div>
+
+        <!-- Tampilan 1 nomor -->
         <div class="spin-display" id="display">0000</div>
 
-        <!-- Tampilan banyak nomor (Hadiah Hiburan) -->
-        <div class="hiburan-wrap hidden" id="hiburan-wrap">
-            <div class="hiburan-title" id="hiburan-title">🎁 PEMENANG HADIAH HIBURAN</div>
-            <div class="hiburan-grid" id="hiburan-grid"></div>
+        <!-- Tampilan banyak nomor (Menengah & Hiburan) -->
+        <div class="batch-wrap hidden" id="batch-wrap">
+            <div class="batch-title" id="batch-title">PEMENANG</div>
+            <div class="batch-grid" id="batch-grid"></div>
         </div>
 
         <div class="controls-wrapper">
@@ -360,55 +360,43 @@
                 <button onclick="menuTunggal()">☰ Menu</button>
                 <button onclick="togglePanel()">⇥ Sembunyikan Panel</button>
             </div>
+
             <div id="spin-controls" style="width: 100%;">
-                <div class="prize-tabs">
-                    <button class="prize-tab active" data-mode="utama" onclick="setPrizeMode('utama')">🏆 Hadiah Utama<span class="sub">1 nomor per putaran</span></button>
-                    <button class="prize-tab" data-mode="hiburan" onclick="setPrizeMode('hiburan')">🎁 Hadiah Hiburan<span class="sub" id="tab-hiburan-sub">maks. 5 nomor per spin</span></button>
-                </div>
-                <div class="hib-stok utama" id="hib-stok">
-                    <div class="hs-row">
-                        <span class="hs-label" id="hs-label">🏆 Total Hadiah Utama</span>
-                        <div class="hs-ctrl">
-                            <button id="hs-minus" onclick="ubahStok(-1)">−</button>
-                            <span class="hs-target" id="hs-target">0</span>
-                            <button onclick="ubahStok(1)">+</button>
-                            <button class="hs-edit" onclick="aturStok()">✏️</button>
-                        </div>
-                    </div>
-                    <div class="hs-info">
-                        <div class="hs-pill">Sudah menang<b id="hs-sudah">0</b></div>
-                        <div class="hs-pill sisa">Sisa hadiah<b id="hs-sisa">0</b></div>
-                    </div>
+                <div class="next-panel">
+                    <div class="np-head"><span id="np-sesi">Sesi 1 dari 3</span><span id="np-progress">0 / 0 hadiah</span></div>
+                    <label class="np-label" for="pilih-hadiah">Hadiah yang akan diundi</label>
+                    <select id="pilih-hadiah" onchange="pilihHadiah(this.value)"></select>
+                    <div class="np-info" id="np-info"></div>
                 </div>
                 <button id="btn-spin" class="btn-spin" onclick="startSpin()">🎲 PUTAR SPIN</button>
             </div>
 
             <div id="spinning-status" class="spinning-status-box hidden">
-                <span id="spinning-text" class="spin-text">🎰 Mengacak Nomor Kupon...</span>
+                <span id="spinning-text" class="spin-text">🎰 Mengacak...</span>
                 <button class="btn-stop" onclick="stopSekarang()">⏹ STOP</button>
             </div>
 
-            <!-- Aksi Hadiah Utama -->
+            <!-- Aksi 1 nomor -->
             <div class="controls-action hidden" id="action-controls">
-                <p class="action-prompt">Tentukan Status Nomor <span id="label-nomor-keluar" style="color:var(--blue);">0000</span>:</p>
+                <p class="action-prompt">Nomor <span id="label-nomor-keluar" style="color:var(--blue);">0000</span> untuk <span id="label-hadiah-keluar">-</span>:</p>
                 <div class="btn-action-group">
-                    <button class="btn-choice hangus" onclick="tandai('hangus', true)">❌ HANGUS<span class="sub">Catat Gugur & Spin Lagi</span></button>
-                    <button class="btn-choice sah" onclick="tandai('sah', true)">✔ SAH / LANJUT<span class="sub">Catat Menang & Spin Lagi</span></button>
+                    <button class="btn-choice hangus" onclick="tandai('hangus', true)">❌ HANGUS<span class="sub">Catat gugur & spin ulang</span></button>
+                    <button class="btn-choice sah" onclick="tandai('sah', false)">✔ SAH<span class="sub">Catat sebagai pemenang</span></button>
                 </div>
                 <div class="jeda-group">
-                    <button class="btn-jeda" onclick="tandai('sah', false)">⏸️ Catat SAH & Berhenti</button>
-                    <button class="btn-jeda" style="background: rgba(185, 28, 28, 0.85);" onclick="tandai('hangus', false)">⏸️ Catat HANGUS & Berhenti</button>
+                    <button class="btn-jeda" onclick="tandai('hangus', false)">⏸️ Catat HANGUS & Berhenti</button>
                 </div>
             </div>
 
-            <!-- Aksi Hadiah Hiburan -->
-            <div class="controls-action hidden" id="action-hiburan">
-                <p class="action-prompt"><span id="hib-count">5</span> nomor keluar. Ketuk nomor yang <span style="color:var(--rose);">tidak hadir</span> untuk ditandai HANGUS.</p>
+            <!-- Aksi banyak nomor -->
+            <div class="controls-action hidden" id="action-batch">
+                <p class="action-prompt"><span id="batch-count">5</span> nomor keluar. Ketuk nomor yang <span style="color:var(--rose);">tidak hadir</span> untuk ditandai HANGUS.</p>
                 <div class="btn-action-group">
                     <button class="btn-choice hangus" id="btn-ganti" onclick="gantiHangus()" disabled>🔁 GANTI HANGUS<span class="sub" id="sub-ganti">Ketuk nomor dulu</span></button>
-                    <button class="btn-choice sah" onclick="simpanHiburan()">✔ SIMPAN SEMUA<span class="sub">Catat pemenang hiburan</span></button>
+                    <button class="btn-choice sah" onclick="simpanBatch()">✔ SIMPAN SEMUA<span class="sub">Catat sebagai pemenang</span></button>
                 </div>
             </div>
+
             <div class="tunggal-hint">Tombol keyboard: <b>Spasi</b> = Spin / Stop &nbsp;|&nbsp; <b>P</b> = sembunyikan/tampilkan panel</div>
         </div>
     </div>
@@ -423,12 +411,63 @@
 
     <script>
         // =======================================================
-        // PENGATURAN
+        // PENGATURAN ACARA
         // =======================================================
         const BACKUP_SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbyQhgsuzE-LQWP1grHpSQeeRAyZDGT5OubZc9cXJ6uwIWvH3FfClh-gA3a1mxij6FfEyQ/exec";
-        const HIBURAN_PER_SPIN = 5;         // maksimal nomor sekali spin hadiah hiburan (spin terakhir menyesuaikan sisa hadiah)
-        // Spin TIDAK punya batas waktu: berputar terus sampai tombol STOP ditekan.
+        const JUMLAH_SESI = 3;
+        const MAKS_PER_SPIN = { utama: 1, menengah: 5, hiburan: 5 };   // spin terakhir menyesuaikan sisa unit
+        const BATAS_NOMOR_KHUSUS = 350;   // nomor 1–350 boleh semua kategori; nomor di atasnya hanya Hadiah Hiburan
+
+        // Daftar & pembagian 98 hadiah per sesi. Urutan di tiap sesi = urutan undian.
+        // gong: true = hadiah puncak (efek spesial).
+        const RUNDOWN = {
+            1: [
+                { id: 'powerbank-1',       nama: 'Powerbank',          kategori: 'hiburan',  jumlah: 10 },
+                { id: 'lampu-emergency',   nama: 'Lampu Emergency',    kategori: 'hiburan',  jumlah: 5 },
+                { id: 'kipas-angin',       nama: 'Kipas Angin Tangan', kategori: 'hiburan',  jumlah: 8 },
+                { id: 'blender',           nama: 'Blender',            kategori: 'menengah', jumlah: 3 },
+                { id: 'coffee-maker',      nama: 'Coffee Maker',       kategori: 'menengah', jumlah: 3 },
+                { id: 'air-cooler',        nama: 'Air Cooler',         kategori: 'menengah', jumlah: 2 },
+                { id: 'kulkas',            nama: 'Kulkas',             kategori: 'utama',    jumlah: 1 },
+                { id: 'microwave',         nama: 'Microwave',          kategori: 'utama',    jumlah: 1 }
+            ],
+            2: [
+                { id: 'powerbank-2',       nama: 'Powerbank',          kategori: 'hiburan',  jumlah: 5 },
+                { id: 'setrika',           nama: 'Setrika',            kategori: 'hiburan',  jumlah: 7 },
+                { id: 'teko-listrik',      nama: 'Teko Listrik',       kategori: 'hiburan',  jumlah: 5 },
+                { id: 'diffuser',          nama: 'Diffuser',           kategori: 'hiburan',  jumlah: 6 },
+                { id: 'kompor-induksi',    nama: 'Kompor Induksi',     kategori: 'menengah', jumlah: 3 },
+                { id: 'oven-toaster',      nama: 'Oven Toaster',       kategori: 'menengah', jumlah: 3 },
+                { id: 'air-fryer',         nama: 'Air Fryer',          kategori: 'menengah', jumlah: 2 },
+                { id: 'mesin-cuci',        nama: 'Mesin Cuci',         kategori: 'utama',    jumlah: 1 }
+            ],
+            3: [
+                { id: 'powerbank-3',       nama: 'Powerbank',          kategori: 'hiburan',  jumlah: 5 },
+                { id: 'tumbler',           nama: 'Tumbler',            kategori: 'hiburan',  jumlah: 5 },
+                { id: 'jam-dinding',       nama: 'Jam Dinding',        kategori: 'hiburan',  jumlah: 4 },
+                { id: 'hand-mixer',        nama: 'Hand Mixer',         kategori: 'hiburan',  jumlah: 3 },
+                { id: 'lampu-belajar',     nama: 'Lampu Belajar',      kategori: 'hiburan',  jumlah: 3 },
+                { id: 'payung',            nama: 'Payung',             kategori: 'hiburan',  jumlah: 3 },
+                { id: 'chopper',           nama: 'Chopper',            kategori: 'menengah', jumlah: 2 },
+                { id: 'rice-cooker',       nama: 'Rice Cooker',        kategori: 'menengah', jumlah: 2 },
+                { id: 'rice-cooker-pltmg', nama: 'Rice Cooker PLTMG',  kategori: 'menengah', jumlah: 2 },
+                { id: 'vacuum-cleaner',    nama: 'Vacuum Cleaner',     kategori: 'menengah', jumlah: 2 },
+                { id: 'tv-led',            nama: 'TV LED',             kategori: 'utama',    jumlah: 1 },
+                { id: 'motor-listrik',     nama: 'Motor Listrik',      kategori: 'utama',    jumlah: 1, gong: true }
+            ]
+        };
         // =======================================================
+
+        const KATEGORI = {
+            utama:    { label: 'Hadiah Utama',    icon: '🏆', warna: '#d97706' },
+            menengah: { label: 'Hadiah Menengah', icon: '⭐', warna: '#0f766e' },
+            hiburan:  { label: 'Hadiah Hiburan',  icon: '🎁', warna: '#7c3aed' }
+        };
+        const URUTAN_KATEGORI = ['utama', 'menengah', 'hiburan'];
+        const SEMUA_HADIAH = [];
+        Object.keys(RUNDOWN).forEach(s => RUNDOWN[s].forEach(h => { h.sesi = Number(s); SEMUA_HADIAH.push(h); }));
+        const TOTAL_HADIAH = SEMUA_HADIAH.reduce((a, h) => a + h.jumlah, 0);
+        function totalKategori(kat) { return SEMUA_HADIAH.filter(h => h.kategori === kat).reduce((a, h) => a + h.jumlah, 0); }
 
         const firebaseConfig = {
             apiKey: "AIzaSyBzq8JfbAOkLG9Jch-nBxvGQ8r-K77DVy8",
@@ -443,16 +482,16 @@
         const db = firebase.database();
         const dataRef = db.ref('data');
         const stateRef = db.ref('appState');
-        const cadanganRef = db.ref('cadangan');   // titik pemulihan (maks. 10 terakhir)
+        const cadanganRef = db.ref('cadangan');
         const MAKS_CADANGAN = 10;
         let daftarCadangan = [];
         let dataAda = false;
         let sudahCekKirim = false;
 
+        // ================= MODE TAMPILAN =================
         const urlParams = new URLSearchParams(window.location.search);
         let APP_MODE = urlParams.get('mode');
-        // OBS Studio (Browser Source) otomatis dikenali lewat window.obsstudio -> selalu tampil sebagai LAYAR.
-        // Bisa juga dipaksa dengan menambahkan ?obs=1 di alamat.
+        // OBS Studio (Browser Source) otomatis dikenali -> selalu tampil sebagai LAYAR. Bisa dipaksa dengan ?obs=1
         const IS_OBS = !!window.obsstudio || urlParams.get('obs') === '1';
         if (IS_OBS) APP_MODE = 'layar';
         if (!APP_MODE) {
@@ -466,56 +505,16 @@
         if (IS_OBS) document.body.classList.add('mode-obs');
         if (urlParams.get('latar') === 'transparan') document.body.classList.add('latar-transparan');
         document.getElementById('btn-mode-label').innerText = '🔄 Mode: ' + LABEL_MODE[APP_MODE];
-        const TAMPIL_BESAR = APP_MODE === 'layar' || APP_MODE === 'tunggal'; // efek konfeti & suara untuk penonton
-        document.getElementById('tab-hiburan-sub').innerText = 'maks. ' + HIBURAN_PER_SPIN + ' nomor per spin';
-
-        async function pilihMode() {
-            const r = await Swal.fire({
-                title: 'Pilih Mode Tampilan',
-                html: `<div style="text-align:left;font-size:13px;line-height:1.5;color:#374151;">
-                        <b>🖥️ Layar</b>: tampilan proyektor, dikendalikan dari HP.<br>
-                        <b>📱 Remote</b>: HP operator untuk mengendalikan layar (butuh internet).<br>
-                        <b>💻 Satu Perangkat</b>: layar + tombol kontrol di 1 laptop. <b>Tetap jalan walau internet putus.</b>
-                       </div>`,
-                input: 'radio', inputOptions: LABEL_MODE, inputValue: APP_MODE,
-                showCancelButton: true, confirmButtonText: 'Pindah', cancelButtonText: 'Batal'
-            });
-            if (!r.isConfirmed || !r.value || r.value === APP_MODE) return;
-            if (!isOnline) {
-                const ok = await Swal.fire({
-                    title: 'Sedang OFFLINE', icon: 'warning',
-                    html: 'Pindah mode akan <b>memuat ulang halaman</b>. Tanpa internet halaman bisa <b>gagal terbuka</b>.<br>Sebaiknya tunggu sampai online.',
-                    showCancelButton: true, confirmButtonText: 'Tetap Pindah', cancelButtonText: 'Batal', confirmButtonColor: '#ef4444'
-                });
-                if (!ok.isConfirmed) return;
-            }
-            izinkanTutup = true;
-            window.location.href = '?mode=' + r.value;
-        }
-        function toggleMode() { pilihMode(); }
-        function togglePanel() { if (APP_MODE === 'tunggal') document.body.classList.toggle('panel-tersembunyi'); }
-        async function menuTunggal() {
-            const r = await Swal.fire({
-                title: '☰ Menu', input: 'select', inputPlaceholder: 'Pilih menu...',
-                inputOptions: { sesi: '⏭️ Pindah Sesi Baru', csv: '📥 Export CSV', pulihkan: '↩️ Pulihkan Data', setup: '🔄 Setup Awal / Reset', mode: '🔄 Ganti Mode Tampilan' },
-                showCancelButton: true, confirmButtonText: 'Buka', cancelButtonText: 'Tutup'
-            });
-            if (!r.isConfirmed || !r.value) return;
-            const aksi = { sesi: pindahSesi, csv: () => exportToCSV(), pulihkan: pulihkanData, setup: resetAll, mode: pilihMode }[r.value];
-            if (aksi) aksi();
-        }
+        const TAMPIL_BESAR = APP_MODE === 'layar' || APP_MODE === 'tunggal';
 
         let availableNumbers = [];
         let winners = [];
         let forfeits = [];
         let currentSession = 1;
         let activeSheetName = "Riwayat_Acara";
-        let pengaturanHadiah = {}; // jumlah hadiah default tiap sesi dari Setup, contoh { utama: 5, hiburan: 20 }
-        let targetUtama = {};      // jumlah hadiah utama khusus sesi tertentu (bila diubah), contoh { s2: 7 }
-        let targetHiburan = {};    // jumlah hadiah hiburan khusus sesi tertentu (bila diubah)
+        let acaraSelesai = false;
 
         let currentState = { status: 'IDLE' };
-        let prizeMode = 'utama';
         let isSpinning = false;
         let isSaving = false;
         let selectedNumber = null;
@@ -525,7 +524,8 @@
         let lastSpinId = null;
         let prevSpinningIdx = new Set();
         let isRekapModalOpen = false;
-        let isAudioUnlocked = IS_OBS;   // di OBS suara langsung aktif, tidak perlu klik
+        let isAudioUnlocked = IS_OBS;
+        let htmlPilihanTerakhir = '';
 
         // ================= UTILITAS =================
         function randInt(n) {
@@ -548,9 +548,13 @@
         function angkaAcakTampilan() {
             return availableNumbers.length > 0 ? availableNumbers[randInt(availableNumbers.length)] : randInt(999) + 1;
         }
-        function jenisHadiah(e) { return e && e.type === 'hiburan' ? 'hiburan' : 'utama'; }
-        function buatEntry(num, type) {
-            return { number: Number(num), session: currentSession, type: type, time: new Date().toLocaleString('id-ID'), isOffline: !isOnline, sent: false };
+        function normStatus(st) { return String(st || 'IDLE').replace('_HIBURAN', '_BATCH'); }
+        function jenisHadiah(e) { return e && KATEGORI[e.type] ? e.type : 'utama'; }
+        function buatEntry(num, prize) {
+            return {
+                number: Number(num), session: currentSession, type: prize.kategori, prizeId: prize.id || null, prize: prize.nama || '-',
+                time: new Date().toLocaleString('id-ID'), isOffline: !isOnline, sent: false
+            };
         }
         function toast(icon, title, text) {
             Swal.fire({ toast: true, position: 'top', showConfirmButton: false, timer: 3000, icon, title, text });
@@ -563,9 +567,38 @@
             return String(num).padStart(4, '0');
         }
 
+        // ================= HADIAH =================
+        function cariHadiah(id) { return SEMUA_HADIAH.find(h => h.id === id) || null; }
+        function menangHadiah(id) { return winners.filter(w => w.prizeId === id).length; }
+        function sisaItem(h) { return h ? Math.max(h.jumlah - menangHadiah(h.id), 0) : 0; }
+        function menangKategori(kat) { return winners.filter(w => jenisHadiah(w) === kat).length; }
+        function infoPrize(h) { return { id: h.id, nama: h.nama, kategori: h.kategori, gong: !!h.gong, sesi: h.sesi }; }
+        function satuPerSpin(kat) { return (MAKS_PER_SPIN[kat] || 1) <= 1; }
+        // Kupon yang boleh ikut untuk kategori tertentu
+        function poolUntuk(kat) {
+            if (kat === 'hiburan') return availableNumbers;
+            return availableNumbers.filter(x => Number(x) <= BATAS_NOMOR_KHUSUS);
+        }
+        // Hadiah sesi berjalan + sisa hadiah sesi sebelumnya yang belum terundi
+        function daftarPilihan() {
+            const cur = (RUNDOWN[currentSession] || []).slice();
+            const lalu = [];
+            for (let s = 1; s < currentSession; s++) (RUNDOWN[s] || []).forEach(h => { if (sisaItem(h) > 0) lalu.push(h); });
+            return cur.concat(lalu);
+        }
+        function hadiahAktif() {
+            const sel = cariHadiah(currentState.prizeId);
+            if (sel && sel.sesi <= currentSession && sisaItem(sel) > 0) return sel;
+            return daftarPilihan().find(h => sisaItem(h) > 0) || null;
+        }
+        function hadiahSesi(sess) { return RUNDOWN[sess] || []; }
+        function jumlahUnitSesi(sess) { return hadiahSesi(sess).reduce((a, h) => a + h.jumlah, 0); }
+        function terundiSesi(sess) { return hadiahSesi(sess).reduce((a, h) => a + Math.min(menangHadiah(h.id), h.jumlah), 0); }
+        function nomorPerSpin(h) { return Math.min(MAKS_PER_SPIN[h.kategori] || 1, sisaItem(h)); }
+
         // ================= DETEKSI OFFLINE =================
         let isOnline = navigator.onLine;
-        let statusTampil = null;      // status terakhir yang ditampilkan (hindari notifikasi dobel)
+        let statusTampil = null;
         let izinkanTutup = false;
         function updateNetworkStatus() {
             if (statusTampil === isOnline) return;
@@ -592,12 +625,11 @@
         }
         window.addEventListener('online', () => { isOnline = true; updateNetworkStatus(); });
         window.addEventListener('offline', () => { isOnline = false; updateNetworkStatus(); });
-        // Cegah halaman tertutup/ter-refresh saat offline (data antrean bisa hilang & halaman gagal dibuka)
         window.addEventListener('beforeunload', (e) => {
             if (!isOnline && !izinkanTutup && !IS_OBS) { e.preventDefault(); e.returnValue = ''; return ''; }
         });
 
-        // ================= SETUP =================
+        // ================= SETUP (hanya jumlah kupon) =================
         async function setupAwal() {
             if (APP_MODE === 'layar') {
                 document.getElementById('display').innerText = "MENUNGGU HOST";
@@ -605,72 +637,62 @@
                 return;
             }
             await muatCadangan();
+            const ringkas = `<div style="font-size:13px;color:#4b5563;line-height:1.5;">
+                ${JUMLAH_SESI} sesi &nbsp;|&nbsp; ${TOTAL_HADIAH} hadiah:
+                🏆 ${totalKategori('utama')} Utama, ⭐ ${totalKategori('menengah')} Menengah, 🎁 ${totalKategori('hiburan')} Hiburan</div>`;
             const hasilSetup = await Swal.fire({
-                title: '⚙️ Setup Aplikasi Undian',
+                title: '⚙️ Setup Undian',
+                html: ringkas,
+                input: 'number',
+                inputLabel: 'Masukkan jumlah total kupon',
+                inputPlaceholder: 'Contoh: 600',
+                inputAttributes: { min: String(TOTAL_HADIAH), step: '1' },
                 showDenyButton: daftarCadangan.length > 0,
                 denyButtonText: '↩️ Pulihkan Data Sebelumnya',
                 denyButtonColor: '#4f46e5',
                 footer: daftarCadangan.length > 0 ? '<span style="font-size:13px;color:#4b5563;">Salah tekan Reset? Pilih <b>Pulihkan Data Sebelumnya</b>. Nomor yang sudah keluar tidak akan diundi lagi.</span>' : '',
-                html: `<div class="setup-form">
-                        <label>🎟️ Jumlah total kupon<input id="su-kupon" type="number" min="1" inputmode="numeric" class="swal2-input" placeholder="Contoh: 1000"></label>
-                        <label>🏆 Jumlah Hadiah Utama (total acara)<input id="su-utama" type="number" min="0" inputmode="numeric" class="swal2-input" placeholder="Contoh: 5"></label>
-                        <label>🎁 Jumlah Hadiah Hiburan (total acara)<input id="su-hiburan" type="number" min="0" inputmode="numeric" class="swal2-input" placeholder="Contoh: 20"></label>
-                        <p class="setup-note">Sisa hadiah berkurang otomatis setiap ada pemenang SAH (kupon hangus tidak mengurangi). Hadiah Hiburan keluar per 5 nomor tiap spin, dan spin terakhir menyesuaikan sisa hadiah.</p>
-                       </div>`,
-                focusConfirm: false,
                 allowOutsideClick: false,
                 showCancelButton: true,
                 confirmButtonText: 'Mulai Acara 🚀',
                 confirmButtonColor: '#10b981',
                 cancelButtonText: 'Batal',
-                preConfirm: () => {
-                    const ambil = id => parseInt((document.getElementById(id) || {}).value, 10);
-                    const kupon = ambil('su-kupon');
-                    const utama = ambil('su-utama') || 0;
-                    const hiburan = ambil('su-hiburan') || 0;
-                    if (!kupon || kupon <= 0) { Swal.showValidationMessage('Masukkan jumlah kupon yang valid'); return false; }
-                    if (utama < 0 || hiburan < 0) { Swal.showValidationMessage('Jumlah hadiah tidak boleh minus'); return false; }
-                    if (utama + hiburan === 0) { Swal.showValidationMessage('Isi jumlah Hadiah Utama atau Hadiah Hiburan'); return false; }
-                    if (utama + hiburan > kupon) { Swal.showValidationMessage('Jumlah hadiah melebihi jumlah kupon'); return false; }
-                    return { kupon, utama, hiburan };
+                inputValidator: (value) => {
+                    const n = parseInt(value, 10);
+                    if (!n || n <= 0) return 'Masukkan jumlah kupon yang valid';
+                    if (n < TOTAL_HADIAH) return `Kupon minimal ${TOTAL_HADIAH} (sesuai jumlah hadiah)`;
                 }
             });
 
             if (hasilSetup.isDenied) { pulihkanData(); return; }
-            const isian = hasilSetup.isConfirmed ? hasilSetup.value : null;
-            if (isian && isian.kupon) {
-                const total = isian.kupon;
-                const nums = [];
-                for (let i = 1; i <= total; i++) nums.push(i);
+            if (!hasilSetup.isConfirmed || !hasilSetup.value) return;
 
-                const tgl = new Date().toISOString().slice(0, 10);
-                const rand = Math.floor(Math.random() * 1000);
-                const newSheetName = "Acara_" + tgl + "_" + rand;
+            const total = parseInt(hasilSetup.value, 10);
+            const nums = [];
+            for (let i = 1; i <= total; i++) nums.push(i);
+            const tgl = new Date().toISOString().slice(0, 10);
+            const rand = Math.floor(Math.random() * 1000);
+            const newSheetName = "Acara_" + tgl + "_" + rand;
 
-                dataRef.set({
-                    availableNumbers: nums, winners: [], forfeits: [], currentSession: 1, activeSheetName: newSheetName,
-                    pengaturanHadiah: { utama: isian.utama, hiburan: isian.hiburan }
-                }).catch(e => console.log(e));
-                stateRef.set({ status: "IDLE", screenNumber: "0000", prizeMode: 'utama' }).catch(e => console.log(e));
+            dataRef.set({ availableNumbers: nums, winners: [], forfeits: [], currentSession: 1, activeSheetName: newSheetName, selesai: false }).catch(e => console.log(e));
+            stateRef.set({ status: "IDLE", screenNumber: "0000", prizeId: null }).catch(e => console.log(e));
 
-                if (isOnline) {
-                    fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ sheetName: newSheetName, data: [] }) }).catch(e => console.log("Init sheet error", e));
-                }
-                document.getElementById('display').style.fontSize = "";
-                Swal.fire('Berhasil', `Sistem siap: ${total} kupon, ${isian.utama} Hadiah Utama & ${isian.hiburan} Hadiah Hiburan.`, 'success');
+            if (isOnline) {
+                fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ sheetName: newSheetName, data: [] }) }).catch(e => console.log("Init sheet error", e));
             }
+            document.getElementById('display').style.fontSize = "";
+            Swal.fire('Berhasil', `Sistem siap dengan ${total} kupon, ${TOTAL_HADIAH} hadiah dalam ${JUMLAH_SESI} sesi.`, 'success');
         }
 
-        function fireConfetti() {
+        function fireConfetti(besar) {
             if (!TAMPIL_BESAR) return;
-            const duration = 3000;
+            const duration = besar ? 7000 : 3000;
             const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+            const defaults = { startVelocity: besar ? 45 : 30, spread: 360, ticks: besar ? 90 : 60, zIndex: 9999 };
             function randomInRange(min, max) { return Math.random() * (max - min) + min; }
             const interval = setInterval(function () {
                 const timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) return clearInterval(interval);
-                const particleCount = 50 * (timeLeft / duration);
+                const particleCount = (besar ? 90 : 50) * (timeLeft / duration);
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
@@ -690,7 +712,6 @@
                     pernahTerhubung = true;
                     isOnline = true;
                     updateNetworkStatus();
-                    // baru tersambung lagi: kirim backup spreadsheet yang tertunda
                     if (!terhubungFirebase && APP_MODE !== 'layar') setTimeout(kirimUlangSesiLalu, 1500);
                 } else if (!pernahTerhubung && Date.now() - waktuMuat < 6000) {
                     const badge = document.getElementById('network-status');
@@ -708,7 +729,7 @@
                 cadanganRef.on('value', (snap) => {
                     const list = [];
                     snap.forEach(c => { list.push(Object.assign({ key: c.key }, c.val())); });
-                    daftarCadangan = list; // urut dari terlama ke terbaru
+                    daftarCadangan = list;
                 });
             }
 
@@ -716,8 +737,8 @@
                 const data = snapshot.val();
                 dataAda = !!data;
                 if (!data) {
-                    availableNumbers = []; winners = []; forfeits = []; currentSession = 1; targetHiburan = {}; targetUtama = {}; pengaturanHadiah = {};
-                    updateUI();
+                    availableNumbers = []; winners = []; forfeits = []; currentSession = 1; acaraSelesai = false;
+                    renderSemua();
                     if (APP_MODE !== 'layar') setupAwal();
                     else {
                         document.getElementById('display').innerText = "MENUNGGU HOST";
@@ -725,34 +746,29 @@
                     }
                     return;
                 }
-                if (document.getElementById('display').innerText === "MENUNGGU HOST") {
-                    document.getElementById('display').innerText = "0000";
-                }
+                if (document.getElementById('display').innerText === "MENUNGGU HOST") document.getElementById('display').innerText = "0000";
                 document.getElementById('display').style.fontSize = "";
                 availableNumbers = data.availableNumbers ? Object.values(data.availableNumbers) : [];
                 winners = data.winners ? Object.values(data.winners) : [];
                 forfeits = data.forfeits ? Object.values(data.forfeits) : [];
-                currentSession = data.currentSession || 1;
+                currentSession = Math.min(Number(data.currentSession) || 1, JUMLAH_SESI);
                 activeSheetName = data.activeSheetName || "Riwayat_Acara";
-                targetHiburan = data.targetHiburan || {};
-                targetUtama = data.targetUtama || {};
+                acaraSelesai = !!data.selesai;
                 if (!sudahCekKirim && APP_MODE !== 'layar') { sudahCekKirim = true; setTimeout(kirimUlangSesiLalu, 2500); }
-                pengaturanHadiah = data.pengaturanHadiah || {};
-                updateUI();
+                renderSemua();
             });
 
             stateRef.on('value', (snapshot) => {
                 const state = snapshot.val() || { status: 'IDLE' };
                 currentState = state;
-                prizeMode = state.prizeMode === 'hiburan' ? 'hiburan' : 'utama';
-
-                const st = state.status || 'IDLE';
+                const st = normStatus(state.status);
                 const changed = st !== lastHandledSpinStatus || (st.startsWith('SPINNING') && (state.spinId || null) !== lastSpinId);
                 lastHandledSpinStatus = st;
                 lastSpinId = state.spinId || null;
-                renderPrizeMode(st);
+                renderSemua();
 
                 const display = document.getElementById('display');
+                const prize = state.prize || {};
 
                 if (st === "SPINNING") {
                     if (!changed) return;
@@ -761,7 +777,7 @@
                     showView('single');
                     setControlState('SPINNING');
                     playSpinAudio();
-                    display.classList.remove('is-winner');
+                    display.classList.remove('is-winner', 'is-gong');
                     display.classList.add('is-spinning');
                     clearInterval(displaySpinInterval);
                     displaySpinInterval = setInterval(() => { display.innerText = format4(angkaAcakTampilan()); }, 50);
@@ -775,28 +791,29 @@
                     showView('single');
                     display.classList.remove('is-spinning');
                     display.classList.add('is-winner');
+                    display.classList.toggle('is-gong', !!prize.gong);
                     display.innerText = format4(selectedNumber);
-                    fireConfetti();
+                    fireConfetti(!!prize.gong);
                     setControlState('ACTION');
                 }
-                else if (st === "SPINNING_HIBURAN") {
+                else if (st === "SPINNING_BATCH") {
                     const batch = state.batch ? Object.values(state.batch) : [];
                     if (changed) {
                         if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
                         isSpinning = true;
                         showView('batch');
-                        setControlState('SPINNING_HIBURAN');
                         playSpinAudio();
                         prevSpinningIdx = new Set(batch.map((b, i) => b.s ? i : -1).filter(i => i >= 0));
+                        setControlState('SPINNING_BATCH');
                         document.getElementById('spinning-text').innerText = `⚡ Mengacak ${prevSpinningIdx.size} nomor... tekan STOP`;
                         clearInterval(batchSpinInterval);
                         batchSpinInterval = setInterval(() => {
-                            document.querySelectorAll('#hiburan-grid .tile.spinning .tile-num').forEach(el => { el.textContent = format4(angkaAcakTampilan()); });
+                            document.querySelectorAll('#batch-grid .tile.spinning .tile-num').forEach(el => { el.textContent = format4(angkaAcakTampilan()); });
                         }, 60);
                     }
                     renderBatch(batch);
                 }
-                else if (st === "ACTION_HIBURAN") {
+                else if (st === "ACTION_BATCH") {
                     const batch = state.batch ? Object.values(state.batch) : [];
                     if (changed) {
                         clearInterval(batchSpinInterval);
@@ -806,12 +823,12 @@
                         const reveal = prevSpinningIdx.size ? prevSpinningIdx : new Set(batch.map((_, i) => i));
                         renderBatch(batch, { reveal });
                         prevSpinningIdx = new Set();
-                        fireConfetti();
-                        setControlState('ACTION_HIBURAN');
+                        fireConfetti(false);
+                        setControlState('ACTION_BATCH');
                     } else {
                         renderBatch(batch);
                     }
-                    updateTombolHiburan(batch);
+                    updateTombolBatch(batch);
                 }
                 else if (st === "IDLE") {
                     if (!changed) return;
@@ -821,7 +838,7 @@
                     selectedNumber = null;
                     stopSpinAudio();
                     showView('single');
-                    display.classList.remove('is-spinning', 'is-winner');
+                    display.classList.remove('is-spinning', 'is-winner', 'is-gong');
                     if (display.innerText !== "MENUNGGU HOST") display.innerText = '0000';
                     display.style.color = '';
                     setControlState('IDLE');
@@ -829,175 +846,199 @@
                 }
                 else if (st.startsWith("REKAP_")) {
                     if (!changed) return;
-                    openRekapModal(currentSession);
+                    openRekapModal(Number(st.split('_')[1]) || currentSession);
                 }
             });
         }
 
-        // ================= MODE HADIAH =================
-        function setPrizeMode(mode) {
-            if (APP_MODE === 'layar') return;
-            if ((currentState.status || 'IDLE') !== 'IDLE') return;
-            simpanState({ prizeMode: mode });
+        // ================= MODE & PANEL =================
+        async function pilihMode() {
+            const r = await Swal.fire({
+                title: 'Pilih Mode Tampilan',
+                html: `<div style="text-align:left;font-size:13px;line-height:1.5;color:#374151;">
+                        <b>🖥️ Layar</b>: tampilan proyektor / OBS, dikendalikan dari HP.<br>
+                        <b>📱 Remote</b>: HP operator untuk mengendalikan layar (butuh internet).<br>
+                        <b>💻 Satu Perangkat</b>: layar + tombol kontrol di 1 laptop. <b>Tetap jalan walau internet putus.</b>
+                       </div>`,
+                input: 'radio', inputOptions: LABEL_MODE, inputValue: APP_MODE,
+                showCancelButton: true, confirmButtonText: 'Pindah', cancelButtonText: 'Batal'
+            });
+            if (!r.isConfirmed || !r.value || r.value === APP_MODE) return;
+            if (!isOnline) {
+                const ok = await Swal.fire({
+                    title: 'Sedang OFFLINE', icon: 'warning',
+                    html: 'Pindah mode akan <b>memuat ulang halaman</b>. Tanpa internet halaman bisa <b>gagal terbuka</b>.<br>Sebaiknya tunggu sampai online.',
+                    showCancelButton: true, confirmButtonText: 'Tetap Pindah', cancelButtonText: 'Batal', confirmButtonColor: '#ef4444'
+                });
+                if (!ok.isConfirmed) return;
+            }
+            izinkanTutup = true;
+            window.location.href = '?mode=' + r.value;
+        }
+        function togglePanel() { if (APP_MODE === 'tunggal') document.body.classList.toggle('panel-tersembunyi'); }
+        async function menuTunggal() {
+            const r = await Swal.fire({
+                title: '☰ Menu', input: 'select', inputPlaceholder: 'Pilih menu...',
+                inputOptions: { sesi: '⏭️ Pindah Sesi', csv: '📥 Export CSV', pulihkan: '↩️ Pulihkan Data', setup: '🔄 Setup Awal / Reset', mode: '🔄 Ganti Mode Tampilan' },
+                showCancelButton: true, confirmButtonText: 'Buka', cancelButtonText: 'Tutup'
+            });
+            if (!r.isConfirmed || !r.value) return;
+            const aksi = { sesi: pindahSesi, csv: () => exportToCSV(), pulihkan: pulihkanData, setup: resetAll, mode: pilihMode }[r.value];
+            if (aksi) aksi();
         }
 
-        function renderPrizeMode(st) {
-            const idle = st === 'IDLE';
-            document.querySelectorAll('.prize-tab').forEach(t => {
-                t.classList.toggle('active', t.dataset.mode === prizeMode);
-                t.disabled = !idle;
-            });
-            const btn = document.getElementById('btn-spin');
-            btn.classList.toggle('hiburan', prizeMode === 'hiburan');
-            const jenis = prizeMode;
-            const target = getTarget(jenis);
-            const sudah = jumlahMenang(jenis);
-            const sisa = sisaHadiah(jenis);
-            document.getElementById('hib-stok').classList.toggle('utama', jenis === 'utama');
-            document.getElementById('hs-label').innerText = jenis === 'utama' ? '🏆 Total Hadiah Utama' : '🎁 Total Hadiah Hiburan';
-            document.getElementById('hs-target').innerText = target;
-            document.getElementById('hs-sudah').innerText = sudah;
-            document.getElementById('hs-sisa').innerText = sisa;
-            document.getElementById('hs-minus').disabled = target <= sudah;
-            if (target === 0) btn.innerHTML = '⚙️ ATUR JUMLAH HADIAH DULU';
-            else if (sisa === 0) btn.innerHTML = jenis === 'utama' ? '✅ HADIAH UTAMA HABIS' : '✅ HADIAH HIBURAN HABIS';
-            else if (jenis === 'hiburan') btn.innerHTML = `⚡ SPIN CEPAT ${Math.min(HIBURAN_PER_SPIN, sisa)} NOMOR`;
-            else btn.innerHTML = '🎲 PUTAR SPIN';
+        function pilihHadiah(id) {
+            if (APP_MODE === 'layar' || normStatus(currentState.status) !== 'IDLE') return;
+            simpanState({ prizeId: id || null });
+        }
 
-            let isHib;
-            if (st.indexOf('HIBURAN') > -1) isHib = true;
-            else if (st === 'SPINNING' || st === 'ACTION') isHib = false;
-            else isHib = prizeMode === 'hiburan';
-            document.getElementById('layar-prize-text').innerText = isHib ? '🎁 HADIAH HIBURAN' : '🏆 HADIAH UTAMA';
-            document.getElementById('layar-session-badge').classList.toggle('hiburan', isHib);
+        function renderSemua() {
+            renderPanel();
+            renderBanner();
+            updateUI();
+        }
+
+        // Panel kontrol: daftar hadiah, tombol spin
+        function renderPanel() {
+            const st = normStatus(currentState.status);
+            const idle = st === 'IDLE';
+            const h = dataAda ? hadiahAktif() : null;
+            const sel = document.getElementById('pilih-hadiah');
+            const btn = document.getElementById('btn-spin');
+
+            document.getElementById('np-sesi').innerText = `Sesi ${currentSession} dari ${JUMLAH_SESI}`;
+            document.getElementById('np-progress').innerText = `${terundiSesi(currentSession)} / ${jumlahUnitSesi(currentSession)} hadiah terundi`;
+
+            // isi dropdown (hanya dibangun ulang bila isinya berubah)
+            let html = '';
+            const cur = hadiahSesi(currentSession);
+            const grup = (judul, list) => {
+                if (!list.length) return '';
+                return `<optgroup label="${judul}">` + list.map(x => {
+                    const s = sisaItem(x);
+                    const k = KATEGORI[x.kategori];
+                    return `<option value="${x.id}" ${s === 0 ? 'disabled' : ''}>${k.icon} ${x.nama} — ${s === 0 ? 'selesai ✓' : 'sisa ' + s + ' dari ' + x.jumlah}</option>`;
+                }).join('') + `</optgroup>`;
+            };
+            html += grup(`Sesi ${currentSession}`, cur);
+            for (let s = 1; s < currentSession; s++) html += grup(`Sisa dari Sesi ${s}`, hadiahSesi(s).filter(x => sisaItem(x) > 0));
+            if (!h) html = `<option value="">— semua hadiah sesi ini sudah diundi —</option>` + html;
+            if (html !== htmlPilihanTerakhir) { sel.innerHTML = html; htmlPilihanTerakhir = html; }
+            sel.value = h ? h.id : '';
+            sel.disabled = !idle || !dataAda;
+
+            btn.classList.remove('utama', 'menengah', 'hiburan', 'selesai');
+            const info = document.getElementById('np-info');
+            if (!dataAda) {
+                btn.innerHTML = '⚙️ SETUP DULU'; info.innerText = '';
+            } else if (!h) {
+                btn.classList.add('selesai');
+                if (currentSession < JUMLAH_SESI) { btn.innerHTML = `✅ SESI ${currentSession} SELESAI — PINDAH SESI`; info.innerText = 'Semua hadiah sesi ini sudah ada pemenangnya.'; }
+                else { btn.innerHTML = acaraSelesai ? '🏁 ACARA SELESAI' : '🏁 SEMUA HADIAH SELESAI — REKAP AKHIR'; info.innerText = `Semua ${TOTAL_HADIAH} hadiah sudah diundi.`; }
+            } else {
+                btn.classList.add(h.kategori);
+                const n = nomorPerSpin(h);
+                if (satuPerSpin(h.kategori)) {
+                    btn.innerHTML = h.gong ? `🥁 SPIN GRAND PRIZE — ${h.nama}` : `🎲 SPIN — ${h.nama}`;
+                    info.innerText = `${KATEGORI[h.kategori].label} | 1 nomor per spin`;
+                } else {
+                    btn.innerHTML = `⚡ SPIN ${n} NOMOR — ${h.nama}`;
+                    info.innerText = `${KATEGORI[h.kategori].label} | sisa ${sisaItem(h)} unit, keluar ${n} nomor`;
+                }
+            }
+        }
+
+        // Banner nama hadiah di layar
+        function renderBanner() {
+            const st = normStatus(currentState.status);
+            const el = document.getElementById('prize-banner');
+            const label = document.getElementById('pb-label');
+            const nama = document.getElementById('pb-nama');
+            const info = document.getElementById('pb-info');
+            document.getElementById('layar-sesi-text').innerText = currentSession;
+            if (!dataAda) { el.classList.add('hidden'); return; }
+
+            let h = null, teks = 'HADIAH BERIKUTNYA';
+            if (st === 'SPINNING' || st === 'SPINNING_BATCH') { h = currentState.prize; teks = 'SEDANG DIUNDI'; }
+            else if (st === 'ACTION' || st === 'ACTION_BATCH') { h = currentState.prize; teks = 'SELAMAT KEPADA PEMENANG'; }
+            else h = hadiahAktif();
+
+            el.classList.remove('hidden', 'utama', 'menengah', 'hiburan', 'selesai', 'gong');
+            if (!h || !h.kategori) {
+                el.classList.add('selesai');
+                label.innerText = `SESI ${currentSession}`;
+                nama.innerText = currentSession < JUMLAH_SESI ? '✅ SEMUA HADIAH SESI INI SUDAH DIUNDI' : '🎉 TERIMA KASIH';
+                info.innerText = currentSession < JUMLAH_SESI ? 'Bersiap untuk sesi berikutnya' : 'Seluruh hadiah sudah ada pemenangnya';
+                return;
+            }
+            const k = KATEGORI[h.kategori];
+            el.classList.add(h.kategori);
+            if (h.gong) el.classList.add('gong');
+            label.innerText = h.gong ? `🥁 GRAND PRIZE | ${teks}` : teks;
+            nama.innerText = `${k.icon} ${String(h.nama).toUpperCase()}`;
+            info.innerText = k.label;
         }
 
         function showView(view) {
             document.getElementById('display').classList.toggle('hidden', view !== 'single');
-            document.getElementById('hiburan-wrap').classList.toggle('hidden', view !== 'batch');
+            document.getElementById('batch-wrap').classList.toggle('hidden', view !== 'batch');
         }
 
         // ================= SPIN =================
         async function startSpin() {
             if (APP_MODE === 'layar') return;
             if (isSpinning || isSaving) return;
-            if ((currentState.status || 'IDLE') !== 'IDLE') return;
-            if (availableNumbers.length === 0) {
-                Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info');
+            if (normStatus(currentState.status) !== 'IDLE') return;
+            if (!dataAda) { setupAwal(); return; }
+
+            const h = hadiahAktif();
+            if (!h) {
+                if (currentSession < JUMLAH_SESI || !acaraSelesai) pindahSesi();
+                else Swal.fire('Acara Selesai 🎉', `Semua ${TOTAL_HADIAH} hadiah sudah ada pemenangnya. Jangan lupa Export CSV.`, 'success');
                 return;
             }
-            if (prizeMode === 'hiburan') return startSpinHiburan();
+            const pool = poolUntuk(h.kategori);
+            if (!pool.length) {
+                Swal.fire('Kupon Habis', 'Tidak ada kupon tersisa yang bisa diundi untuk hadiah ini.', 'info');
+                return;
+            }
 
-            if (!(await pastikanAdaSisa('utama'))) return;
-            if ((currentState.status || 'IDLE') !== 'IDLE' || isSpinning) return;
-
-            const chosen = ambilAcak(availableNumbers, 1)[0];
-            simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, spinId: Date.now() });
-        }
-
-        // ================= STOK HADIAH (TOTAL ACARA) =================
-        // Jumlah hadiah diisi saat Setup. Sisa = total - pemenang SAH (semua sesi).
-        // Kupon HANGUS tidak mengurangi sisa hadiah.
-        function namaHadiah(jenis) { return jenis === 'utama' ? 'Hadiah Utama' : 'Hadiah Hiburan'; }
-        function getTarget(jenis) { return Number(pengaturanHadiah[jenis]) || 0; }
-        function jumlahMenang(jenis, sess) {
-            if (sess) return winners.filter(w => jenisHadiah(w) === jenis && Number(w.session) === Number(sess)).length;
-            return winners.filter(w => jenisHadiah(w) === jenis).length;   // total semua sesi
-        }
-        function sisaHadiah(jenis) { return Math.max(getTarget(jenis) - jumlahMenang(jenis), 0); }
-
-        function setTarget(jenis, n) {
-            n = Math.max(parseInt(n, 10) || 0, jumlahMenang(jenis));
-            pengaturanHadiah[jenis] = n;
-            simpanData({ ['pengaturanHadiah/' + jenis]: n });
-            renderPrizeMode(currentState.status || 'IDLE');
-            updateUI();
-        }
-        function ubahStok(delta) {
-            if (APP_MODE === 'layar' || !dataAda || (currentState.status || 'IDLE') !== 'IDLE') return;
-            setTarget(prizeMode, getTarget(prizeMode) + delta);
-        }
-        async function aturStok(jenis) {
-            jenis = jenis || prizeMode;
-            if (APP_MODE === 'layar' || !dataAda || (currentState.status || 'IDLE') !== 'IDLE') return false;
-            const sudah = jumlahMenang(jenis);
-            const r = await Swal.fire({
-                title: (jenis === 'utama' ? '🏆 ' : '🎁 ') + 'Total ' + namaHadiah(jenis),
-                html: `Jumlah ${namaHadiah(jenis)} untuk seluruh acara.` + (sudah ? `<br>Sudah ada pemenang: <b>${sudah}</b>` : ''),
-                input: 'number', inputValue: getTarget(jenis) || '', inputPlaceholder: 'Contoh: 10',
-                inputAttributes: { min: String(sudah), step: '1' },
-                showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal',
-                confirmButtonColor: jenis === 'utama' ? '#2563eb' : '#7c3aed',
-                inputValidator: (v) => {
-                    const n = parseInt(v, 10);
-                    if (isNaN(n) || n < 0) return 'Masukkan jumlah hadiah yang valid';
-                    if (n < sudah) return `Tidak boleh kurang dari ${sudah} (sudah ada pemenang)`;
-                }
-            });
-            if (!r.isConfirmed) return false;
-            setTarget(jenis, r.value);
-            return true;
-        }
-
-        // Pastikan masih ada sisa hadiah; bila habis/belum diatur, tawarkan tambah jumlah
-        async function pastikanAdaSisa(jenis) {
-            if (sisaHadiah(jenis) > 0) return true;
-            const target = getTarget(jenis);
-            const r = await Swal.fire({
-                title: target === 0 ? `Jumlah ${namaHadiah(jenis)} belum diatur` : `${namaHadiah(jenis)} Habis`,
-                html: target === 0
-                    ? `Atur dulu jumlah ${namaHadiah(jenis)}.`
-                    : `Semua <b>${target}</b> ${namaHadiah(jenis)} sudah ada pemenangnya.<br>Tambah jumlah hadiah jika stok masih ada.`,
-                icon: 'info', showCancelButton: true,
-                confirmButtonText: target === 0 ? '⚙️ Atur Jumlah' : '➕ Tambah Jumlah', cancelButtonText: 'Tutup',
-                confirmButtonColor: jenis === 'utama' ? '#2563eb' : '#7c3aed'
-            });
-            if (!r.isConfirmed) return false;
-            const ok = await aturStok(jenis);
-            return ok && sisaHadiah(jenis) > 0;
-        }
-
-        // nama lama tetap ada agar kode lain tidak rusak
-        function getTargetHiburan() { return getTarget('hiburan'); }
-        function jumlahHiburanSesi() { return jumlahMenang('hiburan'); }
-        function sisaHadiahHiburan() { return sisaHadiah('hiburan'); }
-
-        async function startSpinHiburan() {
-            if (!(await pastikanAdaSisa('hiburan'))) return;
-            if ((currentState.status || 'IDLE') !== 'IDLE' || isSpinning) return;
-
-            const kuota = Math.min(HIBURAN_PER_SPIN, sisaHadiahHiburan());
-            const nums = ambilAcak(availableNumbers, kuota);
-            if (!nums.length) { Swal.fire('Habis!', 'Semua kupon telah diundi.', 'info'); return; }
-            if (nums.length < kuota) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
-            simpanState({
-                status: "SPINNING_HIBURAN", screenNumber: "0000",
-                batch: nums.map(n => ({ n: n, h: false, s: true })),
-                spinId: Date.now()
-            });
-        }
-
-        // Tombol STOP: hentikan putaran saat itu juga (nomor sudah ditentukan saat spin dimulai)
-        function stopSekarang() {
-            if (APP_MODE === 'layar') return;
-            const st = currentState.status;
-            if (st === 'SPINNING') {
-                simpanState({ status: 'ACTION' });
-            } else if (st === 'SPINNING_HIBURAN') {
-                const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h, s: false }));
-                simpanState({ status: 'ACTION_HIBURAN', batch });
+            if (satuPerSpin(h.kategori)) {
+                const chosen = ambilAcak(pool, 1)[0];
+                simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, prize: infoPrize(h), prizeId: h.id, spinId: Date.now() });
+            } else {
+                const k = nomorPerSpin(h);
+                const nums = ambilAcak(pool, k);
+                if (nums.length < k) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
+                simpanState({
+                    status: "SPINNING_BATCH", screenNumber: "0000", prize: infoPrize(h), prizeId: h.id,
+                    batch: nums.map(n => ({ n: n, h: false, s: true })), spinId: Date.now()
+                });
             }
         }
 
-        // ================= AKSI HADIAH UTAMA =================
-        function tandai(statusMark, autoLanjut = true) {
+        // Tombol STOP: hentikan putaran (spin tidak punya batas waktu)
+        function stopSekarang() {
+            if (APP_MODE === 'layar') return;
+            const st = normStatus(currentState.status);
+            if (st === 'SPINNING') {
+                simpanState({ status: 'ACTION' });
+            } else if (st === 'SPINNING_BATCH') {
+                const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h, s: false }));
+                simpanState({ status: 'ACTION_BATCH', batch });
+            }
+        }
+
+        // ================= AKSI 1 NOMOR (UTAMA) =================
+        function tandai(statusMark, autoLanjut) {
             if (APP_MODE === 'layar' || isSaving || isSpinning) return;
-            if (currentState.status !== 'ACTION') return;
+            if (normStatus(currentState.status) !== 'ACTION') return;
             const num = currentState.screenNumber;
             if (num === null || num === undefined || String(num) === '0000') return;
+            const prize = currentState.prize || { kategori: 'utama', nama: '-' };
 
             isSaving = true;
-            const entry = buatEntry(num, 'utama');
+            const entry = buatEntry(num, prize);
             if (statusMark === 'sah') winners.push(entry); else forfeits.push(entry);
             availableNumbers = availableNumbers.filter(x => Number(x) !== Number(num));
 
@@ -1005,35 +1046,32 @@
             simpanState({ status: "IDLE", screenNumber: "0000" });
             isSaving = false;
 
-            if (autoLanjut) {
-                if (sisaHadiah('utama') > 0) setTimeout(() => startSpin(), 600);
-                else toast('success', 'Hadiah Utama habis', `Semua ${getTarget('utama')} Hadiah Utama sudah ada pemenangnya.`);
-            }
+            if (statusMark === 'sah') toast('success', `Pemenang ${prize.nama}: ${format4(num)}`);
+            if (statusMark === 'hangus' && autoLanjut) setTimeout(() => startSpin(), 600);
         }
 
-        // ================= AKSI HADIAH HIBURAN =================
+        // ================= AKSI BANYAK NOMOR (MENENGAH & HIBURAN) =================
         function toggleHangusBatch(i) {
-            if (APP_MODE === 'layar' || isSaving || currentState.status !== 'ACTION_HIBURAN') return;
+            if (APP_MODE === 'layar' || isSaving || normStatus(currentState.status) !== 'ACTION_BATCH') return;
             const batch = currentState.batch ? Object.values(currentState.batch) : [];
             if (!batch[i]) return;
             stateRef.child('batch/' + i + '/h').set(!batch[i].h).catch(e => console.log(e));
         }
 
         function gantiHangus() {
-            if (APP_MODE === 'layar' || isSaving || currentState.status !== 'ACTION_HIBURAN') return;
+            if (APP_MODE === 'layar' || isSaving || normStatus(currentState.status) !== 'ACTION_BATCH') return;
+            const prize = currentState.prize || { kategori: 'hiburan', nama: '-' };
             const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h, s: false }));
             const idxHangus = batch.map((b, i) => b.h ? i : -1).filter(i => i >= 0);
             if (!idxHangus.length) { toast('info', 'Belum ada yang ditandai', 'Ketuk nomor yang tidak hadir dulu.'); return; }
 
             isSaving = true;
-            // 1. Catat nomor hangus & buang dari pool
-            idxHangus.forEach(i => forfeits.push(buatEntry(batch[i].n, 'hiburan')));
+            idxHangus.forEach(i => forfeits.push(buatEntry(batch[i].n, prize)));
             const setHangus = new Set(idxHangus.map(i => batch[i].n));
             availableNumbers = availableNumbers.filter(x => !setHangus.has(Number(x)));
 
-            // 2. Undi pengganti (tidak boleh sama dengan nomor yang sedang tampil)
             const tetap = batch.filter(b => !b.h).map(b => b.n);
-            const pengganti = ambilAcak(availableNumbers, idxHangus.length, tetap);
+            const pengganti = ambilAcak(poolUntuk(prize.kategori), idxHangus.length, tetap);
             let k = 0;
             const batchBaru = batch.map(b => {
                 if (!b.h) return b;
@@ -1043,7 +1081,7 @@
 
             simpanData({ availableNumbers, forfeits });
             if (pengganti.length) {
-                simpanState({ status: 'SPINNING_HIBURAN', batch: batchBaru, spinId: Date.now() });
+                simpanState({ status: 'SPINNING_BATCH', batch: batchBaru, spinId: Date.now() });
                 if (pengganti.length < idxHangus.length) toast('warning', 'Kupon hampir habis', `Hanya ${pengganti.length} nomor pengganti tersedia.`);
             } else {
                 simpanState({ batch: batchBaru });
@@ -1052,39 +1090,43 @@
             isSaving = false;
         }
 
-        async function simpanHiburan() {
-            if (APP_MODE === 'layar' || isSaving || currentState.status !== 'ACTION_HIBURAN') return;
+        async function simpanBatch() {
+            if (APP_MODE === 'layar' || isSaving || normStatus(currentState.status) !== 'ACTION_BATCH') return;
             const cek = currentState.batch ? Object.values(currentState.batch) : [];
             const nHangusAwal = cek.filter(b => b.h).length;
             if (nHangusAwal) {
                 const ask = await Swal.fire({
-                    title: 'Simpan hasil hiburan?',
-                    html: `<b>${nHangusAwal}</b> nomor yang ditandai akan dicatat <b style="color:#ef4444">HANGUS</b> tanpa diganti.<br><br>Pakai tombol <b>Ganti Hangus</b> jika ingin mengundi penggantinya.`,
+                    title: 'Simpan hasil undian?',
+                    html: `<b>${nHangusAwal}</b> nomor yang ditandai akan dicatat <b style="color:#ef4444">HANGUS</b> tanpa diganti.<br>Sisa unitnya bisa diundi di spin berikutnya.<br><br>Pakai <b>Ganti Hangus</b> jika ingin langsung mengundi penggantinya.`,
                     icon: 'question', showCancelButton: true,
                     confirmButtonText: 'Ya, Simpan', cancelButtonText: 'Kembali', confirmButtonColor: '#10b981'
                 });
-                if (!ask.isConfirmed || currentState.status !== 'ACTION_HIBURAN') return;
+                if (!ask.isConfirmed || normStatus(currentState.status) !== 'ACTION_BATCH') return;
             }
 
             isSaving = true;
+            const prize = currentState.prize || { kategori: 'hiburan', nama: '-' };
             const batch = (currentState.batch ? Object.values(currentState.batch) : []).map(b => ({ n: Number(b.n), h: !!b.h }));
-            batch.forEach(b => (b.h ? forfeits : winners).push(buatEntry(b.n, 'hiburan')));
+            batch.forEach(b => (b.h ? forfeits : winners).push(buatEntry(b.n, prize)));
             const semua = new Set(batch.map(b => b.n));
             availableNumbers = availableNumbers.filter(x => !semua.has(Number(x)));
 
             simpanData({ availableNumbers, winners, forfeits });
             simpanState({ status: "IDLE", screenNumber: "0000", batch: null });
             isSaving = false;
-            toast('success', `${batch.filter(b => !b.h).length} pemenang hiburan tercatat`);
+            toast('success', `${batch.filter(b => !b.h).length} pemenang ${prize.nama} tercatat`);
         }
 
         function renderBatch(batch, opts = {}) {
-            const grid = document.getElementById('hiburan-grid');
+            const prize = currentState.prize || { kategori: 'hiburan', nama: '' };
+            const wrap = document.getElementById('batch-wrap');
+            wrap.classList.toggle('menengah', prize.kategori === 'menengah');
+            const grid = document.getElementById('batch-grid');
             const kolom = Math.max(Math.min(batch.length, 5), 1);
             grid.style.gridTemplateColumns = `repeat(${kolom}, minmax(0, 1fr))`;
             grid.style.maxWidth = (kolom * (TAMPIL_BESAR ? 300 : 220)) + 'px';
-            const st = currentState.status;
-            const bisaKlik = APP_MODE !== 'layar' && st === 'ACTION_HIBURAN';
+            const st = normStatus(currentState.status);
+            const bisaKlik = APP_MODE !== 'layar' && st === 'ACTION_BATCH';
             let urut = 0;
             grid.innerHTML = batch.map((b, i) => {
                 const cls = ['tile'];
@@ -1097,21 +1139,20 @@
                 return `<div class="${cls.join(' ')}"${style}${klik}><span class="tile-no">${i + 1}</span><span class="tile-num">${b.s ? '····' : format4(b.n)}</span>${b.h ? '<span class="tile-tag">HANGUS</span>' : ''}</div>`;
             }).join('');
 
-            const judul = document.getElementById('hiburan-title');
-            if (st === 'SPINNING_HIBURAN') judul.innerText = `⚡ MENGACAK ${batch.filter(b => b.s).length} NOMOR...`;
-            else judul.innerText = `🎁 ${batch.filter(b => !b.h).length} PEMENANG HADIAH HIBURAN`;
+            const judul = document.getElementById('batch-title');
+            const icon = (KATEGORI[prize.kategori] || KATEGORI.hiburan).icon;
+            if (st === 'SPINNING_BATCH') judul.innerText = `⚡ MENGACAK ${batch.filter(b => b.s).length} NOMOR...`;
+            else judul.innerText = `${icon} ${batch.filter(b => !b.h).length} PEMENANG ${String(prize.nama || '').toUpperCase()}`;
         }
 
-        function updateTombolHiburan(batch) {
+        function updateTombolBatch(batch) {
             const n = batch.filter(b => b.h).length;
-            document.getElementById('hib-count').innerText = batch.length;
+            document.getElementById('batch-count').innerText = batch.length;
             document.getElementById('btn-ganti').disabled = n === 0;
             document.getElementById('sub-ganti').innerText = n ? `Undi ulang ${n} nomor` : 'Ketuk nomor dulu';
         }
 
-        // ================= SESI, RESET, EXPORT =================
-        // Kirim ke spreadsheet semua data yang BELUM pernah terkirim (tidak dobel).
-        // Mengembalikan true bila terkirim / tidak ada yang perlu dikirim.
+        // ================= BACKUP SPREADSHEET =================
         function belumTerkirim(e) {
             return e.sent === false || (e.sent === undefined && Number(e.session) >= Number(currentSession));
         }
@@ -1122,22 +1163,18 @@
             if (!wList.length && !fList.length) return true;
             if (!isOnline) { if (!hanyaSesiLalu) toast('warning', 'Backup spreadsheet tertunda', 'Akan dikirim otomatis begitu internet kembali.'); return false; }
 
-            const backupData = [];
-            wList.forEach(w => backupData.push({
-                time: w.time || new Date().toLocaleString('id-ID'), session: w.session, number: format4(w.number),
-                status: "SAH - " + jenisHadiah(w).toUpperCase(), jenis: jenisHadiah(w).toUpperCase()
-            }));
-            fList.forEach(f => backupData.push({
-                time: f.time || new Date().toLocaleString('id-ID'), session: f.session, number: format4(f.number),
-                status: "HANGUS - " + jenisHadiah(f).toUpperCase(), jenis: jenisHadiah(f).toUpperCase()
-            }));
+            const baris = (e, status) => ({
+                time: e.time || new Date().toLocaleString('id-ID'), session: e.session, number: format4(e.number),
+                status: `${status} - ${jenisHadiah(e).toUpperCase()} (${e.prize || '-'})`,
+                jenis: jenisHadiah(e).toUpperCase(), hadiah: e.prize || '-'
+            });
+            const backupData = wList.map(w => baris(w, 'SAH')).concat(fList.map(f => baris(f, 'HANGUS')));
             try {
                 await Promise.race([
                     fetch(BACKUP_SPREADSHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ sheetName: activeSheetName, data: backupData }) }),
                     new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 10000))
                 ]);
-                // tandai berdasarkan nomor kupon (unik), pada data TERBARU,
-                // karena array bisa sudah diganti oleh listener saat menunggu
+                // tandai berdasarkan nomor kupon (unik) pada data terbaru
                 const nomorTerkirim = new Set(wList.concat(fList).map(e => Number(e.number)));
                 winners.forEach(w => { if (nomorTerkirim.has(Number(w.number))) w.sent = true; });
                 forfeits.forEach(f => { if (nomorTerkirim.has(Number(f.number))) f.sent = true; });
@@ -1148,8 +1185,6 @@
                 return false;
             }
         }
-
-        // Dipanggil saat koneksi kembali / halaman dibuka: kirim data sesi sebelumnya yang tertunda
         function kirimUlangSesiLalu() {
             if (APP_MODE === 'layar' || !dataAda) return;
             const ada = winners.concat(forfeits).some(e => e.sent === false && Number(e.session) < Number(currentSession));
@@ -1175,24 +1210,22 @@
         }
 
         function simpanCadangan(label) {
-            if (!winners.length && !forfeits.length) return; // belum ada nomor keluar, tidak perlu
+            if (!winners.length && !forfeits.length) return;
             const snap = {
                 label: label, waktu: new Date().toLocaleString('id-ID'), ts: Date.now(),
                 data: {
                     availableNumbers: availableNumbers, winners: winners, forfeits: forfeits,
-                    currentSession: currentSession, activeSheetName: activeSheetName,
-                    pengaturanHadiah: pengaturanHadiah
+                    currentSession: currentSession, activeSheetName: activeSheetName, selesai: acaraSelesai
                 }
             };
             cadanganRef.push(snap).catch(e => console.log('Gagal simpan cadangan', e));
-            // simpan hanya MAKS_CADANGAN terbaru
             const keys = daftarCadangan.map(c => c.key);
             while (keys.length > MAKS_CADANGAN) cadanganRef.child(keys.shift()).remove().catch(() => {});
         }
 
         async function pulihkanData() {
             if (APP_MODE === 'layar') return;
-            if ((currentState.status || 'IDLE') !== 'IDLE') {
+            if (normStatus(currentState.status) !== 'IDLE') {
                 Swal.fire('Tunggu!', 'Selesaikan putaran yang sedang berjalan dulu.', 'warning');
                 return;
             }
@@ -1223,31 +1256,43 @@
             }
             const c = daftarCadangan.find(x => x.key === pilih.value);
             if (!c || !c.data) return;
-
-            // data yang sedang aktif diamankan dulu, supaya pemulihan ini juga bisa dibatalkan
             if (dataAda) simpanCadangan('Sebelum pemulihan');
 
             const d = c.data;
             const nW = d.winners ? Object.values(d.winners).length : 0;
             const nF = d.forfeits ? Object.values(d.forfeits).length : 0;
             dataRef.set(d).catch(e => console.log(e));
-            simpanState({ status: "IDLE", screenNumber: "0000", batch: null });
+            simpanState({ status: "IDLE", screenNumber: "0000", batch: null, prizeId: null });
             Swal.fire('Data dipulihkan', `Kembali ke Sesi ${d.currentSession || 1}. ${nW} pemenang & ${nF} hangus tetap tercatat dan nomornya tidak akan muncul lagi.`, 'success');
         }
 
-        function pindahSesi() {
+        // ================= SESI, RESET, EXPORT =================
+        async function pindahSesi() {
             if (APP_MODE === 'layar') return;
-            if ((currentState.status || 'IDLE') !== 'IDLE') {
+            if (!dataAda) { setupAwal(); return; }
+            if (normStatus(currentState.status) !== 'IDLE') {
                 Swal.fire('Tunggu!', 'Selesaikan putaran atau hasil undian yang sedang tampil dulu.', 'warning');
                 return;
+            }
+            const sisa = daftarPilihan().reduce((a, h) => a + sisaItem(h), 0);
+            if (sisa > 0) {
+                const akhir = currentSession >= JUMLAH_SESI;
+                const ask = await Swal.fire({
+                    title: 'Masih ada hadiah belum diundi',
+                    html: `Masih ada <b>${sisa}</b> hadiah yang belum ada pemenangnya.<br>` +
+                          (akhir ? 'Ini sesi terakhir. Tetap tampilkan rekap akhir?' : `Sisa hadiah tetap bisa diundi di Sesi ${currentSession + 1} (muncul di daftar <b>"Sisa dari Sesi ${currentSession}"</b>).`),
+                    icon: 'warning', showCancelButton: true,
+                    confirmButtonText: akhir ? 'Tampilkan Rekap' : 'Tetap Pindah', cancelButtonText: 'Batal'
+                });
+                if (!ask.isConfirmed) return;
             }
             simpanState({ status: "REKAP_" + currentSession });
         }
 
         async function resetAll() {
             if (APP_MODE === 'layar' || isSpinning) return;
-            if (!dataAda) { setupAwal(); return; }   // belum ada acara: langsung ke Setup
-            if ((currentState.status || 'IDLE') !== 'IDLE') {
+            if (!dataAda) { setupAwal(); return; }
+            if (normStatus(currentState.status) !== 'IDLE') {
                 Swal.fire('Tunggu!', 'Selesaikan putaran yang sedang berjalan dulu.', 'warning');
                 return;
             }
@@ -1271,9 +1316,8 @@
             if (winners.length || forfeits.length) exportToCSV(true);
             simpanCadangan('Sebelum reset');
 
-            simpanState({ status: "IDLE", screenNumber: "0000", batch: null, prizeMode: 'utama' });
+            simpanState({ status: "IDLE", screenNumber: "0000", batch: null, prizeId: null });
             dataRef.remove().catch(e => console.log(e));
-            // Setelah data kosong, layar Setup muncul otomatis dengan tombol "Pulihkan Data Sebelumnya"
         }
 
         function exportToCSV(senyap) {
@@ -1283,13 +1327,14 @@
                 return;
             }
             const q = v => `"${String(v).replace(/"/g, '""')}"`;
-            const rows = [["Waktu Tercatat", "Sesi Undian", "Jenis Hadiah", "Nomor Kupon", "Status Kupon", "Kondisi Jaringan"]];
-            for (let i = 1; i <= currentSession; i++) {
-                const ws = winners.filter(w => Number(w.session) === i);
-                ws.filter(w => jenisHadiah(w) === 'utama').concat(ws.filter(w => jenisHadiah(w) === 'hiburan')).forEach(w =>
-                    rows.push([w.time || '-', 'Sesi ' + w.session, jenisHadiah(w).toUpperCase(), format4(w.number), 'SAH', w.isOffline ? 'OFFLINE' : 'ONLINE']));
+            const rows = [["Waktu Tercatat", "Sesi", "Kategori", "Nama Hadiah", "Nomor Kupon", "Status", "Kondisi Jaringan"]];
+            for (let i = 1; i <= JUMLAH_SESI; i++) {
+                URUTAN_KATEGORI.forEach(kat => {
+                    winners.filter(w => Number(w.session) === i && jenisHadiah(w) === kat).forEach(w =>
+                        rows.push([w.time || '-', 'Sesi ' + w.session, KATEGORI[kat].label, w.prize || '-', format4(w.number), 'SAH', w.isOffline ? 'OFFLINE' : 'ONLINE']));
+                });
                 forfeits.filter(f => Number(f.session) === i).forEach(f =>
-                    rows.push([f.time || '-', 'Sesi ' + f.session, jenisHadiah(f).toUpperCase(), format4(f.number), 'HANGUS', f.isOffline ? 'OFFLINE' : 'ONLINE']));
+                    rows.push([f.time || '-', 'Sesi ' + f.session, KATEGORI[jenisHadiah(f)].label, f.prize || '-', format4(f.number), 'HANGUS', f.isOffline ? 'OFFLINE' : 'ONLINE']));
             }
             const csv = '\uFEFF' + rows.map(r => r.map(q).join(',')).join('\n');
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1301,66 +1346,59 @@
             link.remove();
         }
 
-        // ================= TAMPILAN =================
+        // ================= TAMPILAN KONTROL =================
         function setControlState(state) {
             if (APP_MODE === 'layar') return;
-            const ids = ['spin-controls', 'spinning-status', 'action-controls', 'action-hiburan'];
-            ids.forEach(id => document.getElementById(id).classList.add('hidden'));
-
+            ['spin-controls', 'spinning-status', 'action-controls', 'action-batch'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            const prize = currentState.prize || {};
             if (state === 'IDLE') document.getElementById('spin-controls').classList.remove('hidden');
             else if (state === 'SPINNING') {
-                document.getElementById('spinning-text').innerText = '🎰 Mengacak... tekan STOP untuk berhenti';
+                document.getElementById('spinning-text').innerText = `🎰 Mengacak ${prize.nama || ''}... tekan STOP`;
                 document.getElementById('spinning-status').classList.remove('hidden');
             }
-            else if (state === 'SPINNING_HIBURAN') document.getElementById('spinning-status').classList.remove('hidden');
+            else if (state === 'SPINNING_BATCH') document.getElementById('spinning-status').classList.remove('hidden');
             else if (state === 'ACTION') {
                 document.getElementById('label-nomor-keluar').innerText = format4(selectedNumber);
+                document.getElementById('label-hadiah-keluar').innerText = prize.nama || '-';
                 document.getElementById('action-controls').classList.remove('hidden');
             }
-            else if (state === 'ACTION_HIBURAN') document.getElementById('action-hiburan').classList.remove('hidden');
+            else if (state === 'ACTION_BATCH') document.getElementById('action-batch').classList.remove('hidden');
         }
 
         function chip(e, kind, base) {
-            const icon = kind === 'hangus' ? '❌' : (kind === 'hiburan' ? '🎁' : '🏆');
             const warn = e.isOffline ? ' <span style="font-size:12px;">⚠️</span>' : '';
-            return `<span class="${base} ${kind}" title="${e.isOffline ? 'Dicatat saat OFFLINE' : ''}">${icon} ${format4(e.number)}${warn}</span>`;
+            const judul = (e.prize ? e.prize + ' | ' : '') + (e.isOffline ? 'Dicatat saat OFFLINE' : '');
+            return `<span class="${base} ${kind}" title="${judul}">${format4(e.number)}${warn}</span>`;
+        }
+        // kelompokkan entri per nama hadiah (urut sesuai kemunculan)
+        function kelompokHadiah(list) {
+            const map = new Map();
+            list.forEach(e => { const k = e.prize || '-'; if (!map.has(k)) map.set(k, []); map.get(k).push(e); });
+            return Array.from(map.entries());
         }
 
         function buildRekapHTML(sess) {
             const ws = winners.filter(w => Number(w.session) === Number(sess));
-            const utama = ws.filter(w => jenisHadiah(w) === 'utama');
-            const hib = ws.filter(w => jenisHadiah(w) === 'hiburan');
             const fs = forfeits.filter(f => Number(f.session) === Number(sess));
-            const fsUtama = fs.filter(f => jenisHadiah(f) === 'utama');
-            const fsHib = fs.filter(f => jenisHadiah(f) === 'hiburan');
-
-            const rchip = (e, kind) => `<span class="rekap-item ${kind}" title="${e.isOffline ? 'Dicatat saat OFFLINE' : ''}">${format4(e.number)}${e.isOffline ? '<sup>⚠️</sup>' : ''}</span>`;
-            const kol = (judul, warna, list, kind, flex, label) => `
-                <div class="rekap-col" style="flex:${flex};"><h4 style="color:${warna};">${judul} (${label || list.length})</h4>
-                    <div class="rekap-list">${list.length ? list.map(e => rchip(e, kind)).join('') : '<span class="rekap-kosong">Belum ada</span>'}</div>
-                </div>`;
-            const flexHib = hib.length > utama.length * 2 ? 2 : 1;
-            const grupHangus = (judul, list) => `
-                <div class="rh-group">
-                    <div class="rh-label">${judul} (${list.length})</div>
-                    <div class="rh-list">${list.length ? list.map(e => rchip(e, 'hangus')).join('') : '<span class="rekap-kosong">Tidak ada</span>'}</div>
-                </div>`;
-
-            return `<div class="rekap-sisa">Sisa hadiah acara: 🏆 Utama <b>${sisaHadiah('utama')}</b> dari ${getTarget('utama')} &nbsp;|&nbsp; 🎁 Hiburan <b>${sisaHadiah('hiburan')}</b> dari ${getTarget('hiburan')}</div>
-                <div class="rekap-wrapper">
-                    ${kol('🏆 Hadiah Utama', '#d97706', utama, 'utama', 1)}
-                    ${kol('🎁 Hadiah Hiburan', '#7c3aed', hib, 'hiburan', flexHib)}
-                </div>
-                <div class="rekap-hangus">
-                    <div class="rh-title">❌ Kupon Hangus (Total ${fs.length})</div>
-                    <div class="rh-wrap">
-                        ${grupHangus('Hadiah Utama', fsUtama)}
-                        ${grupHangus('Hadiah Hiburan', fsHib)}
-                    </div>
-                </div>`;
+            const rchip = (e, kind) => `<span class="rekap-item ${kind}" title="${e.prize || ''}">${format4(e.number)}${e.isOffline ? '<sup>⚠️</sup>' : ''}</span>`;
+            const bobot = { utama: 1, menengah: 1.4, hiburan: 2.6 };
+            const kolom = URUTAN_KATEGORI.map(kat => {
+                const list = ws.filter(w => jenisHadiah(w) === kat);
+                const k = KATEGORI[kat];
+                const isi = list.length
+                    ? kelompokHadiah(list).map(([nama, arr]) => `<div class="rk-grup"><div class="rk-nama">${nama} (${arr.length})</div><div class="rekap-list">${arr.map(e => rchip(e, kat)).join('')}</div></div>`).join('')
+                    : '<span class="rekap-kosong">Belum ada</span>';
+                return `<div class="rekap-col" style="flex:${bobot[kat]};"><h4 style="color:${k.warna};">${k.icon} ${k.label} (${list.length})</h4>${isi}</div>`;
+            }).join('');
+            const hangus = URUTAN_KATEGORI.map(kat => {
+                const list = fs.filter(f => jenisHadiah(f) === kat);
+                return `<div class="rh-group"><div class="rh-label">${KATEGORI[kat].label} (${list.length})</div>
+                    <div class="rh-list">${list.length ? list.map(e => rchip(e, 'hangus')).join('') : '<span class="rekap-kosong">Tidak ada</span>'}</div></div>`;
+            }).join('');
+            return `<div class="rekap-wrapper">${kolom}</div>
+                <div class="rekap-hangus"><div class="rh-title">❌ Kupon Hangus (Total ${fs.length})</div><div class="rh-wrap">${hangus}</div></div>`;
         }
 
-        // Perkecil isi rekap otomatis sampai muat 1 layar tanpa scroll
         function fitRekap() {
             const popup = Swal.getPopup();
             if (!popup) return;
@@ -1376,14 +1414,17 @@
         function openRekapModal(sess) {
             if (isRekapModalOpen) return;
             isRekapModalOpen = true;
-            const htmlRekap = buildRekapHTML(sess) + (APP_MODE !== 'layar' ? `<p class="rekap-prompt">Tutup Sesi ${sess} dan lanjut ke Sesi ${sess + 1}?</p>` : ``);
+            const akhir = sess >= JUMLAH_SESI;
+            const prompt = APP_MODE !== 'layar'
+                ? `<p class="rekap-prompt">${akhir ? 'Ini sesi terakhir. Tutup acara dan unduh CSV?' : `Tutup Sesi ${sess} dan lanjut ke Sesi ${sess + 1}?`}</p>` : '';
 
             Swal.fire({
-                title: `🏁 REKAP HASIL SESI ${sess}`, html: htmlRekap, width: '96vw',
+                title: akhir ? `🏁 REKAP AKHIR SESI ${sess}` : `🏁 REKAP HASIL SESI ${sess}`,
+                html: buildRekapHTML(sess) + prompt, width: '96vw',
                 customClass: { popup: 'rekap-popup' }, heightAuto: false,
                 showCancelButton: APP_MODE !== 'layar', allowOutsideClick: false, showConfirmButton: !IS_OBS,
                 confirmButtonColor: '#3b82f6', cancelButtonColor: '#6b7280',
-                confirmButtonText: APP_MODE !== 'layar' ? `⏭️ Lanjut Sesi ${sess + 1}` : 'Tutup Tampilan',
+                confirmButtonText: APP_MODE !== 'layar' ? (akhir ? '🏁 Selesai & Unduh CSV' : `⏭️ Lanjut Sesi ${sess + 1}`) : 'Tutup Tampilan',
                 cancelButtonText: 'Batal / Kembali',
                 didOpen: () => { fitRekap(); window.addEventListener('resize', fitRekap); },
                 willClose: () => { window.removeEventListener('resize', fitRekap); }
@@ -1393,40 +1434,47 @@
                 if (result.isConfirmed) {
                     simpanCadangan(`Akhir Sesi ${sess}`);
                     kirimBackupBelumTerkirim().then(ok => {
-                        if (ok && dataAda) simpanData({ winners, forfeits }); // simpan tanda "sudah terkirim"
+                        if (ok && dataAda) simpanData({ winners, forfeits });
                     });
-                    currentSession = sess + 1;
-                    simpanData({ currentSession: currentSession });
-                    simpanState({ status: "IDLE", prizeMode: 'utama' });
-                    Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 2000, showConfirmButton: false });
-                } else if ((currentState.status || '').startsWith('REKAP_')) {
+                    if (akhir) {
+                        acaraSelesai = true;
+                        simpanData({ selesai: true });
+                        simpanState({ status: "IDLE", prizeId: null });
+                        exportToCSV(true);
+                        Swal.fire({ title: 'Acara Selesai 🎉', text: 'Terima kasih! File CSV sudah diunduh.', icon: 'success', timer: 3000, showConfirmButton: false });
+                    } else {
+                        currentSession = sess + 1;
+                        simpanData({ currentSession: currentSession });
+                        simpanState({ status: "IDLE", prizeId: null });
+                        Swal.fire({ title: 'Berhasil!', text: `Sesi ${currentSession} dimulai!`, icon: 'success', timer: 2000, showConfirmButton: false });
+                    }
+                } else if (normStatus(currentState.status).startsWith('REKAP_')) {
                     simpanState({ status: "IDLE" });
                 }
             });
         }
 
         function updateUI() {
-            document.getElementById('layar-sesi-text').innerText = currentSession;
-            renderPrizeMode(currentState.status || 'IDLE');
             if (APP_MODE === 'layar') return;
-
-            document.getElementById('stat-sesi').innerText = currentSession;
+            document.getElementById('stat-sesi').innerText = `${currentSession} / ${JUMLAH_SESI}`;
             document.getElementById('stat-tersedia').innerText = availableNumbers.length;
-            document.getElementById('stat-utama').innerText = jumlahMenang('utama') + (getTarget('utama') ? ' / ' + getTarget('utama') : '');
-            document.getElementById('stat-hiburan').innerText = jumlahMenang('hiburan') + (getTarget('hiburan') ? ' / ' + getTarget('hiburan') : '');
+            document.getElementById('stat-utama').innerText = `${menangKategori('utama')} / ${totalKategori('utama')}`;
+            document.getElementById('stat-menengah').innerText = `${menangKategori('menengah')} / ${totalKategori('menengah')}`;
+            document.getElementById('stat-hiburan').innerText = `${menangKategori('hiburan')} / ${totalKategori('hiburan')}`;
             document.getElementById('stat-hangus').innerText = forfeits.length;
 
             const historyList = document.getElementById('history-list');
             let html = '';
-            for (let i = currentSession; i >= 1; i--) {
+            for (let i = JUMLAH_SESI; i >= 1; i--) {
                 const ws = winners.filter(w => Number(w.session) === i);
-                const u = ws.filter(w => jenisHadiah(w) === 'utama');
-                const h = ws.filter(w => jenisHadiah(w) === 'hiburan');
                 const f = forfeits.filter(x => Number(x.session) === i);
-                if (!u.length && !h.length && !f.length) continue;
+                if (!ws.length && !f.length) continue;
                 html += `<div class="sesi-group"><div class="sesi-title">🔹 Riwayat Sesi ${i}</div>`;
-                if (u.length) html += `<div class="hist-row"><span class="hist-label">🏆 Utama (${u.length})</span>${u.map(e => chip(e, 'utama', 'badge')).join('')}</div>`;
-                if (h.length) html += `<div class="hist-row"><span class="hist-label">🎁 Hiburan (${h.length})</span>${h.map(e => chip(e, 'hiburan', 'badge')).join('')}</div>`;
+                URUTAN_KATEGORI.forEach(kat => {
+                    kelompokHadiah(ws.filter(w => jenisHadiah(w) === kat)).forEach(([nama, arr]) => {
+                        html += `<div class="hist-row"><span class="hist-label">${KATEGORI[kat].icon} ${nama} (${arr.length})</span>${arr.map(e => chip(e, kat, 'badge')).join('')}</div>`;
+                    });
+                });
                 if (f.length) html += `<div class="hist-row"><span class="hist-label">❌ Hangus (${f.length})</span>${f.map(e => chip(e, 'hangus', 'badge')).join('')}</div>`;
                 html += `</div>`;
             }
@@ -1452,7 +1500,7 @@
             if (audio) {
                 audio.currentTime = 0;
                 audio.play().catch(() => {
-                    if (TAMPIL_BESAR) document.getElementById('audio-unlock-banner').style.display = 'block';
+                    if (TAMPIL_BESAR && !IS_OBS) document.getElementById('audio-unlock-banner').style.display = 'block';
                 });
             }
         }
@@ -1461,6 +1509,7 @@
             if (audio) { audio.pause(); audio.currentTime = 0; }
         }
 
+        // ================= KEYBOARD =================
         document.addEventListener('keydown', (e) => {
             if (APP_MODE === 'layar') return;
             if (Swal.isVisible && Swal.isVisible()) return;
@@ -1469,8 +1518,8 @@
             if (e.code === 'Space') {
                 e.preventDefault();
                 if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-                const st = currentState.status || 'IDLE';
-                if (st === 'SPINNING' || st === 'SPINNING_HIBURAN') stopSekarang();
+                const st = normStatus(currentState.status);
+                if (st === 'SPINNING' || st === 'SPINNING_BATCH') stopSekarang();
                 else if (st === 'IDLE') startSpin();
             } else if ((e.key === 'p' || e.key === 'P') && APP_MODE === 'tunggal') {
                 togglePanel();
