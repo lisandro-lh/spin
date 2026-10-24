@@ -282,6 +282,9 @@
         .rh-label { font-weight: bold; color: #7f1d1d; font-size: calc(13px * var(--rk)); margin-bottom: calc(4px * var(--rk)); }
         .rh-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(62px * var(--rk)), 1fr)); gap: calc(4px * var(--rk)); }
         .rh-list .rekap-item { font-size: calc(15px * var(--rk)); }
+        .btn-lihat-rekap { background-color: #7c3aed; }
+        .rekap-progress { font-size: calc(14px * var(--rk)); color: #374151; margin-bottom: calc(8px * var(--rk)); }
+        .rekap-progress b { font-size: 1.15em; color: #1d4ed8; }
         .rekap-prompt { margin: calc(8px * var(--rk)) 0 0; font-weight: bold; color: #374151; font-size: calc(15px * var(--rk)); }
 
         .sesi-group { margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.7); border-radius: 12px; border-left: 5px solid var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -319,6 +322,7 @@
             </div>
             <div class="header-right">
                 <button class="btn-export desktop-btn" onclick="exportToCSV()">📥 Export CSV</button>
+                <button class="btn-lihat-rekap desktop-btn" onclick="bukaRekap()">📊 Lihat Rekap</button>
                 <button class="btn-sesi desktop-btn" onclick="pindahSesi()">⏭️ Pindah Sesi</button>
                 <img src="pln.png" alt="PLN" class="logo-img">
             </div>
@@ -327,6 +331,7 @@
             <button class="btn-reset" onclick="resetAll()">🔄 Setup</button>
             <button class="btn-restore" onclick="pulihkanData()">↩️ Pulihkan</button>
             <button class="btn-export" onclick="exportToCSV()">📥 Export</button>
+            <button class="btn-lihat-rekap" onclick="bukaRekap()">📊 Rekap</button>
             <button class="btn-sesi" onclick="pindahSesi()">⏭️ Sesi</button>
         </div>
     </div>
@@ -546,6 +551,7 @@
         let lastSpinId = null;
         let prevSpinningIdx = new Set();
         let isRekapModalOpen = false;
+        let rekapTerbuka = null;   // 'sesi-N' (rekap pindah sesi) atau 'lihat-N' (lihat rekap saja)
         let isAudioUnlocked = IS_OBS;
         let htmlPilihanTerakhir = '';
 
@@ -806,12 +812,17 @@
                 lastSpinId = state.spinId || null;
                 renderSemua();
 
+                // Lihat Rekap (tanpa pindah sesi): ikut tampil di layar besar
+                const lihat = Number(state.lihatRekap) || 0;
+                if (st === 'IDLE' && lihat) openRekapModal(lihat, true);
+                else if (String(rekapTerbuka).startsWith('lihat-')) tutupRekap();
+
                 const display = document.getElementById('display');
                 const prize = state.prize || {};
 
                 if (st === "SPINNING") {
                     if (!changed) return;
-                    if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
+                    if (isRekapModalOpen) tutupRekap();
                     isSpinning = true;
                     showView('single');
                     setControlState('SPINNING');
@@ -838,7 +849,7 @@
                 else if (st === "SPINNING_BATCH") {
                     const batch = state.batch ? Object.values(state.batch) : [];
                     if (changed) {
-                        if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
+                        if (isRekapModalOpen) tutupRekap();
                         isSpinning = true;
                         showView('batch');
                         playSpinAudio();
@@ -881,7 +892,7 @@
                     if (display.innerText !== "MENUNGGU HOST") display.innerText = '0000';
                     display.style.color = '';
                     setControlState('IDLE');
-                    if (isRekapModalOpen) { Swal.close(); isRekapModalOpen = false; }
+                    if (isRekapModalOpen && !String(rekapTerbuka).startsWith('lihat-')) tutupRekap();
                 }
                 else if (st.startsWith("REKAP_")) {
                     if (!changed) return;
@@ -918,11 +929,11 @@
         async function menuTunggal() {
             const r = await Swal.fire({
                 title: '☰ Menu', input: 'select', inputPlaceholder: 'Pilih menu...',
-                inputOptions: { sesi: '⏭️ Pindah Sesi', csv: '📥 Export CSV', pulihkan: '↩️ Pulihkan Data', setup: '🔄 Setup Awal / Reset', mode: '🔄 Ganti Mode Tampilan' },
+                inputOptions: { rekap: '📊 Lihat Rekap Sesi', sesi: '⏭️ Pindah Sesi', csv: '📥 Export CSV', pulihkan: '↩️ Pulihkan Data', setup: '🔄 Setup Awal / Reset', mode: '🔄 Ganti Mode Tampilan' },
                 showCancelButton: true, confirmButtonText: 'Buka', cancelButtonText: 'Tutup'
             });
             if (!r.isConfirmed || !r.value) return;
-            const aksi = { sesi: pindahSesi, csv: () => exportToCSV(), pulihkan: pulihkanData, setup: resetAll, mode: pilihMode }[r.value];
+            const aksi = { rekap: bukaRekap, sesi: pindahSesi, csv: () => exportToCSV(), pulihkan: pulihkanData, setup: resetAll, mode: pilihMode }[r.value];
             if (aksi) aksi();
         }
 
@@ -1052,13 +1063,13 @@
 
             if (g.length === 1 && spinSendiri(awal)) {
                 const chosen = ambilAcak(pool, 1)[0];
-                simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, prize: infoPrize(awal), prizeId: awal.id, spinId: Date.now() });
+                simpanState({ status: "SPINNING", screenNumber: chosen, batch: null, prize: infoPrize(awal), prizeId: awal.id, spinId: Date.now(), lihatRekap: null });
             } else {
                 const nums = ambilAcak(pool, g.length);
                 if (nums.length < g.length) toast('info', `Kupon tersisa ${nums.length}`, 'Semua sisa kupon ikut diundi.');
                 const pakai = g.slice(0, nums.length);
                 simpanState({
-                    status: "SPINNING_BATCH", screenNumber: "0000", prizeId: awal.id,
+                    status: "SPINNING_BATCH", screenNumber: "0000", prizeId: awal.id, lihatRekap: null,
                     prize: { batch: true, kategori: awal.kategori, nama: KATEGORI[awal.kategori].label, rentang: rentangSpin(pakai), sesi: awal.sesi },
                     batch: pakai.map((sl, i) => ({ n: nums[i], h: false, s: true, slot: sl.id, nama: sl.nama, no: sl.no })),
                     spinId: Date.now()
@@ -1338,7 +1349,7 @@
                 });
                 if (!ask.isConfirmed) return;
             }
-            simpanState({ status: "REKAP_" + currentSession });
+            simpanState({ status: "REKAP_" + currentSession, lihatRekap: null });
         }
 
         async function resetAll() {
@@ -1464,9 +1475,53 @@
             }
         }
 
-        function openRekapModal(sess) {
-            if (isRekapModalOpen) return;
+        function tutupRekap() {
+            isRekapModalOpen = false;
+            rekapTerbuka = null;
+            Swal.close();
+        }
+
+        // Tombol "Lihat Rekap": tampilkan rekap sesi berjalan kapan saja (sesi TIDAK berpindah)
+        function bukaRekap() {
+            if (APP_MODE === 'layar') return;
+            if (!dataAda) { Swal.fire('Belum ada data', 'Lakukan Setup dulu.', 'info'); return; }
+            if (normStatus(currentState.status) !== 'IDLE') {
+                Swal.fire('Tunggu!', 'Selesaikan putaran yang sedang berjalan dulu.', 'warning');
+                return;
+            }
+            simpanState({ lihatRekap: currentSession });
+        }
+
+        function openRekapModal(sess, lihatSaja) {
+            const key = (lihatSaja ? 'lihat-' : 'sesi-') + sess;
+            if (isRekapModalOpen && rekapTerbuka === key) return;
             isRekapModalOpen = true;
+            rekapTerbuka = key;
+
+            if (lihatSaja) {
+                const t = terundiSesi(sess), n = jumlahUnitSesi(sess);
+                const kontrol = APP_MODE !== 'layar';
+                Swal.fire({
+                    title: `📊 REKAP ${t < n ? 'SEMENTARA ' : ''}SESI ${sess}`,
+                    html: `<div class="rekap-progress"><b>${t}</b> dari ${n} hadiah Sesi ${sess} sudah diundi</div>` + buildRekapHTML(sess),
+                    width: '96vw', customClass: { popup: 'rekap-popup' }, heightAuto: false, allowOutsideClick: false,
+                    showConfirmButton: !IS_OBS, confirmButtonText: kontrol ? '✖ Tutup Rekap' : 'Tutup Tampilan', confirmButtonColor: '#7c3aed',
+                    showDenyButton: kontrol && sess > 1, denyButtonText: `◀ Sesi ${sess - 1}`, denyButtonColor: '#6b7280',
+                    showCancelButton: kontrol && sess < currentSession, cancelButtonText: `Sesi ${sess + 1} ▶`, cancelButtonColor: '#6b7280',
+                    didOpen: () => { fitRekap(); window.addEventListener('resize', fitRekap); },
+                    willClose: () => { window.removeEventListener('resize', fitRekap); }
+                }).then((result) => {
+                    if (rekapTerbuka !== key) return;   // sudah diganti / ditutup dari perangkat lain
+                    isRekapModalOpen = false;
+                    rekapTerbuka = null;
+                    if (!kontrol) return;
+                    if (result.isDenied) simpanState({ lihatRekap: sess - 1 });
+                    else if (result.dismiss === Swal.DismissReason.cancel) simpanState({ lihatRekap: sess + 1 });
+                    else simpanState({ lihatRekap: null });
+                });
+                return;
+            }
+
             const akhir = sess >= JUMLAH_SESI;
             const prompt = APP_MODE !== 'layar'
                 ? `<p class="rekap-prompt">${akhir ? 'Ini sesi terakhir. Tutup acara dan unduh CSV?' : `Tutup Sesi ${sess} dan lanjut ke Sesi ${sess + 1}?`}</p>` : '';
@@ -1482,7 +1537,9 @@
                 didOpen: () => { fitRekap(); window.addEventListener('resize', fitRekap); },
                 willClose: () => { window.removeEventListener('resize', fitRekap); }
             }).then((result) => {
+                if (rekapTerbuka !== key && rekapTerbuka !== null) return;
                 isRekapModalOpen = false;
+                rekapTerbuka = null;
                 if (APP_MODE === 'layar') return;
                 if (result.isConfirmed) {
                     simpanCadangan(`Akhir Sesi ${sess}`);
